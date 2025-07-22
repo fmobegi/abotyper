@@ -6,62 +6,44 @@
   </picture>
 </h1>
 
-<!-- [![GitHub Actions CI Status](https://github.com/nf-core/abotyper/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/ci.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/abotyper/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/linting.yml) -->
-[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/abotyper/results)
-[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
-<!-- [![Cite with Zenodo](http://img.shields.io/badge/DOI-XXXXX/zenodo.XXXXX)](https://doi.org/XXXXXX) -->
-[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
-
-[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A524.04.2-23aa62.svg)](https://www.nextflow.io/)
-[![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
-[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
-[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/nf-core/abotyper)
-
-[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23abotyper-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/abotyper)
-[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?labelColor=000000&logo=twitter)](https://twitter.com/nf_core)
-[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)
-[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
 
 # ABO blood typing using Oxford Nanopore MinION sequencing
-
-nf-core/abotyper is a bioinformatics pipeline that analyses data obtained from Third Generation Sequencing of the `Homo sapiens ABO, alpha 1-3-N-acetylgalactosaminyltransferase and alpha 1-3-galactosyltransferase` (ABO) gene to deduce the ABO blood type.<br/>
-It takes a samplesheet and FASTQ files as input, performs quality control (QC), mapping to the reference sequences, variant characterisation, and finally deduce the Blood Group Statistics based on known ABO-related Single nucleotide variants (SVNs).
+nf-core/abotyper is a bioinformatics pipeline that analyses data obtained from Third Generation Sequencing of the ABO gene to deduce the ABO blood type of the sample. It takes a samplesheet and FASTQ files as input, performs quality control (QC), mapping to the reference sequences, variant characterisation, and finally deduce the Blood Group Statistics based on known ABO-related Single nucleotide variants.
 
 ![nf-core/abotyper metro map](docs/images/nf-core-abotyper-metro-map.jpg)
 
-ABO sequences were acquired from the NCBI RefSeq and dbRBC databases:
+ABO sequences were acquired from the NCBI dbRBC database:
 
-- [ABO Exon 6](https://www.ncbi.nlm.nih.gov/nuccore/NG_006669.2?from=22673&to=22807&report=fasta)
-- [ABO Exon 7](https://www.ncbi.nlm.nih.gov/nuccore/NG_006669.2?from=23860&to=29951&report=fasta)
-- [dbMHC and IHWG data](https://ftp.ncbi.nlm.nih.gov/pub/mhc/mhc/Final%20Archive/)
+[https://www.ncbi.nlm.nih.gov/projects/gv/mhc/xslcgi.cgi?cmd=bgmut/home](https://www.ncbi.nlm.nih.gov/projects/gv/mhc/xslcgi.cgi?cmd=bgmut/home)
 
-Exon 7 CDS reference sequence was truncated at 817 bp as this captures the targeted SNVs within the exon and UTR's
+See [https://ftp.ncbi.nlm.nih.gov/pub/mhc/rbc/Final%20Archive/Excel_and_PowerPoint/](https://ftp.ncbi.nlm.nih.gov/pub/mhc/rbc/Final%20Archive/Excel_and_PowerPoint/) for some literature.
 
-If you would like to get up to speed with ABO genotyping, there is detailed reading material [here](https://ftp.ncbi.nlm.nih.gov/pub/mhc/rbc/Final%20Archive/Excel_and_PowerPoint/).
-All SNVs relevant to ABO blood group genotyping have also been documented extensively [here](https://bloodgroupdatabase.org/groups/details/?group_name=ABO)
-
-# Core dependencies
+# Required tools
 
 The pipeline makes use of the following core dependencies:
 
 ```yaml
-- bioconda::bwa=0.7.17
 - bioconda::fastqc=0.12.1
-- bioconda::minimap2=2.28-r1209
-- bioconda::multiqc>=1.25.1
-- bioconda::samtools=1.2.1
-- conda-forge::biopython>=1.83
-- python>=3.8
+- bioconda::bwa=0.7.17
+- conda-forge::ncurses
+- bioconda::samtools=1.19.2
+- bioconda::minimap2=2.26
+- conda-forge::biopython=1.83
+- python=3.10
 - pip
 - pip:
-    - pandas>=2.2.0
+    - numpy>=1.26.0
     - Bio>=1.6.0
-    - ncurses
+    - biopython>=1.8o
     - openpyxl>=3.1.0
+    - pandas>=2.2.0
+    - pysam>=0.22.0
+    - matplotlib>=3.8.0
     - XlsxWriter>=3.2.0
+    - multiqc>=1.18
 ```
+
+A complete list of dependencies is found in the assets folder `assets/conda.yml`.
 
 # Required input files structure
 
@@ -78,8 +60,7 @@ The regex does the following:
 - `(-[0-9]+-[0-9]+)?` handles optional segments of digits separated by a dash(-).
 - `_barcode\d+$` ensures the filename ends with_barcode followed by digits to denote barcode numbers.
 
-There is a file handling logic in the code `filename.split("_")` that assumes the barcode is always the last part of the filename.
-The names are split into `basename` and `barcode` which are then used in later reporting.<br/>Please Adjust this if necessary based on actual filename structure in your assays.
+There is a filename handling logic in the code `filename.split("_")` assumes that the barcode is always the last part of the filename. The names are split into basename and barcode which are then used in later reporting. Please Adjust this if necessary based on actual filename structure in your assays.
 
 Here are a few examples of acceptable input file names:
 
@@ -88,147 +69,197 @@ NGSPOS_barcode13.fastq
 NGSNEG_barcode12.fastq
 INGSPOS_barcode01.fastq
 INGSNEG_barcode96.fastq
-BTGSPOS_barcode19.fastq
+IBTGSPOS_barcode19.fastq
 2025705_barcode14.fastq
-IMM-45-44874_barcode25.fastq
+IMM-24-44988_barcode51.fastq
 Sample1-2024-12345_barcode22.fastq
 ```
 
-# Running `nf-core/abotyper`
+# Testing without `nextflow`
 
-This pipeline has been extensively tested using conda profile. Other containerisation methods are being improved,tested and documented.
+The pipeline can be tested of single input file by cloning this repo and installing all dependencies above, then running the following commands:
 
-To run this pipeline, use:
+```python
+python bin/AnalyzeAbo_Main.py  \
+  --reference="assets/A1_01_01_1_reference_Exon6.fasta" \
+  --alleles="assets/ABO_Database.fasta" \
+  --output="SampleName/exon6" \
+  --analysis-type="READS" \
+  --reads="SampleName.fastq" \
 
-```bash
-nextflow run nf-core/abotyper \
-  -resume \
-  -profile conda \
-  --input samplesheet.csv \
-  --outdir "$PWD/OUTDIR"
+ python bin/AnalyzeAbo_Main.py  \
+  --reference="assets/reads_bc51/A1_01_01_1_reference_Exon7.fasta" \
+  --alleles="assets/input/ABO_Database.fasta" \
+  --output="SampleName/exon7" \
+  --analysis-type="READS" \
+  --reads="SampleName.fastq"
 ```
 
-Once improved, other workload managers and containerisation environments could be used in a similar manner:
+Looping through a couple of samples with the above command will generate the following outputs:
 
-```bash
-nextflow nf-core/abotyper \
-  -resume \
-  -profile <docker/singularity/.../institute> \
-  --input samplesheet.csv \
-  --outdir <OUTDIR>
+## Output data structure from the testing
+
+```yaml
+OutputDirectoryName/
+├── Sample1
+│   ├── exon6
+│   │   └── alignment
+│   └── exon7
+│       └── alignment
+├── Sample2
+│   ├── exon6
+│   │   └── alignment
+│   └── exon7
+│       └── alignment
+├── Sample3
+│   ├── exon6
+│   │   └── alignment
+│   └── exon7
+│       └── alignment
 ```
 
+With individual files named as follows:
 
+```yaml
+OutputDirectoryName/
+├── Sample1
+│   ├── exon6
+│   │   ├── ABOPhenotype.txt
+│   │   ├── ABOReadPolymorphisms.txt
+│   │   ├── alignment
+│   │   │   ├── alignment.bam
+│   │   │   ├── alignment.bam.bai
+│   │   │   ├── AlignmentReference.fasta
+│   │   │   ├── AlignmentReference.fasta.amb
+│   │   │   ├── AlignmentReference.fasta.ann
+│   │   │   ├── AlignmentReference.fasta.bwt
+│   │   │   ├── AlignmentReference.fasta.pac
+│   │   │   └── AlignmentReference.fasta.sa
+│   │   └── ReadAlignmentSpreadsheet.csv
+│   ├── exon7
+│   │   ├── ABOPhenotype.txt
+│   │   ├── ABOReadPolymorphisms.txt
+│   │   ├── alignment
+│   │   │   ├── alignment.bam
+│   │   │   ├── alignment.bam.bai
+│   │   │   ├── AlignmentReference.fasta
+│   │   │   ├── AlignmentReference.fasta.amb
+│   │   │   ├── AlignmentReference.fasta.ann
+│   │   │   ├── AlignmentReference.fasta.bwt
+│   │   │   ├── AlignmentReference.fasta.pac
+│   │   │   └── AlignmentReference.fasta.sa
+│   │   └── ReadAlignmentSpreadsheet.csv
+│   ├── Sample1_exon6.log.txt
+│   └── Sample1_exon7.log.txt
+```
 
+The `ABOPhenotype.txt` files from each sampe can then be collated using:
 
+`python bin/Aggregate_ABO_reports.py OutputDirectoryName`
 
-<!-- TODO 
+# The `nextflow` workflow
+
+The steps above are simplified in a `NextFlow; https://www.nextflow.io/` pipeline that does all the above steps and streamlines installation of requisite software and tools with a single command.
+
+Besides reproducability, nextflow offers several advantages over conventional `for loops`, including scalability, portability, and debugging/resumption of failed tasks.
+
+Input files and output directory can be defined in the config files or provided directly in the commandline.
+
+To analyse files with config, run:
+
+- `nextflow run main.nf -resume` (user can override inputs and output using `--reads '*.fastq' --outdir 'ABO_results'` on the commandline).
+
+We have also added the ability for the pipeline to automatically set-up a conda or docker based environment with all required tools and libraries.
+
+Users may also opt for a workload manager such as `-profile slurm,docker|-profile slurm,conda`, is which case, all required modules docker/conda must be installed and loaded. The config slurm parameters must also be defined to ensure tasks are submitted to the correct resource queue/account.
+
+For `conda` environment, it is advisable to prepare the working computer using mamba for easy resolution of environments.
+Follow these steps to achieve better results.
+
+```bash
+mamba create -y -n abo-analysis-env
+conda activate abo-analysis-env
+mamba env update --file abo-analysis/assets/conda.yml --prune
+conda deactivate
+
+# If conda cativate fails, run:
+source {path_to_anaconda}/anaconda3/etc/profile.d/conda.sh
+```
+
+To run without the workload manager but with a specific containerization, use:
+
+- `nextflow run abo-analysis/main.nf -resume --outdir "$PWD/230128R_ABO_results" -with-conda abo-analysis-env` or
+  `nextflow run abo-analysis/main.nf -resume --outdir "$PWD/230128R_ABO_results" -profile conda`
+- `nextflow run abo-analysis/main.nf -resume --outdir "$PWD/230128R_ABO_results" -with-docker fmobegi/abo-analysis` or
+  `nextflow run abo-analysis/main.nf -resume --outdir "$PWD/230128R_ABO_results" -profile docker`
+
 # Renaming samples
 
 The code by default renames samples using a tab file with `sequencingID` and `sampleName` (see `nextflow.config` file under `$params.renaming_file`).
 This option is controlled by the parameter `$params.skip_renaming` and can be overridden via the commandline using option `--skip_renaming true` to skip the process.
--->
 
+# Results from the `Nextflow` pipeline will look something like this
 
-# Output
-For each sample and each of exon6 and exon7, the pipeline will generate `BAM` files, `BAM metrics`, and `PILEUP` results.
-
-The output directory generated by this `Nextflow` pipeline will look something like this:
-
-```
-OUTDIR/
-├── ABO_results.log
+```yaml
+230128R_ABO_results/
 ├── ABO_result.txt
 ├── ABO_result.xlsx
-├── final_export.csv
-├── per_sample_processing
-│   ├── SAMPLE1_barcode01
-│   │   ├── exon6
-│   │   │   ├── ABOReadPolymorphisms.txt
-│   │   │   ├── alignment
-│   │   │   │   ├── SAMPLE1_barcode01.bam
-│   │   │   │   ├── SAMPLE1_barcode01.bam.bai
-│   │   │   │   ├── SAMPLE1_barcode01.coverage.txt
-│   │   │   │   ├── SAMPLE1_barcode01.flagstat
-│   │   │   │   └── SAMPLE1_barcode01.stats
-│   │   │   ├── SAMPLE1_barcode01.ABOPhenotype.txt
-│   │   │   ├── SAMPLE1_barcode01.AlignmentStatistics.tsv
-│   │   │   ├── SAMPLE1_barcode01.log.txt
-│   │   │   └── mpileup
-│   │   │       └── SAMPLE1_barcode01.mpileup.gz
-│   │   └── exon7
-│   │       ├── ABOReadPolymorphisms.txt
-│   │       ├── alignment
-│   │       │   ├── SAMPLE1_barcode01.bam
-│   │       │   ├── SAMPLE1_barcode01.bam.bai
-│   │       │   ├── SAMPLE1_barcode01.coverage.txt
-│   │       │   ├── SAMPLE1_barcode01.flagstat
-│   │       │   └── SAMPLE1_barcode01.stats
-│   │       ├── SAMPLE1_barcode01.ABOPhenotype.txt
-│   │       ├── SAMPLE1_barcode01.AlignmentStatistics.tsv
-│   │       ├── SAMPLE1_barcode01.log.txt
-│   │       └── mpileup
-│   │           └── SAMPLE1_barcode01.mpileup.gz
-├── pipeline_info
-│   ├── execution_report_DATETIME.html
-│   ├── execution_timeline_DATETIME.html
-│   ├── execution_trace_DATETIME.txt
-│   ├── nf_core_pipeline_software_mqc_versions.yml
-│   ├── params_DATETIME.json
-│   └── pipeline_dag_DATETIME.html
-└── qc-reports
-    ├── fastqc
-    │   ├── SAMPLE1_barcode01_fastqc.html
-    │   ├── SAMPLE1_barcode01_fastqc.zip
-    └multiqc
-        ├── multiqc_data
-        ├── multiqc_plots
-        │   ├── pdf
-        │   ├── png
-        │   └── svg
-        └── multiqc_report.html
+├── execution_report.html
+├── execution_timeline.html
+├── execution_trace.txt
+├── SampleName
+│   ├── exon6
+│   │   ├── ABOPhenotype.txt
+│   │   ├── ABOReadPolymorphisms.txt
+│   │   ├── alignment
+│   │   │   ├── alignment.bam
+│   │   │   ├── alignment.bam.bai
+│   │   │   ├── AlignmentReference.fasta
+│   │   │   ├── AlignmentReference.fasta.amb
+│   │   │   ├── AlignmentReference.fasta.ann
+│   │   │   ├── AlignmentReference.fasta.bwt
+│   │   │   ├── AlignmentReference.fasta.pac
+│   │   │   └── AlignmentReference.fasta.sa
+│   │   └── ReadAlignmentSpreadsheet.csv
+│   ├── exon7
+│   │   ├── ABOPhenotype.txt
+│   │   ├── ABOReadPolymorphisms.txt
+│   │   ├── alignment
+│   │   │   ├── alignment.bam
+│   │   │   ├── alignment.bam.bai
+│   │   │   ├── AlignmentReference.fasta
+│   │   │   ├── AlignmentReference.fasta.amb
+│   │   │   ├── AlignmentReference.fasta.ann
+│   │   │   ├── AlignmentReference.fasta.bwt
+│   │   │   ├── AlignmentReference.fasta.pac
+│   │   │   └── AlignmentReference.fasta.sa
+│   │   └── ReadAlignmentSpreadsheet.csv
+│   ├── SampleName_exon6.log.txt
+│   └── SampleName_exon7.log.txt
+├── software_versions.txt
+└── workflow.oncomplete.txt
 ```
-
-The `ABO_result.xlsx` Excel worksheet contains details of all SNVs and metrics used to deduce the ABO phenotype for each sample.
-
-A summary of the ABO typing results is provided in `final_export.csv`
 
 Feel free to raise an issue or reach out if you need any support getting this tool running, or with suggestions for improvement.
 
-# Credits
+## Credits
 
-nf-core/abotyper was originally written by Fredrick M. Mobegi: [@fmobegi](https://github.com/fmobegi) at the Department of Clinical Immunology, [PathWest Laboratory Medicine WA](https://pathwest.health.wa.gov.au/).
+nf-core/abotyper was originally written by @fmobegi.
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
-  - [Benedict Matern](https://github.com/bmatern)
-  - [Mathijs Groeneweg](https://orcid.org/0000-0002-6615-9239)
+<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
-Maintenance and future developements will be led by Fredrick Mobegi.
-
-# Acknowledgements
-
-<p float="center">
-  <img src = "docs/images/pathwest_logo.png", width="400", height="90"/>
-  <img src = "docs/images/uwa_logo.png", width="400", height="90">
-</p>
-
-# Contributions and Support
+## Contributions and Support
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
 For further information or help, don't hesitate to get in touch on the [Slack `#abotyper` channel](https://nfcore.slack.com/channels/abotyper) (you can join with [this invite](https://nf-co.re/join/slack)).
 
-# Citations
+## Citations
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-If you use nf-core/abotyper for your analysis, please cite it using the following publication:
-
-> **Characterisation of the ABO Blood Group Phenotypes Using Third-Generation Sequencing.**
->
-> Fredrick M. Mobegi, Samuel Bruce, Naser El-Lagta, Felipe Ayora, Benedict M. Matern, Mathijs Groeneweg, Lloyd J. D'Orsogna & Dianne De Santis.
->
->_Int. J. Mol. Sci._ 2025 Jun 06. doi: [10.3390/ijms26125443](https://doi.org/10.3390/ijms26125443).
+<!-- If you use nf-core/abotyper for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
