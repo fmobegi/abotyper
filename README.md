@@ -223,6 +223,7 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
 If you use nf-core/abotyper for your analysis, please cite it using the following publication:
+<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
 > **Characterisation of the ABO Blood Group Phenotypes Using Third-Generation Sequencing.**
 >
@@ -230,7 +231,6 @@ If you use nf-core/abotyper for your analysis, please cite it using the followin
 >
 >_Int. J. Mol. Sci._ 2025 Jun 06. doi: [10.3390/ijms26125443](https://doi.org/10.3390/ijms26125443).
 
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
