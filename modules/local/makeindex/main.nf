@@ -9,6 +9,7 @@ process MAKEINDEX {
     output:
     tuple val(meta), path("*_exon6.bed"),  emit: exon6bed
     tuple val(meta1), path("*_exon7.bed"), emit: exon7bed
+    path "versions.yml",                   emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -18,8 +19,13 @@ process MAKEINDEX {
     def prefix1 = task.ext.prefix1 ?: "${meta1.id.toString().tokenize('.')[0]}"
 
     """
-    awk -v FS="\t" -v OFS="\t" '{print \$1 FS "0" FS (\$2)-1}' $exon6fai > ${prefix}_exon6.bed
-    awk -v FS="\t" -v OFS="\t" '{print \$1 FS "0" FS (\$2)-1}' $exon7fai > ${prefix1}_exon7.bed
+    awk -v FS="\\t" -v OFS="\\t" '{print \$1 FS "0" FS (\$2)-1}' $exon6fai > ${prefix}_exon6.bed
+    awk -v FS="\\t" -v OFS="\\t" '{print \$1 FS "0" FS (\$2)-1}' $exon7fai > ${prefix1}_exon7.bed
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        awk: \$(awk --version | head -n1 | sed 's/.*Awk //; s/,.*//')
+    END_VERSIONS
     """
 
     stub:
@@ -29,5 +35,10 @@ process MAKEINDEX {
     """
     touch ${prefix}_exon6.bed
     touch ${prefix1}_exon7.bed
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        awk: \$(awk --version | head -n1 | sed 's/.*Awk //; s/,.*//')
+    END_VERSIONS
     """
 }
