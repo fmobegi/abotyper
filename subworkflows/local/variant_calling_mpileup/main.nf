@@ -1,33 +1,38 @@
-include { SAMTOOLS_MPILEUP as SAMTOOLS_MPILEUP_EXON6   } from '../../../modules/nf-core/samtools/mpileup/main'
-include { SAMTOOLS_MPILEUP as SAMTOOLS_MPILEUP_EXON7   } from '../../../modules/nf-core/samtools/mpileup/main'
-include { MAKEINDEX                                    } from '../../../modules/local/makeindex/main'
-include { MPILEUP_NUCL_FREQ  as MPILEUP_EXON6_NUCL_FREQ  } from '../../../modules/local/mpileupstats/main'
-include { MPILEUP_NUCL_FREQ  as MPILEUP_EXON7_NUCL_FREQ  } from '../../../modules/local/mpileupstats/main'
+include { SAMTOOLS_MPILEUP   } from '../../../modules/nf-core/samtools/mpileup/main'
+include { MPILEUP_NUCL_FREQ  } from '../../../modules/local/mpileupstats/main'
 
 workflow VARIANTS_QUANTIFICATION {
 
     take:
-    exon6bai     // channel: [ val(meta), [ bai ] ]
-    exon6bam     // channel: [ val(meta), [ bam ] ]
-    exon7bai     // channel: [ val(meta), [ bai ] ]
-    exon7bam     // channel: [ val(meta), [ bam ] ]
-    exon6fai     // channel: [ val(meta), [ fai ] ]
-    exon6fasta   // channel: [ val(meta), [ fasta ]]
-    exon7fai     // channel: [ val(meta), [ fai ] ]
-    exon7fasta   // channel: [ val(meta), [ fasta ]]
-
+    ch_bam       // channel: [ val(meta), [ bam ] ] - with exon metadata
+    ch_bai       // channel: [ val(meta), [ bai ] ] - with exon metadata
+    ch_fasta     // channel: [ val(meta), [ fasta ] ] - with exon metadata
+    ch_fai       // channel: [ val(meta), [ fai ] ] - with exon metadata
+    ch_bed       // channel: [ val(meta), [ bed ] ] - combined bed files with exon metadata
 
     main:
 
     ch_versions = Channel.empty()
 
-    //
-    // MODULE: makeindex
-    //
-    MAKEINDEX (
-        exon6fai,
-        exon7fai
-    )
+    // Prepare mpileup input by matching bam with bed files based on exon metadata
+    ch_mpileup_input = ch_bam
+        .combine(ch_bed)
+        .filter { bam_meta, bam, bed_meta, bed -> 
+            bam_meta.exon == bed_meta.exon 
+        }
+        .map { bam_meta, bam, bed_meta, bed -> 
+            [bam_meta, bam, bed]
+        }
+
+    // Match fasta files with samples based on exon
+    ch_fasta_matched = ch_mpileup_input
+        .combine(ch_fasta)
+        .filter { bam_meta, bam, bed, fasta_meta, fasta ->
+            bam_meta.exon == fasta_meta.exon
+        }
+        .map { bam_meta, bam, bed, fasta_meta, fasta ->
+            [bam_meta, bam, bed, fasta_meta, fasta]
+        }
 
     /*
     Some sanity check to ensure paths and metadata are as expected by the processes below. 
@@ -35,63 +40,42 @@ workflow VARIANTS_QUANTIFICATION {
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
     // @TODO NOTE TO SELF:  UNCOMMENT TO EXECUTE FOR TESTING
-    // exon6bam.view{ "exon6bam: $it" }
-    // MAKEINDEX.out.exon6bed.view{ "MAKEINDEX.out.exon6bed: $it" }
-    // exon6fasta.view{ "exon6fasta: $it" }
-
-    // exon6bam.combine(MAKEINDEX.out.exon6bed)
-    //     .map { bam_meta, bam, bed_meta, bed -> [bam_meta, bam, bed] }
-    //     .view { "MPILEUP_EXON6 input: $it" }
-
-    // exon7bam.view{ "exon7bam: $it" }
-    // MAKEINDEX.out.exon7bed.view{ "MAKEINDEX.out.exon7bed: $it" }
-    // exon7fasta.view{ "exon7fasta: $it" }
-
-    // exon7bam.combine(MAKEINDEX.out.exon7bed)
-    //     .map { bam_meta, bam, bed_meta, bed -> [bam_meta, bam, bed] }
-    //     .view { "MPILEUP_EXON7 input: $it" }
-
+    // ch_fasta_matched.view { "MPILEUP input: $it" }
 
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
 
-
     //
     // MODULE: samtools/mpileup
+    // Input: tuple val(meta), path(input), path(intervals)
+    //        tuple val(meta2), path(fasta)
     //
-    SAMTOOLS_MPILEUP_EXON6 (
-        exon6bam.combine(MAKEINDEX.out.exon6bed.map{ meta, bed -> bed }),
-        exon6fasta.map { meta, fasta -> fasta }
+    SAMTOOLS_MPILEUP (
+        ch_fasta_matched.map { bam_meta, bam, bed, fasta_meta, fasta -> [bam_meta, bam, bed] },
+        ch_fasta_matched.map { bam_meta, bam, bed, fasta_meta, fasta -> [fasta_meta, fasta] }
     )
     
-    SAMTOOLS_MPILEUP_EXON7 ( 
-        exon7bam.combine (MAKEINDEX.out.exon7bed.map{meta, bed -> bed}),
-        exon7fasta.map { meta, fasta -> fasta }
-    )
-    
-    ch_versions = ch_versions.mix(SAMTOOLS_MPILEUP_EXON6.out.versions.first())
-    ch_versions = ch_versions.mix(SAMTOOLS_MPILEUP_EXON7.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_MPILEUP.out.versions.first())
+
+    // Match mpileup output with fasta for nucleotide frequency analysis
+    ch_nucl_freq_input = SAMTOOLS_MPILEUP.out.mpileup
+        .combine(ch_fasta)
+        .filter { mpileup_meta, mpileup, fasta_meta, fasta ->
+            mpileup_meta.exon == fasta_meta.exon
+        }
 
     // 
     // MODULE: mpileupmetrics
     // 
-    MPILEUP_EXON6_NUCL_FREQ (
-        SAMTOOLS_MPILEUP_EXON6.out.mpileup,
-        exon6fasta
+    MPILEUP_NUCL_FREQ (
+        ch_nucl_freq_input.map { mpileup_meta, mpileup, fasta_meta, fasta -> [mpileup_meta, mpileup] },
+        ch_nucl_freq_input.map { mpileup_meta, mpileup, fasta_meta, fasta -> [fasta_meta, fasta] }
     )
 
-    MPILEUP_EXON7_NUCL_FREQ (
-        SAMTOOLS_MPILEUP_EXON7.out.mpileup,
-        exon7fasta
-    )
-
-    ch_versions = ch_versions.mix(MPILEUP_EXON6_NUCL_FREQ.out.versions.first())
-    ch_versions = ch_versions.mix(MPILEUP_EXON7_NUCL_FREQ.out.versions.first())
+    ch_versions = ch_versions.mix(MPILEUP_NUCL_FREQ.out.versions.first())
 
     emit:
-    exon6metrics      = MPILEUP_EXON6_NUCL_FREQ.out.tsv     // channel: [ val(meta), [ csv ] ]
-    exon7metrics      = MPILEUP_EXON7_NUCL_FREQ.out.tsv     // channel: [ val(meta), [ csv ] ]
-    versions          = ch_versions                     // channel: [ versions.yml ]
+    metrics       = MPILEUP_NUCL_FREQ.out.tsv              // channel: [ val(meta), [ tsv ] ] - with exon metadata
+    versions      = ch_versions                            // channel: [ versions.yml ]
 }
-

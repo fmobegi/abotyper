@@ -14,16 +14,12 @@ process GETABOSNPS {
         'biocontainers/pandas:1.3.5' }"
 
     input:
-    tuple val(meta), path(variants_freq), path(coverage)
-    val exon_n
+    tuple val(meta), path(variants_freq), path(coverage), val(exon_n)
 
     output:
     tuple val(meta), path("*.ABOPhenotype.txt"), emit: phenotype
     tuple val(meta), path("*.log.txt")         , emit: log
     path "versions.yml"                        , emit: versions
-
-    when:
-    task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''

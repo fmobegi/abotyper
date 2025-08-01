@@ -1,107 +1,107 @@
-include { MINIMAP2_ALIGN    as MINIMAP2_ALIGN_EXON6      } from '../../../modules/nf-core/minimap2/align/main'
-include { MINIMAP2_ALIGN    as MINIMAP2_ALIGN_EXON7      } from '../../../modules/nf-core/minimap2/align/main'
-include { SAMTOOLS_COVERAGE as SAMTOOLS_COVERAGE_EXON6   } from '../../../modules/nf-core/samtools/coverage/main'
-include { SAMTOOLS_COVERAGE as SAMTOOLS_COVERAGE_EXON7   } from '../../../modules/nf-core/samtools/coverage/main'
-include { SAMTOOLS_FLAGSTAT as SAMTOOLS_FLAGSTAT_EXON6   } from '../../../modules/nf-core/samtools/flagstat/main'
-include { SAMTOOLS_FLAGSTAT as SAMTOOLS_FLAGSTAT_EXON7   } from '../../../modules/nf-core/samtools/flagstat/main'
-include { SAMTOOLS_STATS as SAMTOOLS_STATS_EXON6         } from '../../../modules/nf-core/samtools/stats/main'
-include { SAMTOOLS_STATS as SAMTOOLS_STATS_EXON7         } from '../../../modules/nf-core/samtools/stats/main'
+/*
+ * Subworkflow: minimap_align_exons
+ * Description: Aligns each sample to two exon references using Minimap2, 
+ * then runs Samtools coverage, flagstat, and stats.
+ * Uses a pure metadata-driven approach with no aliasing or premature splitting.
+ */
+
+include { MINIMAP2_ALIGN    } from '../../../modules/nf-core/minimap2/align/main'
+include { SAMTOOLS_COVERAGE } from '../../../modules/nf-core/samtools/coverage/main'
+include { SAMTOOLS_FLAGSTAT } from '../../../modules/nf-core/samtools/flagstat/main'
+include { SAMTOOLS_STATS    } from '../../../modules/nf-core/samtools/stats/main'
 
 workflow MINIMAP2_ALIGN_READS {
 
     take:
-    ch_samplesheet  // channel: [ val(meta), [ fastq ] ]
-    ch_exon6fai     // channel: [ val(meta), [ fai ] ]
-    ch_exon6fasta   // channel: [ val(meta), [ fasta ] ]
-    ch_exon7fai     // channel: [ val(meta), [ fai ] ]
-    ch_exon7fasta   // channel: [ val(meta), [ fasta ] ]
+    ch_combined_input   // channel: [ val(meta), [ fastq ] ] - with exon metadata
+    ch_combined_fasta   // channel: [ val(meta), [ fasta ] ] - with exon metadata  
+    ch_combined_fai     // channel: [ val(meta), [ fai ] ] - with exon metadata
 
     main:
 
     ch_versions = Channel.empty()
 
+    // Simple combine and filter approach to match samples with correct exon references
+    ch_minimap_ready = ch_combined_input
+        .combine(ch_combined_fasta)
+        .filter { sample_meta, fastq, ref_meta, fasta ->
+            sample_meta.exon == ref_meta.exon
+        }
+        .map { sample_meta, fastq, ref_meta, fasta ->
+            def combined_meta = sample_meta + [ref_id: ref_meta.id]
+            [combined_meta, fastq, fasta]
+        }
+
     // 
     // MODULE: Minimap2/align
-    // 
-    MINIMAP2_ALIGN_EXON6 (
-        ch_samplesheet,
-        ch_exon6fasta,
+    //
+    MINIMAP2_ALIGN (
+        ch_minimap_ready.map { meta, fastq, fasta -> [meta, fastq] },
+        ch_minimap_ready.map { meta, fastq, fasta -> [meta, fasta] },
         bam_format="bam",
         bam_index_extension="bai",
         cigar_paf_format=false,
         cigar_bam=false
     )
-    ch_versions = ch_versions.mix(MINIMAP2_ALIGN_EXON6.out.versions.first())
+    ch_versions = ch_versions.mix(MINIMAP2_ALIGN.out.versions)
 
-    MINIMAP2_ALIGN_EXON7 (
-        ch_samplesheet,
-        ch_exon7fasta,
-        bam_format="bam",
-        bam_index_extension="bai",
-        cigar_paf_format=false,
-        cigar_bam=false
-    )
-    ch_versions = ch_versions.mix(MINIMAP2_ALIGN_EXON7.out.versions.first())
+    // Join BAM and BAI files for processes that need both
+    ch_bam_bai = MINIMAP2_ALIGN.out.bam
+        .join(MINIMAP2_ALIGN.out.index, by: 0)
 
     //
     // MODULE: Samtools/coverage 
+    // Input: tuple val(meta), path(input), path(input_index)
+    //        tuple val(meta2), path(fasta)
+    //        tuple val(meta3), path(fai)
     // 
-    SAMTOOLS_COVERAGE_EXON6 (
-        MINIMAP2_ALIGN_EXON6.out.bam
-            .join(MINIMAP2_ALIGN_EXON6.out.index),
-        ch_exon6fasta,
-        ch_exon6fai
-    )
-    ch_versions = ch_versions.mix(SAMTOOLS_COVERAGE_EXON6.out.versions.first())
+    ch_coverage_input = ch_bam_bai
+        .combine(ch_combined_fasta)
+        .combine(ch_combined_fai)
+        .filter { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai ->
+            bam_meta.exon == fasta_meta.exon && bam_meta.exon == fai_meta.exon
+        }
 
-    SAMTOOLS_COVERAGE_EXON7 (
-        MINIMAP2_ALIGN_EXON7.out.bam
-            .join(MINIMAP2_ALIGN_EXON7.out.index),
-        ch_exon7fasta,
-        ch_exon7fai
+    SAMTOOLS_COVERAGE (
+        ch_coverage_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai -> [bam_meta, bam, bai] },
+        ch_coverage_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai -> [fasta_meta, fasta] },
+        ch_coverage_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai -> [fai_meta, fai] }
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_COVERAGE_EXON7.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_COVERAGE.out.versions)
 
     //
     // MODULE: Samtools/flagstat 
+    // Input: tuple val(meta), path(bam), path(bai)
     // 
-    SAMTOOLS_FLAGSTAT_EXON6 (
-        MINIMAP2_ALIGN_EXON6.out.bam
-            .join(MINIMAP2_ALIGN_EXON6.out.index)
+    SAMTOOLS_FLAGSTAT (
+        ch_bam_bai
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT_EXON6.out.versions.first())
-
-    SAMTOOLS_FLAGSTAT_EXON7 (
-        MINIMAP2_ALIGN_EXON7.out.bam
-            .join(MINIMAP2_ALIGN_EXON7.out.index)
-    )
-    ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT_EXON7.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT.out.versions)
 
     //
     // MODULE: Samtools/stats 
+    // Input: tuple val(meta), path(input), path(input_index)
+    //        tuple val(meta2), path(fasta)
     // 
-    SAMTOOLS_STATS_EXON6 (
-        MINIMAP2_ALIGN_EXON6.out.bam
-            .join(MINIMAP2_ALIGN_EXON6.out.index),
-        ch_exon6fasta
-    )
-    ch_versions = ch_versions.mix(SAMTOOLS_STATS_EXON6.out.versions.first())
+    ch_stats_input = ch_bam_bai
+        .combine(ch_combined_fasta)
+        .filter { bam_meta, bam, bai, fasta_meta, fasta ->
+            bam_meta.exon == fasta_meta.exon
+        }
 
-    SAMTOOLS_STATS_EXON7 (
-        MINIMAP2_ALIGN_EXON7.out.bam
-            .join(MINIMAP2_ALIGN_EXON7.out.index),
-        ch_exon7fasta
+    SAMTOOLS_STATS (
+        ch_stats_input.map { bam_meta, bam, bai, fasta_meta, fasta -> [bam_meta, bam, bai] },
+        ch_stats_input.map { bam_meta, bam, bai, fasta_meta, fasta -> [fasta_meta, fasta] }
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_STATS_EXON7.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
 
     emit:
-    exon6bam      = MINIMAP2_ALIGN_EXON6.out.bam           // channel: [ val(meta), [ bam ] ]
-    exon6bai      = MINIMAP2_ALIGN_EXON6.out.index         // channel: [ val(meta), [ bai ] ]
-    exon6cov      = SAMTOOLS_COVERAGE_EXON6.out.coverage   // channel: [ val(meta), [ txt ] ]
-    exon7bam      = MINIMAP2_ALIGN_EXON7.out.bam           // channel: [ val(meta), [ bam ] ]
-    exon7bai      = MINIMAP2_ALIGN_EXON7.out.index         // channel: [ val(meta), [ bai ] ]
-    exon7cov      = SAMTOOLS_COVERAGE_EXON7.out.coverage   // channel: [ val(meta), [ txt ] ]
-
-    versions      = ch_versions                            // channel: [ versions.yml ]
+    bam           = MINIMAP2_ALIGN.out.bam                  // channel: [ val(meta), [ bam ] ] - with exon metadata
+    bai           = MINIMAP2_ALIGN.out.index                // channel: [ val(meta), [ bai ] ] - with exon metadata
+    coverage      = SAMTOOLS_COVERAGE.out.coverage         // channel: [ val(meta), [ txt ] ] - with exon metadata
+    flagstat      = SAMTOOLS_FLAGSTAT.out.flagstat         // channel: [ val(meta), [ flagstat ] ] - with exon metadata
+    stats         = SAMTOOLS_STATS.out.stats               // channel: [ val(meta), [ stats ] ] - with exon metadata
+    fasta         = ch_combined_fasta                       // channel: [ val(meta), [ fasta ] ] - with exon metadata
+    fai           = ch_combined_fai                         // channel: [ val(meta), [ fai ] ] - with exon metadata
+    versions      = ch_versions                             // channel: [ versions.yml ]
 }
-
