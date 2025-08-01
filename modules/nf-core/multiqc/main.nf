@@ -15,7 +15,7 @@ process MULTIQC {
     path(sample_names)
 
     output:
-    path "*_multiqc.html"      , emit: report
+    path "*multiqc_report.html", emit: report
     path "*_data"              , emit: data
     path "*_plots"             , optional:true, emit: plots
     path "versions.yml"        , emit: versions
@@ -53,7 +53,7 @@ process MULTIQC {
     """
     mkdir multiqc_data
     mkdir multiqc_plots
-    touch multiqc.html
+    touch multiqc_report.html
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
