@@ -45,47 +45,34 @@ workflow ABOTYPER {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
     
+        //
+    // Prepare sample channels with exon metadata for mapping to each reference
     //
-    // Prepare input channels with exon metadata ONCE (for better caching)
-    //
-    ch_exon6_input = ch_samplesheet
+    ch_exon6_samples = ch_samplesheet
         .map { meta, fastq -> 
             def new_meta = meta + [exon: 'exon6']
             [new_meta, fastq]
         }
     
-    ch_exon7_input = ch_samplesheet
+    ch_exon7_samples = ch_samplesheet
         .map { meta, fastq -> 
             def new_meta = meta + [exon: 'exon7']
             [new_meta, fastq]
         }
 
-    ch_combined_input = ch_exon6_input.mix(ch_exon7_input)
+    // // DEBUG: Check individual channels
+    // ch_exon6_samples.view { "EXON6 SAMPLE: $it" }
+    // ch_exon7_samples.view { "EXON7 SAMPLE: $it" }
 
-    // Prepare reference files with matching metadata ONCE
-    ch_exon6_fasta_prepared = exon6fasta
-        .map { ref_meta, fasta -> 
-            [ref_meta + [exon: 'exon6'], fasta]
-        }
+    // Combine sample channels
+    ch_combined_input = ch_exon6_samples.mix(ch_exon7_samples)
     
-    ch_exon7_fasta_prepared = exon7fasta
-        .map { ref_meta, fasta -> 
-            [ref_meta + [exon: 'exon7'], fasta]
-        }
+    // // DEBUG: Check combined channel
+    // ch_combined_input.view { "COMBINED INPUT: $it" }
 
-    ch_combined_fasta = ch_exon6_fasta_prepared.mix(ch_exon7_fasta_prepared)
-
-    ch_exon6_fai_prepared = exon6fai
-        .map { ref_meta, fai -> 
-            [ref_meta + [exon: 'exon6'], fai]
-        }
-    
-    ch_exon7_fai_prepared = exon7fai
-        .map { ref_meta, fai -> 
-            [ref_meta + [exon: 'exon7'], fai]
-        }
-
-    ch_combined_fai = ch_exon6_fai_prepared.mix(ch_exon7_fai_prepared)
+    // Use reference channels as-is (they already have exon metadata)
+    ch_combined_fasta = exon6fasta.mix(exon7fasta)
+    ch_combined_fai = exon6fai.mix(exon7fai)
     
     //
     // MODULE: Create index files once for reference sequences
@@ -131,15 +118,20 @@ workflow ABOTYPER {
     )
     
     //
-    // SUBWORKFLOW: Run pileup for variants
+    // SUBWORKFLOW: Run pileup for variants with properly combined bed files
     //
+    ch_combined_bed = MAKEINDEX.out.exon6bed
+        .map { meta, bed -> [meta + [exon: 'exon6'], bed] }
+        .mix(
+            MAKEINDEX.out.exon7bed.map { meta, bed -> [meta + [exon: 'exon7'], bed] }
+        )
+
     VARIANTS_QUANTIFICATION(
         MINIMAP2_ALIGN_READS.out.bam,
         MINIMAP2_ALIGN_READS.out.bai,
         MINIMAP2_ALIGN_READS.out.fasta,
         MINIMAP2_ALIGN_READS.out.fai,
-        MAKEINDEX.out.exon6bed,  // Pass pre-computed exon 6 bed files
-        MAKEINDEX.out.exon7bed   // Pass pre-computed exon 7 bed files
+        ch_combined_bed  // Pass combined bed files with exon metadata
     )
     ch_versions = ch_versions.mix(VARIANTS_QUANTIFICATION.out.versions)
     

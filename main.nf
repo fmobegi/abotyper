@@ -34,14 +34,13 @@ params.exon7fai   = getGenomeAttribute('exon7fai')
 params.exon7fasta = getGenomeAttribute('exon7fasta')
 params.logo       = getGenomeAttribute('logo')
 
-// Remove .collect() for reference files - they should be value channels
-fai               = params.fai        ? Channel.fromPath(params.fai).map { it -> [[id: it.baseName], it] }               : Channel.empty()
-fasta             = params.fasta      ? Channel.fromPath(params.fasta).map { it -> [[id: it.baseName], it] }             : Channel.empty()
-exon6fai          = params.exon6fai   ? Channel.fromPath(params.exon6fai).map { it -> [[id: it.baseName, exon: 'exon6'], it] }  : Channel.empty()
+fai               = params.fai        ? Channel.fromPath(params.fai).map { it -> [[id: it.baseName], it] }                       : Channel.empty()
+fasta             = params.fasta      ? Channel.fromPath(params.fasta).map { it -> [[id: it.baseName], it] }                     : Channel.empty()
+exon6fai          = params.exon6fai   ? Channel.fromPath(params.exon6fai).map { it -> [[id: it.baseName, exon: 'exon6'], it] }   : Channel.empty()
 exon6fasta        = params.exon6fasta ? Channel.fromPath(params.exon6fasta).map { it -> [[id: it.baseName, exon: 'exon6'], it] } : Channel.empty()
-exon7fai          = params.exon7fai   ? Channel.fromPath(params.exon7fai).map { it -> [[id: it.baseName, exon: 'exon7'], it] }  : Channel.empty()
+exon7fai          = params.exon7fai   ? Channel.fromPath(params.exon7fai).map { it -> [[id: it.baseName, exon: 'exon7'], it] }   : Channel.empty()
 exon7fasta        = params.exon7fasta ? Channel.fromPath(params.exon7fasta).map { it -> [[id: it.baseName, exon: 'exon7'], it] } : Channel.empty()
-logo              = params.logo       ? Channel.fromPath(params.logo).collect()                                                    : Channel.empty()
+logo              = params.logo       ? Channel.fromPath(params.logo).collect()                                                  : Channel.empty()
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

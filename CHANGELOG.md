@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.0.0dev - [date]
+## v1.0.0dev - [2025-04-24]
 
 Initial release of nf-core/abotyper, created with the [nf-core](https://nf-co.re/) template.
 
@@ -31,7 +31,7 @@ Initial release of nf-core/abotyper, created with the [nf-core](https://nf-co.re
 
 - TODO: Explore why MultiQC-1.30 treats the `\.` at the end of command as an illegal character causing failure
 
-## [1.0.0] - 2025-07-31
+## [1.0.0] - [2025-07-31]
 
 ### Added
 
