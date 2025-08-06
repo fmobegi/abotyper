@@ -21,6 +21,8 @@ Initial release of nf-core/abotyper, created with the [nf-core](https://nf-co.re
 - Updated MultiQC custom config to improve reporting
 - Updated modules config file to match removed modules aliasing
 - Moved index preparation to main workflow (streamlining processes)
+- Upgraded all python scripts to class-style declaration
+- Refactored all Python scripts to remove stale imports and improve maintainability
 
 ### Fixed
 
@@ -31,7 +33,7 @@ Initial release of nf-core/abotyper, created with the [nf-core](https://nf-co.re
 
 - TODO: Explore why MultiQC-1.30 treats the `\.` at the end of command as an illegal character causing failure
 
-## [1.0.0] - [2025-07-31]
+## [1.1.0] - [2025-07-31]
 
 ### Added
 
