@@ -14,7 +14,7 @@ workflow PREDICTABOPHENOTYPE {
     // Join variants frequency with coverage based on matching metadata
     ch_combined_input = ch_variants_freq
         .join(ch_bam_coverage)
-        .map { meta, freq, cov -> 
+        .map { meta, freq, cov ->
             [meta, freq, cov, meta.exon]  // Pass exon as parameter
         }
 
@@ -27,14 +27,14 @@ workflow PREDICTABOPHENOTYPE {
 
     // Prepare SNP reports for ABOSNPS2PHENO
     ch_SNP_reports = GETABOSNPS.out.phenotype
-        .map { meta, file -> 
+        .map { meta, file ->
             [meta.id, [exon: meta.exon, file: file]]
         }
         .groupTuple()
-        .map { id, files -> 
+        .map { id, files ->
             def sample_dir = file("${params.outdir}/per_sample_processing/${id}")
             sample_dir.mkdirs()
-            files.each { 
+            files.each {
                 def exon_dir = sample_dir.resolve(it.exon)
                 exon_dir.mkdirs()
                 it.file.copyTo(exon_dir.resolve(it.file.name))
@@ -47,7 +47,7 @@ workflow PREDICTABOPHENOTYPE {
     ch_per_sample_processing = Channel.fromPath("${params.outdir}/per_sample_processing", type: 'dir')
 
     ABOSNPS2PHENO (
-        ch_SNP_reports, 
+        ch_SNP_reports,
         ch_per_sample_processing
     )
     ch_versions = ch_versions.mix(ABOSNPS2PHENO.out.versions.first())

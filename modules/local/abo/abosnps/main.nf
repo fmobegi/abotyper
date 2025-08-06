@@ -1,7 +1,7 @@
 process GETABOSNPS {
     tag "$meta.id"
     label 'process_single'
-    
+
     /*
     changes to python script not processed properly on re-run
     Disable caching for the process to repeat every time

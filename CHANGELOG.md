@@ -9,7 +9,7 @@ Initial release of nf-core/abotyper, created with the [nf-core](https://nf-co.re
 
 ### Added
 
-- Initial ABO*A1/A2 differentiation algorithm (WORK IN PROGRESS)
+- Initial ABO\*A1/A2 differentiation algorithm (WORK IN PROGRESS)
 - Metadata propagation for exonic information
 - Improved meta.yaml documentation for local modules
 - Updated documenting and staging of versions.yaml files for MultiQC

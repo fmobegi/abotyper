@@ -65,7 +65,7 @@ workflow NFCORE_ABOTYPER {
         exon7fasta,
         logo
     )
-    
+
     emit:
     multiqc_report = ABOTYPER.out.multiqc_report
 }

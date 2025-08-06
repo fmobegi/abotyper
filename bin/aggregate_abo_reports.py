@@ -59,11 +59,11 @@ class ABOReportParser:
         self.results = []
         self.initialize_columns()
         self.failed_samples = []
-        
+
         # Compile regex patterns once for better performance
         self.pattern_with_barcode = re.compile(r"^(IMM|INGS|NGS|[A-Z0-9]+)(-[A-Z0-9]+)?(-[A-Z0-9]+)?_barcode\d+$", re.IGNORECASE)
         self.pattern_without_barcode = re.compile(r"^(IMM|INGS|NGS|[A-Z0-9]+)(-[A-Z0-9]+)?(-[A-Z0-9]+)?$", re.IGNORECASE)
-        
+
         # Statistics tracking
         self.processing_stats = {
             "with_barcode": 0,
@@ -144,10 +144,10 @@ class ABOReportParser:
     def extract_sample_info(self, filename):
         """
         Extract sample name and barcode from filename with improved logic.
-        
+
         Args:
             filename (str): The directory/filename to parse
-            
+
         Returns:
             tuple: (sample_name, barcode, pattern_type)
         """
@@ -927,7 +927,7 @@ class ABOReportParser:
                 nreads_exon7_p429,
                 nreads_exon7_p431,
             ]
-            
+
             # Improved read count validation
             valid_read_counts = []
             for count in read_counts:
@@ -940,16 +940,16 @@ class ABOReportParser:
             if valid_read_counts:
                 min_reads = min(valid_read_counts)
                 avg_reads = sum(valid_read_counts) / len(valid_read_counts)
-                
+
                 if min_reads <= 20:
                     Reliability = "Very Low(≤20 reads)"
                 elif min_reads <= 40:
-                    Reliability = "Low (≤40 reads)"  
+                    Reliability = "Low (≤40 reads)"
                 elif min_reads >= 500:
                     Reliability = "Robust(≥500 reads)"
                 else:
                     Reliability = "Normal"
-                    
+
                 # Add additional context if there's high variation in read counts
                 if valid_read_counts and max(valid_read_counts) / min(valid_read_counts) > 5:
                     Reliability += " (Variable coverage)"
@@ -1101,7 +1101,7 @@ class ABOReportParser:
     def process_files(self):
         """Process all files in the input directory that match expected patterns."""
         print(f"Scanning directory: {self.input_dir}")
-        
+
         # Check if there are any valid directories to process
         valid_directories = []
         for filename in os.listdir(self.input_dir):
@@ -1115,14 +1115,14 @@ class ABOReportParser:
                     self.failed_samples.append(
                         {"sample": filename, "reason": "Filename pattern not recognized"}
                     )
-        
+
         if not valid_directories:
             print("No valid sample directories found matching expected patterns.")
             return
-            
+
         # Print the processing start message only when we have data to process
         print("\033[92m\n ********* Started combining samples to single file ********* \033[0m\n")
-        
+
         for filename in valid_directories:
             try:
                 self.processing_stats["pattern_matched"] += 1
@@ -1130,7 +1130,7 @@ class ABOReportParser:
 
                 # Extract sample information using improved helper method
                 sample_name, barcode, pattern_type = self.extract_sample_info(filename)
-                
+
                 if pattern_type == "explicit":
                     self.processing_stats["with_barcode"] += 1
                     print(f"Extracted Sample: {sample_name}, Barcode: {barcode}")
@@ -1151,7 +1151,7 @@ class ABOReportParser:
                 )
             finally:
                 print(f"Finished processing file: {filename}")
-        
+
         # Print processing statistics
         print(f"\n--- Processing Statistics ---")
         print(f"Files with explicit barcode: {self.processing_stats['with_barcode']}")
@@ -1418,7 +1418,7 @@ class ABOReportParser:
             print(f"Total failed samples: {len(self.failed_samples)}")
         else:
             print("\nAll samples processed successfully.")
-            
+
         # Print comprehensive processing summary
         print(f"\n=== PROCESSING SUMMARY ===")
         print(f"Total directories scanned: {self.processing_stats['pattern_matched'] + self.processing_stats['pattern_failed']}")
@@ -1427,7 +1427,7 @@ class ABOReportParser:
         print(f"Samples with default barcode ({self.default_barcode}): {self.processing_stats['without_barcode']}")
         print(f"Failed samples: {len(self.failed_samples)}")
         print(f"Pattern recognition failures: {self.processing_stats['pattern_failed']}")
-        
+
         if len(self.results) > 0:
             # Analyze phenotype distribution
             try:
@@ -1437,7 +1437,7 @@ class ABOReportParser:
                     print(f"  {phenotype}: {count}")
             except Exception as e:
                 print(f"Could not analyze phenotype distribution: {e}")
-        
+
         print(f"============================")
 
 
@@ -1486,32 +1486,32 @@ RELIABILITY INDICATORS:
 
 For more information, see: https://github.com/fmobegi/nf-core-abotyper
         """)
-    
+
     parser.add_argument(
         "input_directory",
         help="Path to directory containing sample subdirectories with ABO phenotype results"
     )
-    
+
     parser.add_argument(
         "--default-barcode", "-b",
         default="barcode00",
         metavar="BARCODE",
         help="Default barcode for samples without explicit barcode suffix (default: %(default)s)"
     )
-    
+
     parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Enable verbose output for debugging"
     )
-    
+
     parser.add_argument(
         "--version",
         action="version",
         version=f"%(prog)s {__version__}",
         help="Show version information and exit"
     )
-    
+
     return parser
 
 
@@ -1521,15 +1521,15 @@ def validate_arguments(args):
     if not os.path.exists(args.input_directory):
         print(f"Error: Input directory '{args.input_directory}' does not exist.")
         sys.exit(1)
-    
+
     if not os.path.isdir(args.input_directory):
         print(f"Error: '{args.input_directory}' is not a directory.")
         sys.exit(1)
-    
+
     # Validate barcode format
     if not re.match(r'^barcode\d{1,2}$', args.default_barcode):
         print(f"Warning: Unusual barcode format '{args.default_barcode}'. Expected format: barcodeXX")
-    
+
     return True
 
 
@@ -1537,19 +1537,19 @@ if __name__ == "__main__":
     # Parse command line arguments
     parser = create_argument_parser()
     args = parser.parse_args()
-    
+
     # Validate arguments
     validate_arguments(args)
-    
+
     # Configure verbosity
     if args.verbose:
         print(f"Verbose mode enabled")
         print(f"Input directory: {args.input_directory}")
         print(f"Default barcode: {args.default_barcode}")
         print(f"Script version: {__version__}")
-    
+
     print(f"Using default barcode: {args.default_barcode}")
-    
+
     # Create and run parser
     parser_instance = ABOReportParser(args.input_directory, args.default_barcode)
     parser_instance.run()
