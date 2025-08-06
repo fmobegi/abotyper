@@ -8,9 +8,7 @@ const sectionChanged = new CustomEvent("quarto-sectionChanged", {
 const layoutMarginEls = () => {
   // Find any conflicting margin elements and add margins to the
   // top to prevent overlap
-  const marginChildren = window.document.querySelectorAll(
-    ".column-margin.column-container > * "
-  );
+  const marginChildren = window.document.querySelectorAll(".column-margin.column-container > * ");
 
   let lastBottom = 0;
   for (const marginChild of marginChildren) {
@@ -45,18 +43,14 @@ const layoutMarginEls = () => {
 window.document.addEventListener("DOMContentLoaded", function (_event) {
   // Recompute the position of margin elements anytime the body size changes
   if (window.ResizeObserver) {
-    const resizeObserver = new window.ResizeObserver(
-      throttle(layoutMarginEls, 50)
-    );
+    const resizeObserver = new window.ResizeObserver(throttle(layoutMarginEls, 50));
     resizeObserver.observe(window.document.body);
   }
 
   const tocEl = window.document.querySelector('nav.toc-active[role="doc-toc"]');
   const sidebarEl = window.document.getElementById("quarto-sidebar");
   const leftTocEl = window.document.getElementById("quarto-sidebar-toc-left");
-  const marginSidebarEl = window.document.getElementById(
-    "quarto-margin-sidebar"
-  );
+  const marginSidebarEl = window.document.getElementById("quarto-margin-sidebar");
   // function to determine whether the element has a previous sibling that is active
   const prevSiblingIsActiveLink = (el) => {
     const sibling = el.previousElementSibling;
@@ -83,22 +77,17 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
 
   // Track scrolling and mark TOC links as active
   // get table of contents and sidebar (bail if we don't have at least one)
-  const tocLinks = tocEl
-    ? [...tocEl.querySelectorAll("a[data-scroll-target]")]
-    : [];
+  const tocLinks = tocEl ? [...tocEl.querySelectorAll("a[data-scroll-target]")] : [];
   const makeActive = (link) => tocLinks[link].classList.add("active");
   const removeActive = (link) => tocLinks[link].classList.remove("active");
-  const removeAllActive = () =>
-    [...Array(tocLinks.length).keys()].forEach((link) => removeActive(link));
+  const removeAllActive = () => [...Array(tocLinks.length).keys()].forEach((link) => removeActive(link));
 
   // activate the anchor for a section associated with this TOC entry
   tocLinks.forEach((link) => {
     link.addEventListener("click", () => {
       if (link.href.indexOf("#") !== -1) {
         const anchor = link.href.split("#")[1];
-        const heading = window.document.querySelector(
-          `[data-anchor-id=${anchor}]`
-        );
+        const heading = window.document.querySelector(`[data-anchor-id=${anchor}]`);
         if (heading) {
           // Add the class
           heading.classList.add("reveal-anchorjs-link");
@@ -133,10 +122,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
   const updateActiveLink = () => {
     // The index from bottom to top (e.g. reversed list)
     let sectionIndex = -1;
-    if (
-      window.innerHeight + window.pageYOffset >=
-      window.document.body.offsetHeight
-    ) {
+    if (window.innerHeight + window.pageYOffset >= window.document.body.offsetHeight) {
       sectionIndex = 0;
     } else {
       sectionIndex = [...sections].reverse().findIndex((section) => {
@@ -234,10 +220,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
         for (const listingPath of listingPaths) {
           const pathWithoutLeadingSlash = listingPath.listing.substring(1);
           for (const item of listingPath.items) {
-            if (
-              item === currentPagePath ||
-              item === currentPagePath + "index.html"
-            ) {
+            if (item === currentPagePath || item === currentPagePath + "index.html") {
               // Resolve this path against the offset to be sure
               // we already are using the correct path to the listing
               // (this adjusts the listing urls to be rooted against
@@ -252,10 +235,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
         }
 
         // Look up the tree for a nearby linting and use that if we find one
-        const nearestListing = findNearestParentListing(
-          offsetAbsoluteUrl(window.location.pathname),
-          listingHrefs
-        );
+        const nearestListing = findNearestParentListing(offsetAbsoluteUrl(window.location.pathname), listingHrefs);
         if (nearestListing) {
           activateCategories(nearestListing);
         } else {
@@ -263,8 +243,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
           const referredRelativePath = offsetAbsoluteUrl(document.referrer);
           const referrerListing = listingHrefs.find((listingHref) => {
             const isListingReferrer =
-              listingHref === referredRelativePath ||
-              listingHref === referredRelativePath + "index.html";
+              listingHref === referredRelativePath || listingHref === referredRelativePath + "index.html";
             return isListingReferrer;
           });
 
@@ -337,14 +316,9 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
             toggleIcon.classList.add("bi-caret-down-fill");
 
             const toggleTitle = window.document.createElement("div");
-            const titleEl = window.document.body.querySelector(
-              placeholderDescriptor.titleSelector
-            );
+            const titleEl = window.document.body.querySelector(placeholderDescriptor.titleSelector);
             if (titleEl) {
-              toggleTitle.append(
-                titleEl.textContent || titleEl.innerText,
-                toggleIcon
-              );
+              toggleTitle.append(titleEl.textContent || titleEl.innerText, toggleIcon);
             }
             toggleTitle.classList.add("zindex-over-content");
             toggleTitle.classList.add("quarto-sidebar-toggle-title");
@@ -384,9 +358,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
             // Allow the caller to control whether this is dismissed
             // when it is clicked (e.g. sidebar navigation supports
             // opening and closing the nav tree, so don't dismiss on click)
-            const clickEl = placeholderDescriptor.dismissOnClick
-              ? toggleContainer
-              : toggleTitle;
+            const clickEl = placeholderDescriptor.dismissOnClick ? toggleContainer : toggleTitle;
 
             const closeToggle = () => {
               if (tocShowing) {
@@ -401,7 +373,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
               "scroll",
               throttle(() => {
                 closeToggle();
-              }, 50)
+              }, 50),
             );
 
             // Handle positioning of the toggle
@@ -410,7 +382,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
               throttle(() => {
                 elRect = undefined;
                 positionToggle();
-              }, 50)
+              }, 50),
             );
 
             window.addEventListener("quarto-hrChanged", () => {
@@ -437,9 +409,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
             child.style.overflow = null;
           }
 
-          const placeholderEl = window.document.getElementById(
-            placeholderDescriptor.id
-          );
+          const placeholderEl = window.document.getElementById(placeholderDescriptor.id);
           if (placeholderEl) {
             placeholderEl.remove();
           }
@@ -453,8 +423,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
         } else {
           // Find the top and bottom o the element that is being managed
           const elTop = el.offsetTop;
-          const elBottom =
-            elTop + lastChildEl.offsetTop + lastChildEl.offsetHeight;
+          const elBottom = elTop + lastChildEl.offsetTop + lastChildEl.offsetHeight;
 
           if (!isVisible) {
             // If the element is current not visible reveal if there are
@@ -480,9 +449,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
   for (const tabEl of tabEls) {
     const id = tabEl.getAttribute("data-bs-target");
     if (id) {
-      const columnEl = document.querySelector(
-        `${id} .column-margin, .tabset-margin-content`
-      );
+      const columnEl = document.querySelector(`${id} .column-margin, .tabset-margin-content`);
       if (columnEl)
         tabEl.addEventListener("shown.bs.tab", function (event) {
           const el = event.srcElement;
@@ -499,13 +466,8 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
 
             if (panelTabsetEl) {
               const prevSib = panelTabsetEl.previousElementSibling;
-              if (
-                prevSib &&
-                prevSib.classList.contains("tabset-margin-container")
-              ) {
-                const childNodes = prevSib.querySelectorAll(
-                  ".tabset-margin-content"
-                );
+              if (prevSib && prevSib.classList.contains("tabset-margin-container")) {
+                const childNodes = prevSib.querySelectorAll(".tabset-margin-content");
                 for (const childEl of childNodes) {
                   if (childEl.classList.contains(visibleCls)) {
                     childEl.classList.remove("collapse");
@@ -544,7 +506,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
 
   // Find the first element that uses formatting in special columns
   const conflictingEls = window.document.body.querySelectorAll(
-    '[class^="column-"], [class*=" column-"], aside, [class*="margin-caption"], [class*=" margin-caption"], [class*="margin-ref"], [class*=" margin-ref"]'
+    '[class^="column-"], [class*=" column-"], aside, [class*="margin-caption"], [class*=" margin-caption"], [class*="margin-ref"], [class*=" margin-ref"]',
   );
 
   // Filter all the possibly conflicting elements into ones
@@ -590,10 +552,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
   function toRegions(els) {
     return els.map((el) => {
       const boundRect = el.getBoundingClientRect();
-      const top =
-        boundRect.top +
-        document.documentElement.scrollTop -
-        kOverlapPaddingSize;
+      const top = boundRect.top + document.documentElement.scrollTop - kOverlapPaddingSize;
       return {
         top,
         bottom: top + el.scrollHeight + 2 * kOverlapPaddingSize,
@@ -604,27 +563,24 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
   let hasObserved = false;
   const visibleItemObserver = (els) => {
     let visibleElements = [...els];
-    const intersectionObserver = new IntersectionObserver(
-      (entries, _observer) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (visibleElements.indexOf(entry.target) === -1) {
-              visibleElements.push(entry.target);
-            }
-          } else {
-            visibleElements = visibleElements.filter((visibleEntry) => {
-              return visibleEntry !== entry;
-            });
+    const intersectionObserver = new IntersectionObserver((entries, _observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (visibleElements.indexOf(entry.target) === -1) {
+            visibleElements.push(entry.target);
           }
-        });
-
-        if (!hasObserved) {
-          hideOverlappedSidebars();
+        } else {
+          visibleElements = visibleElements.filter((visibleEntry) => {
+            return visibleEntry !== entry;
+          });
         }
-        hasObserved = true;
-      },
-      {}
-    );
+      });
+
+      if (!hasObserved) {
+        hideOverlappedSidebars();
+      }
+      hasObserved = true;
+    }, {});
     els.forEach((el) => {
       intersectionObserver.observe(el);
     });
@@ -643,9 +599,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
     marginScrollVisibility(toRegions(rightElementObserver.getVisibleEntries()));
     sidebarScrollVisiblity(toRegions(leftElementObserver.getVisibleEntries()));
     if (tocLeftScrollVisibility) {
-      tocLeftScrollVisibility(
-        toRegions(leftElementObserver.getVisibleEntries())
-      );
+      tocLeftScrollVisibility(toRegions(leftElementObserver.getVisibleEntries()));
     }
   };
 
@@ -743,11 +697,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
     if (el.tagName === "UL") {
       if (tocOpenDepth === -1 && depth > 1) {
         el.classList.add("collapse");
-      } else if (
-        depth <= tocOpenDepth ||
-        hasActiveChild ||
-        prevSiblingIsActiveLink(el)
-      ) {
+      } else if (depth <= tocOpenDepth || hasActiveChild || prevSiblingIsActiveLink(el)) {
         el.classList.remove("collapse");
       } else {
         el.classList.add("collapse");
@@ -777,7 +727,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
       if (!isReaderMode()) {
         hideOverlappedSidebars();
       }
-    }, 5)
+    }, 5),
   );
   window.addEventListener(
     "resize",
@@ -785,7 +735,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
       if (!isReaderMode()) {
         hideOverlappedSidebars();
       }
-    }, 10)
+    }, 10),
   );
   hideOverlappedSidebars();
   highlightReaderToggle(isReaderMode());
@@ -805,10 +755,7 @@ window.addEventListener("pageshow", (_event) => {
   }
 
   function setTabSettings(data) {
-    localStorage.setItem(
-      "quarto-persistent-tabsets-data",
-      JSON.stringify(data)
-    );
+    localStorage.setItem("quarto-persistent-tabsets-data", JSON.stringify(data));
   }
 
   function setTabState(groupName, groupValue) {
@@ -840,9 +787,7 @@ window.addEventListener("pageshow", (_event) => {
 
   function findSelectorsToSyncByLanguage() {
     const result = {};
-    const tabs = Array.from(
-      document.querySelectorAll(`div[data-group] a[id^='tabset-']`)
-    );
+    const tabs = Array.from(document.querySelectorAll(`div[data-group] a[id^='tabset-']`));
     for (const item of tabs) {
       const div = item.parentElement.parentElement.parentElement;
       const group = div.getAttribute("data-group");

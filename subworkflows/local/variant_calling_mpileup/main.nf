@@ -17,10 +17,10 @@ workflow VARIANTS_QUANTIFICATION {
     // Prepare mpileup input by matching bam with bed files based on exon metadata
     ch_mpileup_input = ch_bam
         .combine(ch_bed)
-        .filter { bam_meta, bam, bed_meta, bed -> 
-            bam_meta.exon == bed_meta.exon 
+        .filter { bam_meta, bam, bed_meta, bed ->
+            bam_meta.exon == bed_meta.exon
         }
-        .map { bam_meta, bam, bed_meta, bed -> 
+        .map { bam_meta, bam, bed_meta, bed ->
             [bam_meta, bam, bed]
         }
 
@@ -35,8 +35,8 @@ workflow VARIANTS_QUANTIFICATION {
         }
 
     /*
-    Some sanity check to ensure paths and metadata are as expected by the processes below. 
-    SAMtools is the main offender. Modules parameterization keeps fluctuating between samtools/subtool 
+    Some sanity check to ensure paths and metadata are as expected by the processes below.
+    SAMtools is the main offender. Modules parameterization keeps fluctuating between samtools/subtool
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
     // @TODO NOTE TO SELF:  UNCOMMENT TO EXECUTE FOR TESTING
@@ -55,7 +55,7 @@ workflow VARIANTS_QUANTIFICATION {
         ch_fasta_matched.map { bam_meta, bam, bed, fasta_meta, fasta -> [bam_meta, bam, bed] },
         ch_fasta_matched.map { bam_meta, bam, bed, fasta_meta, fasta -> [fasta_meta, fasta] }
     )
-    
+
     ch_versions = ch_versions.mix(SAMTOOLS_MPILEUP.out.versions.first())
 
     // Match mpileup output with fasta for nucleotide frequency analysis
@@ -65,9 +65,9 @@ workflow VARIANTS_QUANTIFICATION {
             mpileup_meta.exon == fasta_meta.exon
         }
 
-    // 
+    //
     // MODULE: mpileupmetrics
-    // 
+    //
     MPILEUP_NUCL_FREQ (
         ch_nucl_freq_input.map { mpileup_meta, mpileup, fasta_meta, fasta -> [mpileup_meta, mpileup] },
         ch_nucl_freq_input.map { mpileup_meta, mpileup, fasta_meta, fasta -> [fasta_meta, fasta] }

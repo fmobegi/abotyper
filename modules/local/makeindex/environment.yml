@@ -4,4 +4,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - "YOUR-TOOL-HERE"
+  # - awk  # Note: awk is typically part of coreutils or the base system
+  # - coreutils

@@ -1,7 +1,7 @@
 /*
-Typically, in variant calling, a "variant" is defined as a position where the observed sequence 
-differs from the reference genome. 
-When REF and ALT are the same, it's not usually considered a variant in the traditional sense. 
+Typically, in variant calling, a "variant" is defined as a position where the observed sequence
+differs from the reference genome.
+When REF and ALT are the same, it's not usually considered a variant in the traditional sense.
 However, for ABO analysis, it is necessary to include all relevant REF positions in the decision-making tree.
 The samtools/mpileup module output is processed using python3 to achieve this.
 */
@@ -17,7 +17,7 @@ process MPILEUP_NUCL_FREQ {
 
     // changes to python script not processed properly on re-run
     // Disable caching for the process to repeat every time for easy debug
-    
+
     // cache false
 
     input:
@@ -28,7 +28,7 @@ process MPILEUP_NUCL_FREQ {
     tuple val(meta), path("*.AlignmentStatistics.tsv")   , emit: tsv
     path("ABOReadPolymorphisms.txt")                     , emit: txt
     path "versions.yml"                                  , emit: versions
-    
+
     when:
     task.ext.when == null || task.ext.when
 

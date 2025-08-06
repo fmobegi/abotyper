@@ -39,23 +39,23 @@ workflow ABOTYPER {
     exon7fai       // channel: fasta from params.exon7fai
     exon7fasta     // channel: fasta from params.exon7fasta
     logo           // channel: png from params.logo (custom pathwest logo)
-    
+
     main:
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-    
+
         //
     // Prepare sample channels with exon metadata for mapping to each reference
     //
     ch_exon6_samples = ch_samplesheet
-        .map { meta, fastq -> 
+        .map { meta, fastq ->
             def new_meta = meta + [exon: 'exon6']
             [new_meta, fastq]
         }
-    
+
     ch_exon7_samples = ch_samplesheet
-        .map { meta, fastq -> 
+        .map { meta, fastq ->
             def new_meta = meta + [exon: 'exon7']
             [new_meta, fastq]
         }
@@ -66,14 +66,14 @@ workflow ABOTYPER {
 
     // Combine sample channels
     ch_combined_input = ch_exon6_samples.mix(ch_exon7_samples)
-    
+
     // // DEBUG: Check combined channel
     // ch_combined_input.view { "COMBINED INPUT: $it" }
 
     // Use reference channels as-is (they already have exon metadata)
     ch_combined_fasta = exon6fasta.mix(exon7fasta)
     ch_combined_fai = exon6fai.mix(exon7fai)
-    
+
     //
     // MODULE: Create index files once for reference sequences
     //
@@ -83,7 +83,7 @@ workflow ABOTYPER {
     )
     ch_versions = ch_versions.mix(MAKEINDEX.out.versions)
 
-    // 
+    //
     // MODULE: FastQC
     //
     FASTQC (
@@ -93,12 +93,12 @@ workflow ABOTYPER {
 
     // Collect fastqc reports for multiqc
     ch_multiqc_files = ch_multiqc_files.mix(
-        FASTQC.out.zip.map { meta, zip -> 
+        FASTQC.out.zip.map { meta, zip ->
             def new_name = "${meta.id}_fastqc.zip"
             [zip, new_name]
         }
     )
-    
+
     //
     // SUBWORKFLOW: minimap2/align (with pre-prepared inputs for better caching)
     //
@@ -108,15 +108,15 @@ workflow ABOTYPER {
         ch_combined_fai
     )
     ch_versions = ch_versions.mix(MINIMAP2_ALIGN_READS.out.versions)
-    
+
     // Collect alignment QC files for MultiQC
     ch_multiqc_files = ch_multiqc_files.mix(
-        MINIMAP2_ALIGN_READS.out.coverage.map { meta, cov -> 
+        MINIMAP2_ALIGN_READS.out.coverage.map { meta, cov ->
             def new_name = "${meta.id}_${meta.exon}.coverage.txt"
             [cov, new_name]
         }
     )
-    
+
     //
     // SUBWORKFLOW: Run pileup for variants with properly combined bed files
     //
@@ -134,15 +134,15 @@ workflow ABOTYPER {
         ch_combined_bed  // Pass combined bed files with exon metadata
     )
     ch_versions = ch_versions.mix(VARIANTS_QUANTIFICATION.out.versions)
-    
+
     // Collect variant metrics for MultiQC
     ch_multiqc_files = ch_multiqc_files.mix(
-        VARIANTS_QUANTIFICATION.out.metrics.map { meta, metrics -> 
+        VARIANTS_QUANTIFICATION.out.metrics.map { meta, metrics ->
             def new_name = "${meta.id}_${meta.exon}.freq.tsv"
             [metrics, new_name]
         }
     )
-    
+
     //
     // SUBWORKFLOW: Run ABO prediction
     //
@@ -151,7 +151,7 @@ workflow ABOTYPER {
         MINIMAP2_ALIGN_READS.out.coverage
     )
     ch_versions = ch_versions.mix(PREDICTABOPHENOTYPE.out.versions)
-  
+
     //
     // Collate and save software versions
     //
@@ -185,7 +185,7 @@ workflow ABOTYPER {
     summary_params      = paramsSummaryMap(
         workflow, parameters_schema: "nextflow_schema.json")
     ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
-    
+
     ch_multiqc_files_final = ch_staged_files
         .mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
         .mix(ch_collated_versions)

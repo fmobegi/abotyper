@@ -1,6 +1,6 @@
 /*
  * Subworkflow: minimap_align_exons
- * Description: Aligns each sample to two exon references using Minimap2, 
+ * Description: Aligns each sample to two exon references using Minimap2,
  * then runs Samtools coverage, flagstat, and stats.
  * Uses a pure metadata-driven approach with no aliasing or premature splitting.
  */
@@ -14,7 +14,7 @@ workflow MINIMAP2_ALIGN_READS {
 
     take:
     ch_combined_input   // channel: [ val(meta), [ fastq ] ] - with exon metadata
-    ch_combined_fasta   // channel: [ val(meta), [ fasta ] ] - with exon metadata  
+    ch_combined_fasta   // channel: [ val(meta), [ fasta ] ] - with exon metadata
     ch_combined_fai     // channel: [ val(meta), [ fai ] ] - with exon metadata
 
     main:
@@ -32,7 +32,7 @@ workflow MINIMAP2_ALIGN_READS {
             [combined_meta, fastq, fasta]
         }
 
-    // 
+    //
     // MODULE: Minimap2/align
     //
     MINIMAP2_ALIGN (
@@ -50,11 +50,11 @@ workflow MINIMAP2_ALIGN_READS {
         .join(MINIMAP2_ALIGN.out.index, by: 0)
 
     //
-    // MODULE: Samtools/coverage 
+    // MODULE: Samtools/coverage
     // Input: tuple val(meta), path(input), path(input_index)
     //        tuple val(meta2), path(fasta)
     //        tuple val(meta3), path(fai)
-    // 
+    //
     ch_coverage_input = ch_bam_bai
         .combine(ch_combined_fasta)
         .combine(ch_combined_fai)
@@ -70,19 +70,19 @@ workflow MINIMAP2_ALIGN_READS {
     ch_versions = ch_versions.mix(SAMTOOLS_COVERAGE.out.versions)
 
     //
-    // MODULE: Samtools/flagstat 
+    // MODULE: Samtools/flagstat
     // Input: tuple val(meta), path(bam), path(bai)
-    // 
+    //
     SAMTOOLS_FLAGSTAT (
         ch_bam_bai
     )
     ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT.out.versions)
 
     //
-    // MODULE: Samtools/stats 
+    // MODULE: Samtools/stats
     // Input: tuple val(meta), path(input), path(input_index)
     //        tuple val(meta2), path(fasta)
-    // 
+    //
     ch_stats_input = ch_bam_bai
         .combine(ch_combined_fasta)
         .filter { bam_meta, bam, bai, fasta_meta, fasta ->

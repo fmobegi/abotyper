@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import glob
+import argparse
 import pandas as pd
 from xlsxwriter.utility import xl_col_to_name
 
@@ -17,14 +18,10 @@ __credits__ = [
     "Claude 3.7 Sonnet Thinking (for rewrite to add ABO*A1/2/3 subtypes)",
 ]
 __license__ = "GPL"
-__version__ = "0.2.0"
+__version__ = "1.1.0"
 __maintainer__ = "Fredrick Mobegi"
 __email__ = "fredrick.mobegi@health.wa.gov.au"
-__status__ = "Development"
-
-print(
-    "\033[92m\n ********* Started combining samples to single file ********* \033[0m\n"
-)
+__status__ = "Production"
 
 
 class ABOReportParser:
@@ -49,17 +46,31 @@ class ABOReportParser:
     other general purpose lab management systems.
     """
 
-    def __init__(self, input_dir):
+    def __init__(self, input_dir, default_barcode="barcode00"):
         """
         Initialize the ABOReportParser.
 
         Args:
             input_dir (str): The input directory containing data files.
+            default_barcode (str): Default barcode for samples without explicit barcode suffix.
         """
         self.input_dir = input_dir
+        self.default_barcode = default_barcode
         self.results = []
         self.initialize_columns()
         self.failed_samples = []
+
+        # Compile regex patterns once for better performance
+        self.pattern_with_barcode = re.compile(r"^(IMM|INGS|NGS|[A-Z0-9]+)(-[A-Z0-9]+)?(-[A-Z0-9]+)?_barcode\d+$", re.IGNORECASE)
+        self.pattern_without_barcode = re.compile(r"^(IMM|INGS|NGS|[A-Z0-9]+)(-[A-Z0-9]+)?(-[A-Z0-9]+)?$", re.IGNORECASE)
+
+        # Statistics tracking
+        self.processing_stats = {
+            "with_barcode": 0,
+            "without_barcode": 0,
+            "pattern_matched": 0,
+            "pattern_failed": 0
+        }
 
     def initialize_columns(self):
         """
@@ -129,6 +140,38 @@ class ABOReportParser:
         )
 
         self.columns = pd.MultiIndex.from_arrays([header_cols, header_rows])
+
+    def extract_sample_info(self, filename):
+        """
+        Extract sample name and barcode from filename with improved logic.
+
+        Args:
+            filename (str): The directory/filename to parse
+
+        Returns:
+            tuple: (sample_name, barcode, pattern_type)
+        """
+        if "_barcode" in filename:
+            # Handle explicit barcode - use rsplit to handle multiple underscores correctly
+            parts = filename.rsplit("_barcode", 1)
+            sample_name = parts[0]
+            try:
+                barcode_num = parts[1]
+                # Validate barcode number is reasonable (0-99)
+                barcode_int = int(barcode_num)
+                if 0 <= barcode_int <= 99:
+                    barcode = f"barcode{barcode_num.zfill(2)}"  # Ensure 2-digit format
+                else:
+                    print(f"Warning: Unusual barcode number {barcode_int} for {filename}")
+                    barcode = f"barcode{barcode_num}"
+            except ValueError:
+                print(f"Warning: Invalid barcode format in {filename}, using as-is")
+                barcode = f"barcode{parts[1]}"
+            return sample_name, barcode, "explicit"
+        else:
+            sample_name = filename
+            barcode = self.default_barcode
+            return sample_name, barcode, "default"
 
     def parse_exon7(self, filename):
         """
@@ -625,35 +668,54 @@ class ABOReportParser:
         return ""
 
     def assign_phenotype_genotype(self, df):
-        """Assign the phenotype and genotype information"""
+        """Assign the phenotype and genotype information with enhanced error handling."""
         try:
-            # Primary positions
-            type_exon6 = df.at[0, ("Exon6_pos22", "Type")]
-            type_exon7_422 = df.at[0, ("Exon7_pos422", "Type")]
-            type_exon7_428 = df.at[0, ("Exon7_pos428", "Type")]
-            type_exon7_429 = df.at[0, ("Exon7_pos429", "Type")]
-            type_exon7_431 = df.at[0, ("Exon7_pos431", "Type")]
+            # Primary positions - with validation
+            def safe_get_type(df, pos_key, default=""):
+                """Safely get type value with fallback."""
+                try:
+                    return df.at[0, (pos_key, "Type")]
+                except (KeyError, IndexError):
+                    print(f"Warning: Missing data for {pos_key}, using default")
+                    return default
+
+            def safe_get_reads(df, pos_key, default=0):
+                """Safely get read count with fallback."""
+                try:
+                    value = df.at[0, (pos_key, "#Reads")]
+                    return value if pd.notna(value) else default
+                except (KeyError, IndexError):
+                    print(f"Warning: Missing read count for {pos_key}, using default")
+                    return default
+
+            # Extract primary positions with validation
+            type_exon6 = safe_get_type(df, "Exon6_pos22")
+            type_exon7_422 = safe_get_type(df, "Exon7_pos422")
+            type_exon7_428 = safe_get_type(df, "Exon7_pos428")
+            type_exon7_429 = safe_get_type(df, "Exon7_pos429")
+            type_exon7_431 = safe_get_type(df, "Exon7_pos431")
 
             # Exon 6 A subtype positions
-            type_exon6_27 = df.at[0, ("Exon6_pos27", "Type")]
-            type_exon6_29 = df.at[0, ("Exon6_pos29", "Type")]
-            type_exon6_58 = df.at[0, ("Exon6_pos58", "Type")]
+            type_exon6_27 = safe_get_type(df, "Exon6_pos27")
+            type_exon6_29 = safe_get_type(df, "Exon6_pos29")
+            type_exon6_58 = safe_get_type(df, "Exon6_pos58")
 
             # Exon 7 A subtype positions
-            type_exon7_93 = df.at[0, ("Exon7_pos93", "Type")]
-            type_exon7_165 = df.at[0, ("Exon7_pos165", "Type")]
-            type_exon7_272 = df.at[0, ("Exon7_pos272", "Type")]
-            type_exon7_307 = df.at[0, ("Exon7_pos307", "Type")]
-            type_exon7_371 = df.at[0, ("Exon7_pos371", "Type")]
-            type_exon7_446 = df.at[0, ("Exon7_pos446", "Type")]
-            type_exon7_680 = df.at[0, ("Exon7_pos680", "Type")]
-            type_exon7_687 = df.at[0, ("Exon7_pos687", "Type")]
+            type_exon7_93 = safe_get_type(df, "Exon7_pos93")
+            type_exon7_165 = safe_get_type(df, "Exon7_pos165")
+            type_exon7_272 = safe_get_type(df, "Exon7_pos272")
+            type_exon7_307 = safe_get_type(df, "Exon7_pos307")
+            type_exon7_371 = safe_get_type(df, "Exon7_pos371")
+            type_exon7_446 = safe_get_type(df, "Exon7_pos446")
+            type_exon7_680 = safe_get_type(df, "Exon7_pos680")
+            type_exon7_687 = safe_get_type(df, "Exon7_pos687")
 
-            nreads6 = df.at[0, ("Exon6_pos22", "#Reads")]
-            nreads_exon7_p422 = df.at[0, ("Exon7_pos422", "#Reads")]
-            nreads_exon7_p428 = df.at[0, ("Exon7_pos428", "#Reads")]
-            nreads_exon7_p429 = df.at[0, ("Exon7_pos429", "#Reads")]
-            nreads_exon7_p431 = df.at[0, ("Exon7_pos431", "#Reads")]
+            # Read counts with validation
+            nreads6 = safe_get_reads(df, "Exon6_pos22")
+            nreads_exon7_p422 = safe_get_reads(df, "Exon7_pos422")
+            nreads_exon7_p428 = safe_get_reads(df, "Exon7_pos428")
+            nreads_exon7_p429 = safe_get_reads(df, "Exon7_pos429")
+            nreads_exon7_p431 = safe_get_reads(df, "Exon7_pos431")
 
             Phenotype = "Unknown"
             Genotype = "Unknown"
@@ -865,18 +927,32 @@ class ABOReportParser:
                 nreads_exon7_p429,
                 nreads_exon7_p431,
             ]
-            read_counts = [x for x in read_counts if str(x) != "nan" and float(x) > 0]
 
-            if read_counts:
-                min_reads = min(read_counts)
+            # Improved read count validation
+            valid_read_counts = []
+            for count in read_counts:
+                try:
+                    if pd.notna(count) and float(count) > 0:
+                        valid_read_counts.append(float(count))
+                except (ValueError, TypeError):
+                    continue
+
+            if valid_read_counts:
+                min_reads = min(valid_read_counts)
+                avg_reads = sum(valid_read_counts) / len(valid_read_counts)
+
                 if min_reads <= 20:
-                    Reliability = "Very Low(\u226420 reads)"
-                elif 20 < min_reads <= 40:
-                    Reliability = "Low (\u226440 reads)"
+                    Reliability = "Very Low(≤20 reads)"
+                elif min_reads <= 40:
+                    Reliability = "Low (≤40 reads)"
                 elif min_reads >= 500:
-                    Reliability = "Robust(\u2265500 reads)"
+                    Reliability = "Robust(≥500 reads)"
                 else:
                     Reliability = "Normal"
+
+                # Add additional context if there's high variation in read counts
+                if valid_read_counts and max(valid_read_counts) / min(valid_read_counts) > 5:
+                    Reliability += " (Variable coverage)"
             else:
                 Reliability = "Unknown (no read data)"
 
@@ -901,19 +977,17 @@ class ABOReportParser:
     def process_file(self, filename):
         """Process a single file and extract all necessary data."""
         try:
-            if "_" in filename:
-                parts = filename.split("_")
-                sample_name = "_".join(parts[:-1])
-                barcode = parts[-1]
-            else:
-                sample_name = filename
-                barcode = ""
+            # Use improved sample info extraction
+            sample_name, barcode, pattern_type = self.extract_sample_info(filename)
 
             exon6_dir = os.path.join(self.input_dir, filename, "exon6")
             exon7_dir = os.path.join(self.input_dir, filename, "exon7")
 
+            # Check if both directories exist
             if not (os.path.exists(exon6_dir) and os.path.exists(exon7_dir)):
-                print(f"Skipping file {filename}. Missing exon6 or exon7 directory.")
+                error_msg = f"Missing exon6 or exon7 directory"
+                print(f"Skipping file {filename}. {error_msg}.")
+                self.failed_samples.append({"sample": filename, "reason": error_msg})
                 return
 
             exon6_phenotypes = os.path.join(exon6_dir, "*.ABOPhenotype.txt")
@@ -922,34 +996,33 @@ class ABOReportParser:
             exon6_phenotype_files = glob.glob(exon6_phenotypes)
             exon7_phenotype_files = glob.glob(exon7_phenotypes)
 
+            # Validate presence of phenotype files
             if not exon6_phenotype_files:
-                print(f"Missing exon6 phenotype files for {filename}. Skipping.")
-                self.failed_samples.append(
-                    {"sample": filename, "reason": "Missing exon6 phenotype files"}
-                )
+                error_msg = "Missing exon6 phenotype files"
+                print(f"{error_msg} for {filename}. Skipping.")
+                self.failed_samples.append({"sample": filename, "reason": error_msg})
                 return
 
             if not exon7_phenotype_files:
-                print(f"Missing exon7 phenotype files for {filename}. Skipping.")
-                self.failed_samples.append(
-                    {"sample": filename, "reason": "Missing exon7 phenotype files"}
-                )
+                error_msg = "Missing exon7 phenotype files"
+                print(f"{error_msg} for {filename}. Skipping.")
+                self.failed_samples.append({"sample": filename, "reason": error_msg})
                 return
 
+            # Validate file sizes
             if os.path.getsize(exon6_phenotype_files[0]) == 0:
-                print(f"Empty exon6 phenotype file (0 kb) for {filename}. Skipping.")
-                self.failed_samples.append(
-                    {"sample": filename, "reason": "Empty exon6 phenotype file (0 kb)"}
-                )
+                error_msg = "Empty exon6 phenotype file (0 kb)"
+                print(f"{error_msg} for {filename}. Skipping.")
+                self.failed_samples.append({"sample": filename, "reason": error_msg})
                 return
 
             if os.path.getsize(exon7_phenotype_files[0]) == 0:
-                print(f"Empty exon7 phenotype file (0 kb) for {filename}. Skipping.")
-                self.failed_samples.append(
-                    {"sample": filename, "reason": "Empty exon7 phenotype file (0 kb)"}
-                )
+                error_msg = "Empty exon7 phenotype file (0 kb)"
+                print(f"{error_msg} for {filename}. Skipping.")
+                self.failed_samples.append({"sample": filename, "reason": error_msg})
                 return
 
+            # Initialize result dataframe
             result_df = pd.DataFrame(columns=self.columns)
             result_df.loc[0, ("", "Barcode")] = barcode.replace("barcode", "")
             result_df.loc[0, ("", "Sequencing_ID")] = sample_name
@@ -1027,43 +1100,65 @@ class ABOReportParser:
 
     def process_files(self):
         """Process all files in the input directory that match expected patterns."""
+        print(f"Scanning directory: {self.input_dir}")
+
+        # Check if there are any valid directories to process
+        valid_directories = []
         for filename in os.listdir(self.input_dir):
             if os.path.isdir(os.path.join(self.input_dir, filename)):
-                try:
-                    pattern = r"^(IMM|INGS|NGS|[A-Z0-9]+)(-[A-Z0-9]+)?(-[A-Z0-9]+)?_barcode\d+$"
-                    match = re.match(pattern, filename)
+                match_with_barcode = self.pattern_with_barcode.match(filename)
+                match_without_barcode = self.pattern_without_barcode.match(filename)
+                if match_with_barcode or match_without_barcode:
+                    valid_directories.append(filename)
+                else:
+                    self.processing_stats["pattern_failed"] += 1
+                    self.failed_samples.append(
+                        {"sample": filename, "reason": "Filename pattern not recognized"}
+                    )
 
-                    if match:
-                        print("\nProcessing file: " + filename)
+        if not valid_directories:
+            print("No valid sample directories found matching expected patterns.")
+            return
 
-                        parts = filename.split("_")
+        # Print the processing start message only when we have data to process
+        print("\033[92m\n ********* Started combining samples to single file ********* \033[0m\n")
 
-                        if len(parts) >= 2:
-                            sample_name = parts[0]
-                            barcode = parts[-1]
-                            if barcode.startswith("barcode"):
-                                print(
-                                    f"Extracted Sample: {sample_name}, Barcode: {barcode}"
-                                )
-                                self.process_file(filename)
-                                print(
-                                    "Done adding Sample %s with barcode %s to merged data frame"
-                                    % (sample_name, barcode)
-                                )
-                            else:
-                                print(
-                                    f"\nBarcode format incorrect in filename: {filename}"
-                                )
-                        else:
-                            print(
-                                f"Filename does not have the expected number of parts: {filename}"
-                            )
-                    else:
-                        print(f"\nFile does not match expected patterns: {filename}")
-                except Exception as e:
-                    print(f"\nError processing file {filename}: {e}")
-                finally:
-                    print(f"Finished processing file: {filename}")
+        for filename in valid_directories:
+            try:
+                self.processing_stats["pattern_matched"] += 1
+                print(f"\nProcessing file: {filename}")
+
+                # Extract sample information using improved helper method
+                sample_name, barcode, pattern_type = self.extract_sample_info(filename)
+
+                if pattern_type == "explicit":
+                    self.processing_stats["with_barcode"] += 1
+                    print(f"Extracted Sample: {sample_name}, Barcode: {barcode}")
+                else:
+                    self.processing_stats["without_barcode"] += 1
+                    print(f"Extracted Sample: {sample_name}, Barcode: {barcode} (default)")
+
+                # Validate sample name doesn't contain problematic characters
+                if any(char in sample_name for char in ['<', '>', ':', '"', '|', '?', '*']):
+                    print(f"Warning: Sample name '{sample_name}' contains potentially problematic characters")
+
+                self.process_file(filename)
+                print(f"Done adding Sample {sample_name} with barcode {barcode} to merged data frame")
+            except Exception as e:
+                print(f"\nError processing file {filename}: {e}")
+                self.failed_samples.append(
+                    {"sample": filename, "reason": f"Processing error: {str(e)}"}
+                )
+            finally:
+                print(f"Finished processing file: {filename}")
+
+        # Print processing statistics
+        print(f"\n--- Processing Statistics ---")
+        print(f"Files with explicit barcode: {self.processing_stats['with_barcode']}")
+        print(f"Files using default barcode: {self.processing_stats['without_barcode']}")
+        print(f"Total pattern matches: {self.processing_stats['pattern_matched']}")
+        print(f"Pattern match failures: {self.processing_stats['pattern_failed']}")
+        print(f"----------------------------")
 
     def merge_dataframes(self):
         final_df = pd.concat(self.results)
@@ -1324,12 +1419,138 @@ class ABOReportParser:
         else:
             print("\nAll samples processed successfully.")
 
+        # Print comprehensive processing summary
+        print(f"\n=== PROCESSING SUMMARY ===")
+        print(f"Total directories scanned: {self.processing_stats['pattern_matched'] + self.processing_stats['pattern_failed']}")
+        print(f"Successfully processed: {len(self.results)}")
+        print(f"Samples with explicit barcode: {self.processing_stats['with_barcode']}")
+        print(f"Samples with default barcode ({self.default_barcode}): {self.processing_stats['without_barcode']}")
+        print(f"Failed samples: {len(self.failed_samples)}")
+        print(f"Pattern recognition failures: {self.processing_stats['pattern_failed']}")
+
+        if len(self.results) > 0:
+            # Analyze phenotype distribution
+            try:
+                phenotype_counts = final_df["Phenotype"].value_counts()
+                print(f"\nPhenotype Distribution:")
+                for phenotype, count in phenotype_counts.items():
+                    print(f"  {phenotype}: {count}")
+            except Exception as e:
+                print(f"Could not analyze phenotype distribution: {e}")
+
+        print(f"============================")
+
+
+def create_argument_parser():
+    """Create and configure argument parser with comprehensive help."""
+    parser = argparse.ArgumentParser(
+        prog="aggregate_abo_reports.py",
+        description="ABO Blood Group Report Aggregator - Combines individual sample ABO phenotype results into unified reports.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+EXAMPLES:
+  # Basic usage with default barcode (barcode00):
+  python aggregate_abo_reports.py /path/to/results
+
+  # Specify custom default barcode:
+  python aggregate_abo_reports.py /path/to/results --default-barcode barcode99
+
+  # Process data with verbose output:
+  python aggregate_abo_reports.py /path/to/results --verbose
+
+EXPECTED DIRECTORY STRUCTURE:
+  input_directory/
+  ├── SAMPLE1_barcode01/
+  │   ├── exon6/
+  │   │   └── *.ABOPhenotype.txt
+  │   └── exon7/
+  │       └── *.ABOPhenotype.txt
+  ├── SAMPLE2_barcode02/
+  └── SAMPLE3/  (will use default barcode)
+
+SUPPORTED SAMPLE NAMING PATTERNS:
+  - With explicit barcode: SAMPLE_barcode01, NGS123_barcode15, IMM-001_barcode99
+  - Without barcode: SAMPLE, NGS123, IMM-001 (will use default barcode)
+  - Case-insensitive: sample_barcode01, ngs123_BARCODE15
+
+OUTPUT FILES:
+  - ABO_result.txt: Tab-separated comprehensive results
+  - ABO_result.xlsx: Excel file with conditional formatting
+  - final_export.csv: LIS-compatible export format
+
+RELIABILITY INDICATORS:
+  - Very Low (≤20 reads): Red highlighting, requires manual review
+  - Low (≤40 reads): Orange highlighting, proceed with caution
+  - Normal (>40 reads): Standard processing confidence
+  - Robust (≥500 reads): High confidence results
+
+For more information, see: https://github.com/fmobegi/nf-core-abotyper
+        """)
+
+    parser.add_argument(
+        "input_directory",
+        help="Path to directory containing sample subdirectories with ABO phenotype results"
+    )
+
+    parser.add_argument(
+        "--default-barcode", "-b",
+        default="barcode00",
+        metavar="BARCODE",
+        help="Default barcode for samples without explicit barcode suffix (default: %(default)s)"
+    )
+
+    parser.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        help="Enable verbose output for debugging"
+    )
+
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+        help="Show version information and exit"
+    )
+
+    return parser
+
+
+def validate_arguments(args):
+    """Validate command line arguments and input directory."""
+    # Validate input directory exists
+    if not os.path.exists(args.input_directory):
+        print(f"Error: Input directory '{args.input_directory}' does not exist.")
+        sys.exit(1)
+
+    if not os.path.isdir(args.input_directory):
+        print(f"Error: '{args.input_directory}' is not a directory.")
+        sys.exit(1)
+
+    # Validate barcode format
+    if not re.match(r'^barcode\d{1,2}$', args.default_barcode):
+        print(f"Warning: Unusual barcode format '{args.default_barcode}'. Expected format: barcodeXX")
+
+    return True
+
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("\nUsage: python ABOReportParser.py <input_directory>\n")
-        sys.exit(1)
-    input_directory = sys.argv[1]
-    parser = ABOReportParser(input_directory)
-    parser.run()
+    # Parse command line arguments
+    parser = create_argument_parser()
+    args = parser.parse_args()
+
+    # Validate arguments
+    validate_arguments(args)
+
+    # Configure verbosity
+    if args.verbose:
+        print(f"Verbose mode enabled")
+        print(f"Input directory: {args.input_directory}")
+        print(f"Default barcode: {args.default_barcode}")
+        print(f"Script version: {__version__}")
+
+    print(f"Using default barcode: {args.default_barcode}")
+
+    # Create and run parser
+    parser_instance = ABOReportParser(args.input_directory, args.default_barcode)
+    parser_instance.run()
     print("All done!\n")
