@@ -2,16 +2,13 @@ process GETABOSNPS {
     tag "$meta.id"
     label 'process_single'
 
-    /*
-    changes to python script not processed properly on re-run
-    Disable caching for the process to repeat every time
-    */
+    // Disable caching to ensure changes made on python script are picked up
     // cache false
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/pandas:1.3.5' :
-        'biocontainers/pandas:1.3.5' }"
+        'oras://community.wave.seqera.io/library/json5_pandas_python:ce15c1d2f7290f72' :
+        'community.wave.seqera.io/library/json5_pandas_python:e3184b0698afebbd' }"
 
     input:
     tuple val(meta), path(variants_freq), path(coverage), val(exon_n)
@@ -37,9 +34,10 @@ process GETABOSNPS {
     "${task.process}":
         python: \$(python3 --version | sed 's/Python //g')
         pandas: \$(python3 -c "import pandas; print(pandas.__version__)")
+        json5: \$(python3 -c "import json5; print(json5.__version__)")
     END_VERSIONS
     """
-
+    
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
@@ -50,6 +48,7 @@ process GETABOSNPS {
     "${task.process}":
         python: \$(python3 --version | sed 's/Python //g')
         pandas: \$(python3 -c "import pandas; print(pandas.__version__)")
+        json5: \$(python3 -c "import json5; print(json5.__version__)")
     END_VERSIONS
     """
 }

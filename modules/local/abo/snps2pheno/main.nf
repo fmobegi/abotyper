@@ -4,8 +4,8 @@ process ABOSNPS2PHENO {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.9--1':
-        'biocontainers/python:3.9--1' }"
+        'oras://community.wave.seqera.io/library/pandas_xlsxwriter:bf29c70226ad9151':
+        'community.wave.seqera.io/library/pandas_xlsxwriter:b231bcbbf11b41fd' }"
 
     publishDir "${params.outdir}", mode: 'copy'
 

@@ -1,5 +1,12 @@
-include { GETABOSNPS        } from '../../../modules/local/abo/abosnps/main'
-include { ABOSNPS2PHENO     } from '../../../modules/local/abo/snps2pheno/main'
+/*
+ * Subworkflow: predict_abo_phenotype
+ * Description: Predicts ABO phenotype by combining variant frequency data
+ * with BAM coverage, extracting SNPs, and mapping them to phenotypes.
+ * Uses metadata-driven joining and structured per-sample output.
+ */
+
+include { GETABOSNPS    } from '../../../modules/local/abo/abosnps/main'
+include { ABOSNPS2PHENO } from '../../../modules/local/abo/snps2pheno/main'
 
 workflow PREDICTABOPHENOTYPE {
 
@@ -11,21 +18,31 @@ workflow PREDICTABOPHENOTYPE {
 
     ch_versions = Channel.empty()
 
-    // Join variants frequency with coverage based on matching metadata
+    //
+    // JOIN: Variant frequency with BAM coverage
+    //
     ch_combined_input = ch_variants_freq
         .join(ch_bam_coverage)
         .map { meta, freq, cov ->
             [meta, freq, cov, meta.exon]  // Pass exon as parameter
         }
 
-    // Check channels for sanity
-    // ch_combined_input.view { meta, freq, cov, exon -> "Combined: meta=$meta, freq=$freq, cov=$cov, exon=$exon" }
+    // 🔍 SANITY CHECK: View combined input structure
+    // ch_combined_input.view {
+    //     meta, freq, cov, exon -> "Combined: meta=$meta, freq=$freq, cov=$cov, exon=$exon"
+    // }
 
-    GETABOSNPS ( ch_combined_input )
-
+    //
+    // MODULE: abo/abosnps
+    //
+    GETABOSNPS (
+        ch_combined_input
+    )
     ch_versions = ch_versions.mix(GETABOSNPS.out.versions)
 
-    // Prepare SNP reports for ABOSNPS2PHENO
+    //
+    // PREP: Organize SNP reports by sample and exon
+    //
     ch_SNP_reports = GETABOSNPS.out.phenotype
         .map { meta, file ->
             [meta.id, [exon: meta.exon, file: file]]
@@ -43,9 +60,14 @@ workflow PREDICTABOPHENOTYPE {
         }
         .collect()
 
-    // Stage the existing per_sample_processing directory
+    //
+    // STAGE: Existing per_sample_processing directory in results
+    //
     ch_per_sample_processing = Channel.fromPath("${params.outdir}/per_sample_processing", type: 'dir')
 
+    //
+    // MODULE: abo/snps2pheno
+    //
     ABOSNPS2PHENO (
         ch_SNP_reports,
         ch_per_sample_processing
