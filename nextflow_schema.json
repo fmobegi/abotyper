@@ -192,8 +192,7 @@
                     "format": "file-path",
                     "description": "Custom config file to supply to MultiQC.",
                     "fa_icon": "fas fa-cog",
-                    "hidden": true,
-                    "default": "/data/ABO-analysis-31-Oct-2023/nf-core-abotyper/assets/multiqc_config.yaml"
+                    "hidden": true
                 },
                 "multiqc_logo": {
                     "type": "string",
