@@ -37,7 +37,7 @@ process GETABOSNPS {
         json5: \$(python3 -c "import json5; print(json5.__version__)")
     END_VERSIONS
     """
-    
+
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
