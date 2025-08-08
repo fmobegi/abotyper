@@ -4,7 +4,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+// include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+// Using local 1.28 until we figure out AVX2 compatibility issues with v1.30
+include { MULTIQC                } from '../modules/local/multiqc/main'
 include { MAKEINDEX              } from '../modules/local/makeindex/main'
 
 include { paramsSummaryMap       } from 'plugin/nf-schema'

@@ -99,14 +99,14 @@ Sample1-2024-12345_barcode22.fastq
 
 # Running `nf-core/abotyper`
 
-This pipeline has been extensively tested using conda profile. Other containerisation methods are being improved,tested and documented.
+This pipeline has been extensively tested using conda, docker, and singularity profiles. Other containerisation methods are being improved,tested and documented.
 
 To run this pipeline, use:
 
 ```bash
 nextflow run nf-core/abotyper \
   -resume \
-  -profile conda \
+  -profile "<conda/docker/singularity>" \
   --input samplesheet.csv \
   --outdir "$PWD/OUTDIR"
 ```
@@ -198,10 +198,11 @@ Feel free to raise an issue or reach out if you need any support getting this to
 
 nf-core/abotyper was originally written by Fredrick M. Mobegi: [@fmobegi](https://github.com/fmobegi) at the Department of Clinical Immunology, [PathWest Laboratory Medicine WA](https://pathwest.health.wa.gov.au/).
 
-We thank the following people for their extensive assistance in the development of this pipeline:
+We thank the following people for their extensive assistance in the development and testing of this pipeline:
 
 - [Benedict Matern](https://github.com/bmatern)
 - [Mathijs Groeneweg](https://orcid.org/0000-0002-6615-9239)
+- [Filipe Ayora](https://github.com/fayora)
 
 Maintenance and future developements will be led by Fredrick Mobegi.
 
