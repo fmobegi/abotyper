@@ -13,6 +13,7 @@ Initial release of nf-core/abotyper, created with the [nf-core](https://nf-co.re
 - Metadata propagation for exonic information
 - Improved meta.yaml documentation for local modules
 - Updated documenting and staging of versions.yaml files for MultiQC
+- Testing docker and singularity containers for requisite profiles support
 
 ### Changed
 
@@ -26,12 +27,13 @@ Initial release of nf-core/abotyper, created with the [nf-core](https://nf-co.re
 
 ### Fixed
 
-- Fixed MultiQC configuration syntax errors
+- Fixed MultiQC configuration errors
 - Improved file staging for MultiQC compatibility
+- Fixed issues with metadata propagation in the pipeline to reduce modules aliasing
 
 ### Known Issues
 
-- TODO: Explore why MultiQC-1.30 treats the `\.` at the end of command as an illegal character causing failure
+- MultiQC-1.30 treats the `\.` at the end of the `multiqc module command` as an illegal character causing failure. After long discussions and testing on different platforms, it was determined that this is a potential `AVX2` issue. Some python libraries may have been compiled with AVX2 instructions under containerised environments.
 
 ## [1.1.0] - [2025-07-31]
 
