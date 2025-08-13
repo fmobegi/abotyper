@@ -27,7 +27,7 @@ workflow PREDICTABOPHENOTYPE {
             [meta, freq, cov, meta.exon]  // Pass exon as parameter
         }
 
-    // 🔍 SANITY CHECK: View combined input structure
+    // SANITY CHECK: View combined input structure
     // ch_combined_input.view {
     //     meta, freq, cov, exon -> "Combined: meta=$meta, freq=$freq, cov=$cov, exon=$exon"
     // }

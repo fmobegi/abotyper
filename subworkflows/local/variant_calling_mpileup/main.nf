@@ -39,7 +39,7 @@ workflow VARIANTS_QUANTIFICATION {
     SAMtools is the main offender. Modules parameterization keeps fluctuating between samtools/subtool
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
-    // @TODO NOTE TO SELF:  UNCOMMENT TO EXECUTE FOR TESTING
+    // NOTE: UNCOMMENT THE FOLLOWING LINE TO EXECUTE FOR TESTING
     // ch_fasta_matched.view { "MPILEUP input: $it" }
 
     /*

@@ -1,44 +1,29 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
-name: "predictabophenotype"
-## TODO nf-core: Add a description of the subworkflow and list keywords
-description: Sort SAM/BAM/CRAM file
+name: "PREDICTABOPHENOTYPE"
+description: Predicts ABO phenotype by combining variant frequency data with BAM coverage, extracting SNPs, and mapping them to phenotypes. Uses metadata-driven joining and structured per-sample output.
 keywords:
-  - sort
-  - bam
-  - sam
-  - cram
-## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+  - abo-typing
+  - phenotype-prediction
+  - snp-analysis
+  - variant-frequency
+  - coverage-analysis
 components:
-  - samtools/sort
-  - samtools/index
-## TODO nf-core: List all of the channels used as input with a description and their structure
+  - abosnps2pheno
+  - getabosnps
 input:
-  - ch_bam:
-      type: file
+  - ch_variants_freq:
+      type: channel
       description: |
-        The input channel containing the BAM/CRAM/SAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.{bam/cram/sam}"
-## TODO nf-core: List all of the channels used as output with a descriptions and their structure
+        Channel containing variant frequency files with exon metadata
+        Structure: [ val(meta), path(freq) ]
+      pattern: "*.{tsv,txt}"
+  - ch_bam_coverage:
+      type: channel
+      description: |
+        Channel containing BAM coverage files with exon metadata
+        Structure: [ val(meta), path(cov) ]
+      pattern: "*.{txt,tsv}"
 output:
-  - bam:
-      type: file
-      description: |
-        Channel containing BAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.bam"
-  - bai:
-      type: file
-      description: |
-        Channel containing indexed BAM (BAI) files
-        Structure: [ val(meta), path(bai) ]
-      pattern: "*.bai"
-  - csi:
-      type: file
-      description: |
-        Channel containing CSI files
-        Structure: [ val(meta), path(csi) ]
-      pattern: "*.csi"
   - versions:
       type: file
       description: |

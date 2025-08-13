@@ -1,44 +1,54 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
-name: "variant_calling_mpileup"
-## TODO nf-core: Add a description of the subworkflow and list keywords
-description: Sort SAM/BAM/CRAM file
+name: "VARIANTS_QUANTIFICATION"
+description: Performs variant calling using samtools mpileup and calculates nucleotide frequencies at specified positions. Uses metadata-driven approach to match BAM files with BED intervals and reference sequences.
 keywords:
-  - sort
-  - bam
-  - sam
-  - cram
-## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+  - variant-calling
+  - mpileup
+  - nucleotide-frequency
+  - samtools
+  - abo
+  - exons
 components:
-  - samtools/sort
-  - samtools/index
-## TODO nf-core: List all of the channels used as input with a description and their structure
+  - samtools/mpileup
+  - mpileup/nucl/freq
 input:
   - ch_bam:
-      type: file
+      type: channel
       description: |
-        The input channel containing the BAM/CRAM/SAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.{bam/cram/sam}"
-## TODO nf-core: List all of the channels used as output with a descriptions and their structure
-output:
-  - bam:
-      type: file
-      description: |
-        Channel containing BAM files
+        Channel containing BAM files with exon metadata
         Structure: [ val(meta), path(bam) ]
       pattern: "*.bam"
-  - bai:
-      type: file
+  - ch_bai:
+      type: channel
       description: |
-        Channel containing indexed BAM (BAI) files
+        Channel containing BAM index files with exon metadata
         Structure: [ val(meta), path(bai) ]
       pattern: "*.bai"
-  - csi:
+  - ch_fasta:
+      type: channel
+      description: |
+        Channel containing FASTA reference files with exon metadata
+        Structure: [ val(meta), path(fasta) ]
+      pattern: "*.{fasta,fa,fas}"
+  - ch_fai:
+      type: channel
+      description: |
+        Channel containing FASTA index files with exon metadata
+        Structure: [ val(meta), path(fai) ]
+      pattern: "*.fai"
+  - ch_bed:
+      type: channel
+      description: |
+        Channel containing BED interval files with exon metadata
+        Structure: [ val(meta), path(bed) ]
+      pattern: "*.bed"
+output:
+  - metrics:
       type: file
       description: |
-        Channel containing CSI files
-        Structure: [ val(meta), path(csi) ]
-      pattern: "*.csi"
+        Channel containing nucleotide frequency metrics in TSV format
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.tsv"
   - versions:
       type: file
       description: |
