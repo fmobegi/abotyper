@@ -5,7 +5,9 @@
 */
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 // include { MULTIQC                } from '../modules/nf-core/multiqc/main'
-// Using local 1.28 until we figure out AVX2 compatibility issues with v1.30
+// Using  MULTIQC v1.28 (broad compatibility)
+// This is a temporary workaround until we can figure out the AVX2 compatibility issues with MultiQC v1.30
+// Some python libraries are being compiled with AVX2 instructions under containerised environments, even though local versions behave differently.
 include { MULTIQC                } from '../modules/local/multiqc/main'
 include { MAKEINDEX              } from '../modules/local/makeindex/main'
 
@@ -45,9 +47,8 @@ workflow ABOTYPER {
     main:
 
     ch_versions = Channel.empty()
-    ch_multiqc_files = Channel.empty()
 
-        //
+    //
     // Prepare sample channels with exon metadata for mapping to each reference
     //
     ch_exon6_samples = ch_samplesheet
@@ -93,14 +94,6 @@ workflow ABOTYPER {
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-    // Collect fastqc reports for multiqc
-    ch_multiqc_files = ch_multiqc_files.mix(
-        FASTQC.out.zip.map { meta, zip ->
-            def new_name = "${meta.id}_fastqc.zip"
-            [zip, new_name]
-        }
-    )
-
     //
     // SUBWORKFLOW: minimap2/align (with pre-prepared inputs for better caching)
     //
@@ -110,14 +103,6 @@ workflow ABOTYPER {
         ch_combined_fai
     )
     ch_versions = ch_versions.mix(MINIMAP2_ALIGN_READS.out.versions)
-
-    // Collect alignment QC files for MultiQC
-    ch_multiqc_files = ch_multiqc_files.mix(
-        MINIMAP2_ALIGN_READS.out.coverage.map { meta, cov ->
-            def new_name = "${meta.id}_${meta.exon}.coverage.txt"
-            [cov, new_name]
-        }
-    )
 
     //
     // SUBWORKFLOW: Run pileup for variants with properly combined bed files
@@ -136,14 +121,6 @@ workflow ABOTYPER {
         ch_combined_bed  // Pass combined bed files with exon metadata
     )
     ch_versions = ch_versions.mix(VARIANTS_QUANTIFICATION.out.versions)
-
-    // Collect variant metrics for MultiQC
-    ch_multiqc_files = ch_multiqc_files.mix(
-        VARIANTS_QUANTIFICATION.out.metrics.map { meta, metrics ->
-            def new_name = "${meta.id}_${meta.exon}.freq.tsv"
-            [metrics, new_name]
-        }
-    )
 
     //
     // SUBWORKFLOW: Run ABO prediction
@@ -165,12 +142,25 @@ workflow ABOTYPER {
             newLine: true
         ).set { ch_collated_versions }
 
-    // Stage all files for MultiQC with proper naming
-    ch_staged_files = ch_multiqc_files
-        .collectFile() { file, new_name ->
-            [new_name, file]
-        }
-        .collect()
+    //
+    // Prepare all MultiQC inputs without staging
+    //
+    summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
+    ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
+
+    ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
+        file(params.multiqc_methods_description, checkIfExists: true) :
+        file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
+    ch_methods_description = Channel.value(methodsDescriptionText(ch_multiqc_custom_methods_description))
+
+    // Collect all MultiQC inputs directly without staging
+    ch_multiqc_inputs = Channel.empty()
+        .mix(FASTQC.out.zip.map { meta, files -> files }.flatten())
+        .mix(MINIMAP2_ALIGN_READS.out.coverage.map { meta, cov -> cov })
+        .mix(VARIANTS_QUANTIFICATION.out.metrics.map { meta, metrics -> metrics })
+        .mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+        .mix(ch_collated_versions)
+        .mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
 
     //
     // MODULE: MultiQC
@@ -184,29 +174,8 @@ workflow ABOTYPER {
         Channel.fromPath(params.multiqc_logo, checkIfExists: true) :
         Channel.empty()
 
-    summary_params      = paramsSummaryMap(
-        workflow, parameters_schema: "nextflow_schema.json")
-    ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
-
-    ch_multiqc_files_final = ch_staged_files
-        .mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-        .mix(ch_collated_versions)
-
-    ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
-        file(params.multiqc_methods_description, checkIfExists: true) :
-        file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
-    ch_methods_description                = Channel.value(
-        methodsDescriptionText(ch_multiqc_custom_methods_description))
-
-    ch_multiqc_files_final = ch_multiqc_files_final.mix(
-        ch_methods_description.collectFile(
-            name: 'methods_description_mqc.yaml',
-            sort: true
-        )
-    )
-
     MULTIQC (
-        ch_multiqc_files_final.collect(),
+        ch_multiqc_inputs.collect(),
         ch_multiqc_config.toList(),
         ch_multiqc_custom_config.toList(),
         ch_multiqc_logo.toList(),

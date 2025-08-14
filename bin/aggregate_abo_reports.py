@@ -60,9 +60,10 @@ class ABOReportParser:
         self.initialize_columns()
         self.failed_samples = []
 
-        # Compile regex patterns once for better performance
+        # Compile regex patterns once for better performance - UPDATED PATTERNS
         self.pattern_with_barcode = re.compile(r"^(IMM|INGS|NGS|[A-Z0-9]+)(-[A-Z0-9]+)?(-[A-Z0-9]+)?_barcode\d+$", re.IGNORECASE)
-        self.pattern_without_barcode = re.compile(r"^(IMM|INGS|NGS|[A-Z0-9]+)(-[A-Z0-9]+)?(-[A-Z0-9]+)?$", re.IGNORECASE)
+        # More flexible pattern for samples without barcode - accepts any alphanumeric with underscores
+        self.pattern_without_barcode = re.compile(r"^[A-Z0-9]+(_[A-Z0-9]+)*$", re.IGNORECASE)
 
         # Statistics tracking
         self.processing_stats = {
@@ -169,8 +170,10 @@ class ABOReportParser:
                 barcode = f"barcode{parts[1]}"
             return sample_name, barcode, "explicit"
         else:
+            # For samples without explicit barcode, use the filename as sample name
             sample_name = filename
             barcode = self.default_barcode
+            print(f"No barcode found in '{filename}', using default barcode: {barcode}")
             return sample_name, barcode, "default"
 
     def parse_exon7(self, filename):
