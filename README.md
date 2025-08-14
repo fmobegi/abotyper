@@ -36,9 +36,20 @@ ABO sequences were acquired from the NCBI RefSeq and dbRBC databases:
 - [ABO Exon 6](https://www.ncbi.nlm.nih.gov/nuccore/NG_006669.2?from=22673&to=22807&report=fasta)
 - [ABO Exon 7](https://www.ncbi.nlm.nih.gov/nuccore/NG_006669.2?from=23860&to=29951&report=fasta)
 - [dbMHC and IHWG data](https://ftp.ncbi.nlm.nih.gov/pub/mhc/mhc/Final%20Archive/)
-  <!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-       workflows use the "tube map" design for that. See https://nf-co.re/docs/guidelines/graphic_design/workflow_diagrams#examples for examples.   -->
-  <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+
+## Pipeline steps
+
+The pipeline performs the following analysis steps:
+
+1. **Index preparation** - Convert FASTA index files (FAI) to BED format ([`MAKEINDEX`](modules/local/makeindex))
+2. **Read quality control** - Quality assessment of input FASTQ files ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+3. **Read alignment** - Map reads to ABO exon reference sequences ([`Minimap2`](https://github.com/lh3/minimap2))
+4. **Alignment statistics** - Generate coverage, flagstat, and alignment statistics ([`SAMtools`](http://samtools.sourceforge.net/))
+5. **Variant calling** - Generate mpileup files for variant detection ([`SAMtools mpileup`](http://samtools.sourceforge.net/))
+6. **Nucleotide frequency analysis** - Calculate nucleotide frequencies at polymorphic positions ([`MPILEUP_NUCL_FREQ`](modules/local/mpileup_nucl_freq))
+7. **SNP extraction** - Identify ABO-relevant single nucleotide variants ([`GETABOSNPS`](modules/local/getabosnps))
+8. **Phenotype prediction** - Predict ABO blood group phenotype from SNP patterns ([`ABOSNPS2PHENO`](modules/local/abosnps2pheno))
+9. **Quality control reporting** - Compile comprehensive QC report ([`MultiQC`](http://multiqc.info/))
 
 Exon 7 CDS reference sequence was truncated at 817 bp as this captures the targeted SNVs within the exon and UTR's
 
@@ -50,12 +61,12 @@ All SNVs relevant to ABO blood group genotyping have also been documented extens
 The pipeline makes use of the following core dependencies:
 
 ```yaml
-- bioconda::bwa=0.7.17
-- bioconda::fastqc=0.12.1
-- bioconda::minimap2=2.28-r1209
-- bioconda::multiqc>=1.25.1
-- bioconda::samtools=1.2.1
-- conda-forge::biopython>=1.83
+- bwa
+- fastqc
+- minimap2
+- multiqc (v1.28 prefered for now)
+- samtools
+- biopython
 - python>=3.8
 - pip
 - pip:
@@ -97,6 +108,18 @@ IMM-45-44874_barcode25.fastq
 Sample1-2024-12345_barcode22.fastq
 ```
 
+## Platform compatibility
+
+This pipeline was originally developed to process amplicon sequencing data from Oxford Nanopore Technologies platforms where multiple samples are expected to be barcoded. The pipeline has been extensively validated using Oxford Nanopore MinION data targeting ABO exons 6 and 7, which are the primary regions containing clinically relevant polymorphisms for ABO blood group determination.
+
+While we recommend using the above naming convention for optimal compatibility, the pipeline can also handle FASTQ files from other sequencing platforms including:
+
+- **PacBio** (currently undergoing testing)
+- **Ion Torrent** (currently undergoing testing)
+- **Illumina** (currently undergoing testing)
+
+The pipeline will attempt to extract the sample name and barcode from the filenames using standard genomic sequence naming conventions, but will fall back to a default barcode00 if filenames lack the expected barcode format. For non-Nanopore platforms, ensure your FASTQ files contain reads spanning the ABO exon 6 and exon 7 regions for accurate genotyping.
+
 # Running `nf-core/abotyper`
 
 This pipeline has been extensively tested using conda, docker, and singularity profiles. Other containerisation methods are being improved,tested and documented.
@@ -121,12 +144,10 @@ nextflow nf-core/abotyper \
   --outdir <OUTDIR>
 ```
 
-<!-- TODO
 # Renaming samples
 
-The code by default renames samples using a tab file with `sequencingID` and `sampleName` (see `nextflow.config` file under `$params.renaming_file`).
+The code by permits renaming of samples using a tab-delimited file with `sequencingID` and `sampleName` (see `nextflow.config` file under `$params.renaming_file`).
 This option is controlled by the parameter `$params.skip_renaming` and can be overridden via the commandline using option `--skip_renaming true` to skip the process.
--->
 
 # Output
 

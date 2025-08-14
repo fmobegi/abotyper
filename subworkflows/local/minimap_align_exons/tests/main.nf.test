@@ -27,7 +27,7 @@ nextflow_workflow {
                     [ id:'test_sample', single_end:true, exon:'exon6' ], // meta map with exon metadata
                     file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/fastq/test_1.fastq.gz', checkIfExists: true)
                 ]
-                // ch_combined_fasta: FASTA reference files with exon metadata  
+                // ch_combined_fasta: FASTA reference files with exon metadata
                 input[1] = [
                     [ id:'exon6_ref', exon:'exon6' ], // meta map with matching exon metadata
                     file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/genome.fasta', checkIfExists: true)

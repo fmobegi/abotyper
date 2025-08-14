@@ -9,7 +9,11 @@
 */
 
 include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
+include { paramsSummaryMap          } from 'plugin/nf-schema'
 include { samplesheetToList         } from 'plugin/nf-schema'
+include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
+include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
+include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
 
@@ -42,7 +46,6 @@ workflow PIPELINE_INITIALISATION {
         outdir,
         workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1
     )
-    ch_versions = ch_versions.mix(UTILS_NEXTFLOW_PIPELINE.out.versions)
 
     //
     // Validate parameters and generate parameter summary to stdout
@@ -52,7 +55,6 @@ workflow PIPELINE_INITIALISATION {
         validate_params,
         null
     )
-    ch_versions = ch_versions.mix(UTILS_NFSCHEMA_PLUGIN.out.versions)
 
     //
     // Check config provided to the pipeline
@@ -60,7 +62,6 @@ workflow PIPELINE_INITIALISATION {
     UTILS_NFCORE_PIPELINE (
         nextflow_cli_args
     )
-    ch_versions = ch_versions.mix(UTILS_NFCORE_PIPELINE.out.versions)
 
     //
     // Custom validation for pipeline parameters
@@ -114,40 +115,34 @@ workflow PIPELINE_COMPLETION {
     multiqc_report  //  string: Path to MultiQC report
 
     main:
-
-    ch_versions = Channel.empty()
+    summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
+    def multiqc_reports = multiqc_report.toList()
 
     //
     // Completion email and summary
     //
     workflow.onComplete {
         if (email || email_on_fail) {
-            log.info "Pipeline completed successfully!"
-            if (email) {
-                log.info "Completion notification would be sent to: ${email}"
-            }
-            if (email_on_fail) {
-                log.info "Failure notification configured for: ${email_on_fail}"
-            }
+            completionEmail(
+                summary_params,
+                email,
+                email_on_fail,
+                plaintext_email,
+                outdir,
+                monochrome_logs,
+                multiqc_reports.getVal(),
+            )
         }
 
-        log.info "Results published to: ${outdir}"
-        log.info "MultiQC report: ${multiqc_report}"
-        
+        completionSummary(monochrome_logs)
         if (hook_url) {
-            log.info "Notification would be sent to webhook: ${hook_url}"
+            imNotification(summary_params, hook_url)
         }
     }
 
     workflow.onError {
         log.error "Pipeline failed. Please refer to troubleshooting docs: https://nf-co.re/docs/usage/troubleshooting"
-        if (email_on_fail) {
-            log.info "Failure notification would be sent to: ${email_on_fail}"
-        }
     }
-
-    emit:
-    versions = ch_versions
 }
 
 /*
@@ -201,6 +196,7 @@ def genomeExistsError() {
         error(error_string)
     }
 }
+
 //
 // Generate methods description for MultiQC
 //
