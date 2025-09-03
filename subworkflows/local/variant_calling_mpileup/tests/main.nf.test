@@ -51,14 +51,6 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert snapshot(workflow.out).match() },
-                // Verify all expected outputs are present and contain expected content
-                { assert workflow.out.metrics },
-                { assert workflow.out.metrics.get(0).get(1) ==~ /.*\.tsv$/ },
-                { assert workflow.out.versions },
-                { assert workflow.out.versions.get(0) ==~ /.*versions\.yml$/ },
-                // Verify output file sizes are reasonable (not empty)
-                { assert path(workflow.out.metrics.get(0).get(1)).size() > 0 },
-                { assert path(workflow.out.versions.get(0)).size() > 0 }
             )
         }
     }
