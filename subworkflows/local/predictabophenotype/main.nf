@@ -1,5 +1,5 @@
 /*
- * Subworkflow: predict_abo_phenotype
+ * Subworkflow: PREDICTABOPHENOTYPE
  * Description: Predicts ABO phenotype by combining variant frequency data
  * with BAM coverage, extracting SNPs, and mapping them to phenotypes.
  * Uses metadata-driven joining and structured per-sample output.
@@ -18,31 +18,22 @@ workflow PREDICTABOPHENOTYPE {
 
     ch_versions = Channel.empty()
 
-    //
     // JOIN: Variant frequency with BAM coverage
-    //
     ch_combined_input = ch_variants_freq
         .join(ch_bam_coverage)
         .map { meta, freq, cov ->
             [meta, freq, cov, meta.exon]  // Pass exon as parameter
         }
 
-    // SANITY CHECK: View combined input structure
-    // ch_combined_input.view {
-    //     meta, freq, cov, exon -> "Combined: meta=$meta, freq=$freq, cov=$cov, exon=$exon"
-    // }
-
-    //
-    // MODULE: abo/abosnps
-    //
+    /*
+    MODULE: GETABOSNPS
+    */
     GETABOSNPS (
         ch_combined_input
     )
     ch_versions = ch_versions.mix(GETABOSNPS.out.versions)
 
-    //
-    // PREP: Organize SNP reports by sample and exon
-    //
+    // PREP:Organize SNP reports by sample and exon
     ch_SNP_reports = GETABOSNPS.out.phenotype
         .map { meta, file ->
             [meta.id, [exon: meta.exon, file: file]]
@@ -60,14 +51,12 @@ workflow PREDICTABOPHENOTYPE {
         }
         .collect()
 
-    //
     // STAGE: Existing per_sample_processing directory in results
-    //
     ch_per_sample_processing = Channel.fromPath("${params.outdir}/per_sample_processing", type: 'dir')
 
-    //
-    // MODULE: abo/snps2pheno
-    //
+    /*
+    MODULE: ABOSNPS2PHENO
+    */
     ABOSNPS2PHENO (
         ch_SNP_reports,
         ch_per_sample_processing

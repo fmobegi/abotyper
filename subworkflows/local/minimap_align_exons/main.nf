@@ -32,9 +32,9 @@ workflow MINIMAP2_ALIGN_READS {
             [combined_meta, fastq, fasta]
         }
 
-    //
-    // MODULE: Minimap2/align
-    //
+    /*
+    MODULE: MINIMAP2_ALIGN
+    */
     MINIMAP2_ALIGN (
         ch_minimap_ready.map { meta, fastq, fasta -> [meta, fastq] },
         ch_minimap_ready.map { meta, fastq, fasta -> [meta, fasta] },
@@ -49,12 +49,9 @@ workflow MINIMAP2_ALIGN_READS {
     ch_bam_bai = MINIMAP2_ALIGN.out.bam
         .join(MINIMAP2_ALIGN.out.index, by: 0)
 
-    //
-    // MODULE: Samtools/coverage
-    // Input: tuple val(meta), path(input), path(input_index)
-    //        tuple val(meta2), path(fasta)
-    //        tuple val(meta3), path(fai)
-    //
+    /*
+    MODULE: SAMTOOLS_COVERAGE
+    */
     ch_coverage_input = ch_bam_bai
         .combine(ch_combined_fasta)
         .combine(ch_combined_fai)
@@ -69,20 +66,17 @@ workflow MINIMAP2_ALIGN_READS {
     )
     ch_versions = ch_versions.mix(SAMTOOLS_COVERAGE.out.versions)
 
-    //
-    // MODULE: Samtools/flagstat
-    // Input: tuple val(meta), path(bam), path(bai)
-    //
+    /*
+    MODULE: SAMTOOLS_FLAGSTAT
+    */
     SAMTOOLS_FLAGSTAT (
         ch_bam_bai
     )
     ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT.out.versions)
 
-    //
-    // MODULE: Samtools/stats
-    // Input: tuple val(meta), path(input), path(input_index)
-    //        tuple val(meta2), path(fasta)
-    //
+    /*
+    MODULE: SAMTOOLS_STATS
+    */
     ch_stats_input = ch_bam_bai
         .combine(ch_combined_fasta)
         .filter { bam_meta, bam, bai, fasta_meta, fasta ->
@@ -96,12 +90,12 @@ workflow MINIMAP2_ALIGN_READS {
     ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
 
     emit:
-    bam           = MINIMAP2_ALIGN.out.bam                  // channel: [ val(meta), [ bam ] ] - with exon metadata
-    bai           = MINIMAP2_ALIGN.out.index                // channel: [ val(meta), [ bai ] ] - with exon metadata
-    coverage      = SAMTOOLS_COVERAGE.out.coverage         // channel: [ val(meta), [ txt ] ] - with exon metadata
-    flagstat      = SAMTOOLS_FLAGSTAT.out.flagstat         // channel: [ val(meta), [ flagstat ] ] - with exon metadata
-    stats         = SAMTOOLS_STATS.out.stats               // channel: [ val(meta), [ stats ] ] - with exon metadata
-    fasta         = ch_combined_fasta                       // channel: [ val(meta), [ fasta ] ] - with exon metadata
-    fai           = ch_combined_fai                         // channel: [ val(meta), [ fai ] ] - with exon metadata
-    versions      = ch_versions                             // channel: [ versions.yml ]
+    bam           = MINIMAP2_ALIGN.out.bam                // channel: [ val(meta), path(bam) ]
+    bai           = MINIMAP2_ALIGN.out.index              // channel: [ val(meta), path(bai) ]
+    coverage      = SAMTOOLS_COVERAGE.out.coverage        // channel: [ val(meta), path(txt) ]
+    flagstat      = SAMTOOLS_FLAGSTAT.out.flagstat        // channel: [ val(meta), path(flagstat) ]
+    stats         = SAMTOOLS_STATS.out.stats              // channel: [ val(meta), path(stats) ]
+    fasta         = ch_combined_fasta                     // channel: [ val(meta1), path(fasta) ]
+    fai           = ch_combined_fai                       // channel: [ val(meta1), path(fai) ]
+    versions      = ch_versions                           // channel: [ versions.yml ]
 }

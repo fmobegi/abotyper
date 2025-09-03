@@ -10,10 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": [
-                "input",
-                "outdir"
-            ],
+            "required": ["input", "outdir"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -66,7 +63,8 @@
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                     "description": "Path to FASTA genome file.",
                     "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
+                    "fa_icon": "far fa-file-code",
+                    "default": "/data/ABO-analysis-31-Oct-2023/nf-core-abotyper/assets/refs/ABO_Database.fasta"
                 },
                 "fai": {
                     "type": "string",
@@ -76,7 +74,8 @@
                     "pattern": "^\\S+\\.fai$",
                     "description": "Path to FASTA index file.",
                     "help_text": "This parameter specifies the path to the FASTA index file corresponding to the reference genome.",
-                    "fa_icon": "fas fa-list"
+                    "fa_icon": "fas fa-list",
+                    "default": "/data/ABO-analysis-31-Oct-2023/nf-core-abotyper/assets/refs/ABO_Database.fasta.fai"
                 },
                 "igenomes_ignore": {
                     "type": "boolean",
@@ -231,14 +230,7 @@
                     "description": "Method used to save pipeline results to output directory.",
                     "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
                     "fa_icon": "fas fa-copy",
-                    "enum": [
-                        "symlink",
-                        "rellink",
-                        "link",
-                        "copy",
-                        "copyNoFollow",
-                        "move"
-                    ],
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
                     "hidden": true
                 },
                 "email_on_fail": {
@@ -287,7 +279,8 @@
                     "type": "string",
                     "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file",
                     "fa_icon": "fas fa-image",
-                    "hidden": true
+                    "hidden": true,
+                    "default": "/data/ABO-analysis-31-Oct-2023/nf-core-abotyper/assets/pathwest_logo.png"
                 },
                 "multiqc_methods_description": {
                     "type": "string",

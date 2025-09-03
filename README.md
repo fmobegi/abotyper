@@ -41,20 +41,20 @@ ABO sequences were acquired from the NCBI RefSeq and dbRBC databases:
 
 The pipeline performs the following analysis steps:
 
-1. **Index preparation** - Convert FASTA index files (FAI) to BED format ([`MAKEINDEX`](modules/local/makeindex))
-2. **Read quality control** - Quality assessment of input FASTQ files ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-3. **Read alignment** - Map reads to ABO exon reference sequences ([`Minimap2`](https://github.com/lh3/minimap2))
-4. **Alignment statistics** - Generate coverage, flagstat, and alignment statistics ([`SAMtools`](http://samtools.sourceforge.net/))
-5. **Variant calling** - Generate mpileup files for variant detection ([`SAMtools mpileup`](http://samtools.sourceforge.net/))
-6. **Nucleotide frequency analysis** - Calculate nucleotide frequencies at polymorphic positions ([`MPILEUP_NUCL_FREQ`](modules/local/mpileup_nucl_freq))
-7. **SNP extraction** - Identify ABO-relevant single nucleotide variants ([`GETABOSNPS`](modules/local/getabosnps))
-8. **Phenotype prediction** - Predict ABO blood group phenotype from SNP patterns ([`ABOSNPS2PHENO`](modules/local/abosnps2pheno))
-9. **Quality control reporting** - Compile comprehensive QC report ([`MultiQC`](http://multiqc.info/))
+1. **Reference indexing** - Convert FASTA index files (FAI) to BED format for ABO exon 6 and 7 regions ([`MAKEINDEX`](modules/local/makeindex/))
+2. **Read quality control** - Quality assessment of input FASTQ files using FastQC ([`FASTQC`](modules/nf-core/fastqc/))
+3. **Read alignment** - Align reads to ABO exon reference sequences using Minimap2 with metadata-driven exon mapping ([`MINIMAP2_ALIGN`](modules/nf-core/minimap2/align/))
+4. **Alignment statistics** - Generate comprehensive alignment metrics including coverage, flagstat, and detailed statistics:
+   - Coverage analysis ([`SAMTOOLS_COVERAGE`](modules/nf-core/samtools/coverage/))
+   - Flagstat metrics ([`SAMTOOLS_FLAGSTAT`](modules/nf-core/samtools/flagstat/))
+   - Detailed statistics ([`SAMTOOLS_STATS`](modules/nf-core/samtools/stats/))
+5. **Variant calling** - Generate pileup files for variant detection at polymorphic positions ([`SAMTOOLS_MPILEUP`](modules/nf-core/samtools/mpileup/))
+6. **Nucleotide frequency analysis** - Calculate nucleotide frequencies at ABO-relevant polymorphic positions ([`MPILEUP_NUCL_FREQ`](modules/local/mpileupstats/))
+7. **SNP extraction** - Extract and analyze ABO-relevant single nucleotide variants from frequency data ([`GETABOSNPS`](modules/local/abo/abosnps/))
+8. **Phenotype prediction** - Predict ABO blood group phenotype from combined SNP patterns across exons ([`ABOSNPS2PHENO`](modules/local/abo/snps2pheno/))
+9. **Quality control reporting** - Compile comprehensive QC report with alignment and variant metrics ([`MULTIQC`](modules/nf-core/multiqc/))
 
 Exon 7 CDS reference sequence was truncated at 817 bp as this captures the targeted SNVs within the exon and UTR's
-
-If you would like to get up to speed with ABO genotyping, there is detailed reading material [here](https://ftp.ncbi.nlm.nih.gov/pub/mhc/rbc/Final%20Archive/Excel_and_PowerPoint/).
-All SNVs relevant to ABO blood group genotyping have also been documented extensively [here](https://bloodgroupdatabase.org/groups/details/?group_name=ABO)
 
 # Core dependencies
 
@@ -239,6 +239,14 @@ Maintenance and future developements will be led by Fredrick Mobegi.
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
 For further information or help, don't hesitate to get in touch on the [Slack `#abotyper` channel](https://nfcore.slack.com/channels/abotyper) (you can join with [this invite](https://nf-co.re/join/slack)).
+
+# Further reading
+
+Results generated from this pipeline should be interpreted together with the corresponding publication and literature on ABO genotyping.
+
+To get up to speed with ABO genotyping, there is detailed reading material [here](https://ftp.ncbi.nlm.nih.gov/pub/mhc/rbc/Final%20Archive/Excel_and_PowerPoint/).
+
+Verified SNVs relevant to ABO blood group genotyping have also been documented extensively [here](https://bloodgroupdatabase.org/groups/details/?group_name=ABO)
 
 # Citations
 
