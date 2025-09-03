@@ -5,8 +5,6 @@ custom_logo: "pathwest_logo.png"
 custom_logo_url: "https://www.pathwest.health.wa.gov.au/Our-Services/Clinical-Services/Immunology"
 custom_logo_title: "Department of Clinical Immunology, PathWest Laboratory Medicine WA, Fiona Stanley Hospital Network, Murdoch WA 6150, Australia"
 
-filename: "ABO_typing_multiqc"
-
 report_header_info:
   - Contact E-mail: "fredrick.mobegi@health.wa.gov.au"
   - Application Type: "Amplicon sequencing"
