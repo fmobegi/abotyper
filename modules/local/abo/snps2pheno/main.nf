@@ -9,12 +9,6 @@ process ABOSNPS2PHENO {
 
     publishDir "${params.outdir}", mode: 'copy'
 
-    /*
-    changes to python script not processed properly on re-run
-    Disable caching for the process to repeat every time
-    */
-    // cache false
-
     input:
     path(samples_dir)
     path(per_sample_processing)
