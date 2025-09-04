@@ -2,9 +2,6 @@ process GETABOSNPS {
     tag "$meta.id"
     label 'process_single'
 
-    // Disable caching to ensure changes made on python script are picked up
-    // cache false
-
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'oras://community.wave.seqera.io/library/json5_pandas_python:ce15c1d2f7290f72' :
