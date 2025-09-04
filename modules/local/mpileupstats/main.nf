@@ -12,13 +12,9 @@ process MPILEUP_NUCL_FREQ {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.9--1' :
-        'quay.io/biocontainers/python:3.9--1' }"
+        'oras://community.wave.seqera.io/library/python:3.13.5--f44fe0f0f87faa8f' :
+        'community.wave.seqera.io/library/python:3.13.5--18032a8dc5d4b91e' }"
 
-    // changes to python script not processed properly on re-run
-    // Disable caching for the process to repeat every time for easy debug
-
-    // cache false
 
     input:
     tuple val(meta), path(pileup)
