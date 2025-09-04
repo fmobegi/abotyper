@@ -4,5 +4,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  # - awk  # Note: awk is typically part of coreutils or the base system
-  # - coreutils
+  - gawk=5.3.1  # GNU awk implementation

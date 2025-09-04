@@ -2,6 +2,11 @@ process MAKEINDEX {
     tag "FAI to BED"
     label 'process_single'
 
+    conda "${moduleDir}/environment.yml"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'oras://community.wave.seqera.io/library/gawk:5.3.1--78c56a1b4e4b6534' :
+        'community.wave.seqera.io/library/gawk:5.3.1--e09efb5dfc4b8156' }"
+
     input:
     tuple val(meta), path(exon6fai)
     tuple val(meta1), path(exon7fai)
