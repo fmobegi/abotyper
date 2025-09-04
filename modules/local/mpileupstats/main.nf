@@ -37,7 +37,7 @@ process MPILEUP_NUCL_FREQ {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    python3 $projectDir/bin/stats_from_pileup.py \\
+    stats_from_pileup.py \\
         -i ${pileup} \\
         -o ${prefix}.AlignmentStatistics.tsv \\
         -s ABOReadPolymorphisms.txt

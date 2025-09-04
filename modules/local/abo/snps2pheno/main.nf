@@ -28,7 +28,7 @@ process ABOSNPS2PHENO {
 
     script:
     """
-    python3 $projectDir/bin/aggregate_abo_reports.py \\
+    aggregate_abo_reports.py \\
         per_sample_processing 2>&1 | tee ABO_results.log
 
     cat <<-END_VERSIONS > versions.yml

@@ -30,8 +30,6 @@ workflow ABOTYPER {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
-    // fai            // channel: fasta from params.fai (ABO database) || moved from global aligning to exon-based logic
-    // fasta          // channel: fasta from params.fasta (ABO database)
     exon6fai       // channel: fasta from params.exon6fai
     exon6fasta     // channel: fasta from params.exon6fasta
     exon7fai       // channel: fasta from params.exon7fai

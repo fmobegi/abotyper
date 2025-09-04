@@ -26,16 +26,12 @@ include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_abot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// params.fai        = getGenomeAttribute('fai') // moved from global aligning to exon-based logic
-// params.fasta      = getGenomeAttribute('fasta') // The database options remain muted as they're required for A1/A2 differentiation in the future implementation
 params.exon6fai   = getGenomeAttribute('exon6fai')
 params.exon6fasta = getGenomeAttribute('exon6fasta')
 params.exon7fai   = getGenomeAttribute('exon7fai')
 params.exon7fasta = getGenomeAttribute('exon7fasta')
 params.logo       = getGenomeAttribute('logo')
 
-// fai               = params.fai        ? Channel.fromPath(params.fai).map { it -> [[id: it.baseName], it] }                       : Channel.empty() //moved from global aligning to exon-based logic
-// fasta             = params.fasta      ? Channel.fromPath(params.fasta).map { it -> [[id: it.baseName], it] }                     : Channel.empty() //moved from global aligning to exon-based logic
 exon6fai          = params.exon6fai   ? Channel.fromPath(params.exon6fai).map { it -> [[id: it.baseName, exon: 'exon6'], it] }   : Channel.empty()
 exon6fasta        = params.exon6fasta ? Channel.fromPath(params.exon6fasta).map { it -> [[id: it.baseName, exon: 'exon6'], it] } : Channel.empty()
 exon7fai          = params.exon7fai   ? Channel.fromPath(params.exon7fai).map { it -> [[id: it.baseName, exon: 'exon7'], it] }   : Channel.empty()
@@ -57,8 +53,6 @@ workflow NFCORE_ABOTYPER {
 
     ABOTYPER (
         samplesheet,
-        // fai,
-        // fasta,
         exon6fai,
         exon6fasta,
         exon7fai,
