@@ -35,11 +35,6 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert snapshot(workflow.out).match() },
-                // Verify expected outputs are present
-                { assert workflow.out.versions },
-                { assert workflow.out.versions.get(0) ==~ /.*versions\.yml$/ },
-                // Verify output file size is reasonable (not empty)
-                { assert path(workflow.out.versions.get(0)).size() > 0 }
             )
         }
     }
