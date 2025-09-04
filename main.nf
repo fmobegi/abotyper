@@ -57,8 +57,6 @@ workflow NFCORE_ABOTYPER {
 
     ABOTYPER (
         samplesheet,
-        // fai,
-        // fasta,
         exon6fai,
         exon6fasta,
         exon7fai,
