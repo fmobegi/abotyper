@@ -20,7 +20,7 @@ process GETABOSNPS {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    python3 $projectDir/bin/predict_abo_phenotype.py \\
+    predict_abo_phenotype.py \\
         -i ${variants_freq} \\
         -o ${prefix}.ABOPhenotype.txt \\
         -c ${coverage} \\
