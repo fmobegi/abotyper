@@ -253,8 +253,6 @@ Verified SNVs relevant to ABO blood group genotyping have also been documented e
 
 If you use nf-core/abotyper for your analysis, please cite it using the following publication:
 
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
-
 > **Characterisation of the ABO Blood Group Phenotypes Using Third-Generation Sequencing.**
 >
 > Fredrick M. Mobegi, Samuel Bruce, Naser El-Lagta, Felipe Ayora, Benedict M. Matern, Mathijs Groeneweg, Lloyd J. D'Orsogna & Dianne De Santis.
