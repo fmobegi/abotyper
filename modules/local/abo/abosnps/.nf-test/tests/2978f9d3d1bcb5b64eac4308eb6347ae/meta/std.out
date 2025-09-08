@@ -1,3 +1,0 @@
-ERROR ~ No such file or directory: /data/ABO-analysis-31-Oct-2023/nf-core-abotyper/modules/local/abo/abosnps/.nf-test/tests/2978f9d3d1bcb5b64eac4308eb6347ae/null/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon7/ABO_AA_barcode01.AlignmentStatistics.tsv
-
- -- Check script '/data/ABO-analysis-31-Oct-2023/nf-core-abotyper/modules/local/abo/abosnps/.nf-test-2978f9d3d1bcb5b64eac4308eb6347ae.nf' at line: 34 or see '/data/ABO-analysis-31-Oct-2023/nf-core-abotyper/modules/local/abo/abosnps/.nf-test/tests/2978f9d3d1bcb5b64eac4308eb6347ae/meta/nextflow.log' file for more details
