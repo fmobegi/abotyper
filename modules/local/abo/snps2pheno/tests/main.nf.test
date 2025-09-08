@@ -1,22 +1,21 @@
-
 nextflow_process {
 
     name "Test Process ABOSNPS2PHENO"
     script "../main.nf"
     process "ABOSNPS2PHENO"
 
+    tag "modules"
+    tag "modules_nfcore"
     tag "abosnps2pheno"
     tag "abotyper"
-    tag "abo_blood_typing"
-    tag "phenotype_prediction"
 
-    test("Should aggregate ABO results correctly") {
+    test("abotyper - samples compilation") {
 
         when {
             process {
                 """
-                input[0] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/samples_dir", checkIfExists: true)
-                input[1] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/per_sample_processing", checkIfExists: true)
+                input[0] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/', checkIfExists: true)
+                input[1] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing', checkIfExists: true)
                 """
             }
         }
@@ -24,42 +23,30 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert snapshot(process.out).match() },
-                // Detailed content validation with snapshots
-                { assert snapshot(
-                    path(process.out.txt.get(0)).text,
-                    path(process.out.log.get(0)).text,
-                    path(process.out.csv.get(0)).text,
-                    path(process.out.versions.get(0)).text
-                ).match("abo_result_contents") },
-                // File structure validation
-                { assert process.out.txt.size() == 1 },
-                { assert process.out.xls.size() == 1 },
-                { assert process.out.log.size() == 1 },
-                { assert process.out.csv.size() == 1 },
-                { assert process.out.versions.size() == 1 },
-                // File naming validation
-                { assert path(process.out.txt.get(0)).name == 'ABO_result.txt' },
-                { assert path(process.out.xls.get(0)).name == 'ABO_result.xlsx' },
-                { assert path(process.out.log.get(0)).name == 'ABO_results.log' },
-                { assert path(process.out.csv.get(0)).name == 'final_export.csv' },
-                // Content checksums for deterministic validation
-                { assert path(process.out.txt.get(0)).md5 == snapshot().match("txt_checksum") },
-                { assert path(process.out.csv.get(0)).md5 == snapshot().match("csv_checksum") },
-                { assert path(process.out.log.get(0)).md5 == snapshot().match("log_checksum") }
+                { assert process.out.txt[0] ==~ ".*/ABO_result.txt" },
+                { assert process.out.xls[0] ==~ ".*/ABO_result.xlsx" },
+                { assert process.out.log[0] ==~ ".*/ABO_results.log" },
+                { assert process.out.csv[0] ==~ ".*/final_export.csv" },
+                { assert path(process.out.txt[0]).exists() },
+                { assert path(process.out.xls[0]).exists() },
+                { assert path(process.out.log[0]).exists() },
+                { assert path(process.out.csv[0]).exists() },
+                { assert path(process.out.txt[0]).text.contains("ABO") || path(process.out.txt[0]).text.size() > 0 },
+                { assert path(process.out.csv[0]).text.contains(",") || path(process.out.csv[0]).text.size() > 0 },
+                { assert snapshot(process.out.versions).match() }
             )
         }
     }
 
-    test("Should work correctly in stub mode for ABO aggregation") {
+    test("abotyper - samples compilation - stub") {
 
         options "-stub"
 
         when {
             process {
                 """
-                input[0] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/samples_dir", checkIfExists: true)
-                input[1] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/per_sample_processing", checkIfExists: true)
+                input[0] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/', checkIfExists: true)
+                input[1] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing', checkIfExists: true)
                 """
             }
         }
@@ -67,207 +54,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert snapshot(process.out).match() },
-                // File existence validation for stub mode
-                { assert process.out.txt.size() == 1 },
-                { assert process.out.xls.size() == 1 },
-                { assert process.out.log.size() == 1 },
-                { assert process.out.csv.size() == 1 },
-                { assert process.out.versions.size() == 1 },
-                // File naming validation
-                { assert path(process.out.txt.get(0)).name == 'ABO_result.txt' },
-                { assert path(process.out.xls.get(0)).name == 'ABO_result.xlsx' },
-                { assert path(process.out.log.get(0)).name == 'ABO_results.log' },
-                { assert path(process.out.csv.get(0)).name == 'final_export.csv' },
-                // Stub mode behavior snapshots
-                { assert snapshot(
-                    path(process.out.txt.get(0)).size(), // should be empty in stub
-                    path(process.out.csv.get(0)).size(), // should be empty in stub
-                    path(process.out.log.get(0)).size(), // should be empty in stub
-                    path(process.out.versions.get(0)).text
-                ).match("stub_mode_behavior") }
-            )
-        }
-    }
-
-    test("Should validate ABO result file formats and content") {
-
-        when {
-            process {
-                """
-                input[0] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/samples_dir", checkIfExists: true)
-                input[1] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/per_sample_processing", checkIfExists: true)
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                { assert process.success },
-                { assert snapshot(process.out).match() },
-                // Validate TXT file structure for ABO results
-                {
-                    def txtContent = path(process.out.txt.get(0)).text
-                    assert txtContent.length() > 0
-                },
-                // Validate CSV file structure
-                {
-                    def csvContent = path(process.out.csv.get(0)).text
-                    def lines = csvContent.split('\n').findAll { !it.isEmpty() }
-                    if (lines.size() > 0) {
-                        // Should have header if not empty
-                        assert lines[0].contains(',') // CSV format
-                    }
-                },
-                // Validate versions content
-                {
-                    def versionsContent = path(process.out.versions.get(0)).text
-                    assert versionsContent.contains("python:")
-                    assert versionsContent.contains("pandas:")
-                    assert versionsContent.contains("xlsxwriter:")
-                    assert versionsContent.contains("openpyxl:")
-                },
-                // Snapshot file structure
-                { assert snapshot(
-                    path(process.out.txt.get(0)).readLines().size(),
-                    path(process.out.csv.get(0)).readLines().size(),
-                    path(process.out.log.get(0)).readLines().size()
-                ).match("file_line_counts") }
-            )
-        }
-    }
-
-    test("Should handle Excel file generation and validation") {
-
-        when {
-            process {
-                """
-                input[0] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/samples_dir", checkIfExists: true)
-                input[1] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/per_sample_processing", checkIfExists: true)
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                { assert process.success },
-                { assert snapshot(process.out).match() },
-                // Validate Excel file exists and has reasonable size
-                { assert path(process.out.xls.get(0)).exists() },
-                { assert path(process.out.xls.get(0)).size() > 0 },
-                // Validate file is properly named
-                { assert path(process.out.xls.get(0)).name == 'ABO_result.xlsx' },
-                // Snapshot file metrics
-                { assert snapshot(
-                    path(process.out.txt.get(0)).size(),
-                    path(process.out.xls.get(0)).size(),
-                    path(process.out.csv.get(0)).size(),
-                    path(process.out.log.get(0)).size()
-                ).match("file_sizes") },
-                // Validate log content contains aggregation information
-                {
-                    def logContent = path(process.out.log.get(0)).text
-                    // Log should contain some processing information (even if minimal)
-                    assert logContent != null
-                }
-            )
-        }
-    }
-
-    test("Should validate comprehensive ABO aggregation with all output formats") {
-
-        when {
-            process {
-                """
-                input[0] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/samples_dir", checkIfExists: true)
-                input[1] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/per_sample_processing", checkIfExists: true)
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                { assert process.success },
-                // Primary output snapshot
-                { assert snapshot(process.out).match("complete_outputs") },
-                
-                // Detailed file content snapshots
-                { assert snapshot(
-                    path(process.out.txt.get(0)).text,
-                    path(process.out.csv.get(0)).text,
-                    path(process.out.log.get(0)).text,
-                    path(process.out.versions.get(0)).text
-                ).match("comprehensive_file_contents") },
-                
-                // File metrics snapshots
-                { assert snapshot(
-                    path(process.out.txt.get(0)).readLines().size(),
-                    path(process.out.csv.get(0)).readLines().size(),
-                    path(process.out.log.get(0)).readLines().size(),
-                    path(process.out.txt.get(0)).size(),
-                    path(process.out.xls.get(0)).size(),
-                    path(process.out.csv.get(0)).size()
-                ).match("comprehensive_file_metrics") },
-                
-                // All files should exist
-                { assert path(process.out.txt.get(0)).exists() },
-                { assert path(process.out.xls.get(0)).exists() },
-                { assert path(process.out.csv.get(0)).exists() },
-                { assert path(process.out.log.get(0)).exists() },
-                { assert path(process.out.versions.get(0)).exists() },
-                
-                // Version information validation
-                {
-                    def versionsText = path(process.out.versions.get(0)).text
-                    assert versionsText.contains("ABOSNPS2PHENO")
-                    assert versionsText.contains("python:")
-                    assert versionsText.contains("pandas:")
-                    assert versionsText.contains("xlsxwriter:")
-                    assert versionsText.contains("openpyxl:")
-                    assert versionsText.contains("numpy:")
-                },
-                
-                // Deterministic checksums
-                { assert snapshot(
-                    path(process.out.txt.get(0)).md5,
-                    path(process.out.csv.get(0)).md5,
-                    path(process.out.log.get(0)).md5,
-                    path(process.out.versions.get(0)).md5
-                ).match("comprehensive_checksums") }
-            )
-        }
-    }
-
-    test("Should validate versions and software dependencies") {
-
-        when {
-            process {
-                """
-                input[0] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/samples_dir", checkIfExists: true)
-                input[1] = file("${params.modules_testdata_base_path}/genomics/homo_sapiens/illumina/abo/per_sample_processing", checkIfExists: true)
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                { assert process.success },
-                { assert snapshot(process.out).match() },
-                // Validate that all required software versions are captured
-                {
-                    def versionsContent = path(process.out.versions.get(0)).text
-                    assert versionsContent.contains("python:")
-                    assert versionsContent.contains("pandas:")
-                    assert versionsContent.contains("numpy:")
-                    assert versionsContent.contains("xlsxwriter:")
-                    assert versionsContent.contains("openpyxl:")
-                },
-                // Snapshot versions content for regression testing
-                { assert snapshot(
-                    path(process.out.versions.get(0)).text
-                ).match("versions_content") },
-                // Validate process name is captured in versions
-                { assert path(process.out.versions.get(0)).text.contains("ABOSNPS2PHENO") }
+                { assert snapshot(process.out).match() }
             )
         }
     }

@@ -61,7 +61,7 @@ workflow PREDICTABOPHENOTYPE {
         ch_SNP_reports,
         ch_per_sample_processing
     )
-    ch_versions = ch_versions.mix(ABOSNPS2PHENO.out.versions.first())
+    ch_versions = ch_versions.mix(ABOSNPS2PHENO.out.versions)
 
     emit:
     versions = ch_versions    // channel: [ versions.yml ]

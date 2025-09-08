@@ -1,4 +1,3 @@
-// nf-core subworkflows test predictabophenotype
 nextflow_workflow {
 
     name "Test Subworkflow PREDICTABOPHENOTYPE"
@@ -7,26 +6,134 @@ nextflow_workflow {
 
     tag "subworkflows"
     tag "subworkflows_local"
-    tag "subworkflows/predictabophenotype"
-    tag "getabosnps"
-    tag "abosnps2pheno"
+    tag "predictabophenotype"
+    tag "abotyper"
 
-    test("abo_phenotype_prediction - freq_cov - test_data") {
+    test("abotyper - predict ABO phenotypes from variants and coverage") {
 
         when {
             workflow {
                 """
-                // Complete test inputs for PREDICTABOPHENOTYPE workflow
-                // ch_variants_freq: Variant frequency files with exon metadata
-                input[0] = [
-                    [ id:'test_sample', exon:'exon6' ], // meta map with exon metadata
-                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/vcf/test.vcf.gz', checkIfExists: true)
-                ]
-                // ch_bam_coverage: BAM coverage files with exon metadata
-                input[1] = [
-                    [ id:'test_sample', exon:'exon6' ], // meta map with matching exon metadata
-                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam', checkIfExists: true)
-                ]
+                // Input channel 1: Variant frequency data with exon metadata
+                input[0] = Channel.of(
+                    [
+                        [ id:'ABO_AA_barcode01', exon:'exon6' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/ABO_AA_barcode01.AlignmentStatistics.tsv', checkIfExists: true)
+                    ],
+                    [
+                        [ id:'ABO_AA_barcode01', exon:'exon7' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon7/ABO_AA_barcode01.AlignmentStatistics.tsv', checkIfExists: true)
+                    ],
+                    [
+                        [ id:'ABO_AB_barcode02', exon:'exon6' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon6/ABO_AB_barcode02.AlignmentStatistics.tsv', checkIfExists: true)
+                    ],
+                    [
+                        [ id:'ABO_AB_barcode02', exon:'exon7' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/ABO_AB_barcode02.AlignmentStatistics.tsv', checkIfExists: true)
+                    ]
+                )
+
+                // Input channel 2: BAM coverage data with exon metadata (using proper coverage files)
+                input[1] = Channel.of(
+                    [
+                        [ id:'ABO_AA_barcode01', exon:'exon6' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/alignment/ABO_AA_barcode01.coverage.txt', checkIfExists: true)
+                    ],
+                    [
+                        [ id:'ABO_AA_barcode01', exon:'exon7' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon7/alignment/ABO_AA_barcode01.coverage.txt', checkIfExists: true)
+                    ],
+                    [
+                        [ id:'ABO_AB_barcode02', exon:'exon6' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon6/alignment/ABO_AB_barcode02.coverage.txt', checkIfExists: true)
+                    ],
+                    [
+                        [ id:'ABO_AB_barcode02', exon:'exon7' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/alignment/ABO_AB_barcode02.coverage.txt', checkIfExists: true)
+                    ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.versions.size() > 0 },
+                { assert workflow.trace.succeeded().size() >= 2 }, // GETABOSNPS + ABOSNPS2PHENO
+                { assert snapshot(
+                    workflow.out.versions,
+                    workflow.trace.succeeded().size()
+                ).match() }
+            )
+        }
+    }
+
+    test("abotyper - predict ABO phenotypes - single sample") {
+
+        when {
+            workflow {
+                """
+                // Test with just one sample to verify basic functionality
+                input[0] = Channel.of(
+                    [
+                        [ id:'ABO_AA_barcode01', exon:'exon6' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/ABO_AA_barcode01.AlignmentStatistics.tsv', checkIfExists: true)
+                    ]
+                )
+
+                input[1] = Channel.of(
+                    [
+                        [ id:'ABO_AA_barcode01', exon:'exon6' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/alignment/ABO_AA_barcode01.coverage.txt', checkIfExists: true)
+                    ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.versions.size() > 0 },
+                { assert workflow.trace.succeeded().size() >= 1 },
+                { assert snapshot(
+                    workflow.out.versions,
+                    workflow.trace.succeeded().size()
+                ).match() }
+            )
+        }
+    }
+
+    test("abotyper - predict ABO phenotypes - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of(
+                    [
+                        [ id:'ABO_AA_barcode01', exon:'exon6' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/ABO_AA_barcode01.AlignmentStatistics.tsv', checkIfExists: true)
+                    ],
+                    [
+                        [ id:'ABO_AB_barcode02', exon:'exon7' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/ABO_AB_barcode02.AlignmentStatistics.tsv', checkIfExists: true)
+                    ]
+                )
+
+                input[1] = Channel.of(
+                    [
+                        [ id:'ABO_AA_barcode01', exon:'exon6' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/alignment/ABO_AA_barcode01.coverage.txt', checkIfExists: true)
+                    ],
+                    [
+                        [ id:'ABO_AB_barcode02', exon:'exon7' ],
+                        file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/alignment/ABO_AB_barcode02.coverage.txt', checkIfExists: true)
+                    ]
+                )
                 """
             }
         }
@@ -35,11 +142,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert snapshot(workflow.out).match() },
-                // Verify expected outputs are present
-                { assert workflow.out.versions },
-                { assert workflow.out.versions.get(0) ==~ /.*versions\.yml$/ },
-                // Verify output file size is reasonable (not empty)
-                { assert path(workflow.out.versions.get(0)).size() > 0 }
+                { assert workflow.trace.succeeded().size() >= 1 }
             )
         }
     }

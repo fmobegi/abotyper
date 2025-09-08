@@ -1,0 +1,3 @@
+ERROR ~ No such file or directory: /data/ABO-analysis-31-Oct-2023/nf-core-abotyper/modules/local/makeindex/.nf-test/tests/f27e1f02299cc188dc16c0d7cff4a43e/null/abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta.fai
+
+ -- Check script '/data/ABO-analysis-31-Oct-2023/nf-core-abotyper/modules/local/makeindex/.nf-test-f27e1f02299cc188dc16c0d7cff4a43e.nf' at line: 34 or see '/data/ABO-analysis-31-Oct-2023/nf-core-abotyper/modules/local/makeindex/.nf-test/tests/f27e1f02299cc188dc16c0d7cff4a43e/meta/nextflow.log' file for more details

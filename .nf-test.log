@@ -1,4 +1,4 @@
-Sept-04 14:58:21.055 [main] INFO  com.askimed.nf.test.App - nf-test 0.9.2
-Sept-04 14:58:21.080 [main] INFO  com.askimed.nf.test.App - Arguments: [test, modules/local/abo/abosnps/tests/main.nf.test, --profile, docker]
-Sept-04 14:58:22.402 [main] INFO  com.askimed.nf.test.App - Nextflow Version: 25.04.6
-Sept-04 14:58:22.405 [main] INFO  com.askimed.nf.test.commands.RunTestsCommand - Load config from file /data/ABO-analysis-31-Oct-2023/nf-core-abotyper/nf-test.config...
+Sept-08 10:41:52.554 [main] INFO  com.askimed.nf.test.App - nf-test 0.9.2
+Sept-08 10:41:52.578 [main] INFO  com.askimed.nf.test.App - Arguments: [test, tests/nextflow.config, --profile, test,docker, --verbose]
+Sept-08 10:41:53.896 [main] INFO  com.askimed.nf.test.App - Nextflow Version: 25.04.6
+Sept-08 10:41:53.898 [main] INFO  com.askimed.nf.test.commands.RunTestsCommand - Load config from file /data/ABO-analysis-31-Oct-2023/nf-core-abotyper/nf-test.config...
