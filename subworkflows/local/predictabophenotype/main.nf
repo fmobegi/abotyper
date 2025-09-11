@@ -5,8 +5,8 @@
  * Uses metadata-driven joining and structured per-sample output.
  */
 
-include { GETABOSNPS    } from '../../../modules/local/abo/abosnps/main'
-include { ABOSNPS2PHENO } from '../../../modules/local/abo/snps2pheno/main'
+include { ABO_GETABOSNPS    } from '../../../modules/local/abo/getabosnps/main'
+include { ABO_SNPS2PHENO } from '../../../modules/local/abo/snps2pheno/main'
 
 workflow PREDICTABOPHENOTYPE {
 
@@ -26,15 +26,15 @@ workflow PREDICTABOPHENOTYPE {
         }
 
     /*
-    MODULE: GETABOSNPS
+    MODULE: ABO_GETABOSNPS
     */
-    GETABOSNPS (
+    ABO_GETABOSNPS (
         ch_combined_input
     )
-    ch_versions = ch_versions.mix(GETABOSNPS.out.versions)
+    ch_versions = ch_versions.mix(ABO_GETABOSNPS.out.versions)
 
     // PREP:Organize SNP reports by sample and exon
-    ch_SNP_reports = GETABOSNPS.out.phenotype
+    ch_snp_reports = ABO_GETABOSNPS.out.phenotype
         .map { meta, file ->
             [meta.id, [exon: meta.exon, file: file]]
         }
@@ -55,13 +55,13 @@ workflow PREDICTABOPHENOTYPE {
     ch_per_sample_processing = Channel.fromPath("${params.outdir}/per_sample_processing", type: 'dir')
 
     /*
-    MODULE: ABOSNPS2PHENO
+    MODULE: ABO_SNPS2PHENO
     */
-    ABOSNPS2PHENO (
-        ch_SNP_reports,
+    ABO_SNPS2PHENO (
+        ch_snp_reports,
         ch_per_sample_processing
     )
-    ch_versions = ch_versions.mix(ABOSNPS2PHENO.out.versions)
+    ch_versions = ch_versions.mix(ABO_SNPS2PHENO.out.versions)
 
     emit:
     versions = ch_versions    // channel: [ versions.yml ]

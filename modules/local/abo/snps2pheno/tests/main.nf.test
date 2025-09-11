@@ -1,12 +1,12 @@
 nextflow_process {
 
-    name "Test Process ABOSNPS2PHENO"
+    name "Test Process ABO_SNPS2PHENO"
     script "../main.nf"
-    process "ABOSNPS2PHENO"
+    process "ABO_SNPS2PHENO"
 
     tag "modules"
     tag "modules_nfcore"
-    tag "abosnps2pheno"
+    tag "abo/snps2pheno"
     tag "abotyper"
 
     test("abotyper - samples compilation") {
@@ -14,7 +14,9 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/', checkIfExists: true)
+                // The script expects the per_sample_processing directory as both inputs
+                // since it scans for sample subdirectories within it
+                input[0] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing', checkIfExists: true)
                 input[1] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing', checkIfExists: true)
                 """
             }
@@ -45,7 +47,7 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/', checkIfExists: true)
+                input[0] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing', checkIfExists: true)
                 input[1] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing', checkIfExists: true)
                 """
             }

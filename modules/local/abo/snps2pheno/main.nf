@@ -1,4 +1,4 @@
-process ABOSNPS2PHENO {
+process ABO_SNPS2PHENO {
     tag "COMPILING ABO RESULTS"
     label 'process_single'
 

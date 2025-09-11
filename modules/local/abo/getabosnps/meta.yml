@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: GETABOSNPS
+name: ABO_GETABOSNPS
 description: Extract ABO-specific SNPs from variant frequency data and predict ABO phenotype
 keywords:
   - abo

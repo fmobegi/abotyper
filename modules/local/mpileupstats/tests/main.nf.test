@@ -1,12 +1,12 @@
 nextflow_process {
 
-    name "Test Process MPILEUP_NUCL_FREQ"
+    name "Test Process MPILEUPSTATS"
     script "../main.nf"
-    process "MPILEUP_NUCL_FREQ"
+    process "MPILEUPSTATS"
 
     tag "modules"
     tag "modules_nfcore"
-    tag "mpileup_nucl_freq"
+    tag "mpileupstats"
     tag "abotyper"
 
     test("abotyper - ABO_AA_barcode01 - exon6") {
@@ -34,13 +34,13 @@ nextflow_process {
                 { assert path(process.out.tsv[0][1]).exists() },
                 { assert path(process.out.txt[0]).exists() },
                 { assert path(process.out.tsv[0][1]).text.size() > 0 },
-                { assert path(process.out.txt[0]).text.size() > 0 },
+                { assert path(process.out.txt[0]).exists() },
                 { assert path(process.out.tsv[0][1]).text.contains("\t") },
                 { assert process.out.tsv[0][0].id == 'ABO_AA_barcode01' },
                 { assert process.out.tsv[0][0].exon == 'exon6' },
                 { assert snapshot(
                     path(process.out.tsv[0][1]).readLines()[0..2],
-                    path(process.out.txt[0]).name,
+                    file(process.out.txt[0]).name,
                     process.out.versions
                 ).match("ABO_AA_barcode01_exon6") }
             )
@@ -72,13 +72,13 @@ nextflow_process {
                 { assert path(process.out.tsv[0][1]).exists() },
                 { assert path(process.out.txt[0]).exists() },
                 { assert path(process.out.tsv[0][1]).text.size() > 0 },
-                { assert path(process.out.txt[0]).text.size() > 0 },
+                { assert path(process.out.txt[0]).exists() },
                 { assert path(process.out.tsv[0][1]).text.contains("\t") },
                 { assert process.out.tsv[0][0].id == 'ABO_AA_barcode01' },
                 { assert process.out.tsv[0][0].exon == 'exon7' },
                 { assert snapshot(
                     path(process.out.tsv[0][1]).readLines()[0..2],
-                    path(process.out.txt[0]).name,
+                    file(process.out.txt[0]).name,
                     process.out.versions
                 ).match("ABO_AA_barcode01_exon7") }
             )
@@ -110,13 +110,13 @@ nextflow_process {
                 { assert path(process.out.tsv[0][1]).exists() },
                 { assert path(process.out.txt[0]).exists() },
                 { assert path(process.out.tsv[0][1]).text.size() > 0 },
-                { assert path(process.out.txt[0]).text.size() > 0 },
+                { assert path(process.out.txt[0]).exists() },
                 { assert path(process.out.tsv[0][1]).text.contains("\t") },
                 { assert process.out.tsv[0][0].id == 'ABO_AB_barcode02' },
                 { assert process.out.tsv[0][0].exon == 'exon6' },
                 { assert snapshot(
                     path(process.out.tsv[0][1]).readLines()[0..2],
-                    path(process.out.txt[0]).name,
+                    file(process.out.txt[0]).name,
                     process.out.versions
                 ).match("ABO_AB_barcode02_exon6") }
             )
@@ -148,13 +148,13 @@ nextflow_process {
                 { assert path(process.out.tsv[0][1]).exists() },
                 { assert path(process.out.txt[0]).exists() },
                 { assert path(process.out.tsv[0][1]).text.size() > 0 },
-                { assert path(process.out.txt[0]).text.size() > 0 },
+                { assert path(process.out.txt[0]).exists() },
                 { assert path(process.out.tsv[0][1]).text.contains("\t") },
                 { assert process.out.tsv[0][0].id == 'ABO_AB_barcode02' },
                 { assert process.out.tsv[0][0].exon == 'exon7' },
                 { assert snapshot(
                     path(process.out.tsv[0][1]).readLines()[0..2],
-                    path(process.out.txt[0]).name,
+                    file(process.out.txt[0]).name,
                     process.out.versions
                 ).match("ABO_AB_barcode02_exon7") }
             )

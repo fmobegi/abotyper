@@ -1,43 +1,156 @@
 {
-    "abotyper - exon6 - stub": {
+    "abotyper - ABO_AA_barcode01 - exon6 - stub": {
         "content": [
             {
                 "0": [
                     [
                         {
-                            "id": "test_sample",
+                            "id": "ABO_AA_barcode01",
                             "exon": "exon6"
                         },
-                        "test_sample.AlignmentStatistics.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "ABO_AA_barcode01.AlignmentStatistics.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "1": [
                     "ABOReadPolymorphisms.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ],
                 "2": [
-                    "versions.yml:md5,03df9e2b062597635c91f69a6e4acc12"
+                    "versions.yml:md5,6940e197ae69b22691d0d7e1ceea7cb6"
                 ],
                 "tsv": [
                     [
                         {
-                            "id": "test_sample",
+                            "id": "ABO_AA_barcode01",
                             "exon": "exon6"
                         },
-                        "test_sample.AlignmentStatistics.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "ABO_AA_barcode01.AlignmentStatistics.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "txt": [
                     "ABOReadPolymorphisms.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ],
                 "versions": [
-                    "versions.yml:md5,03df9e2b062597635c91f69a6e4acc12"
+                    "versions.yml:md5,6940e197ae69b22691d0d7e1ceea7cb6"
                 ]
             }
         ],
         "meta": {
             "nf-test": "0.9.2",
-            "nextflow": "25.04.6"
+            "nextflow": "25.04.7"
         },
-        "timestamp": "2025-09-05T11:05:40.786565273"
+        "timestamp": "2025-09-11T07:27:10.9886495"
+    },
+    "abotyper - ABO_AB_barcode02 - exon7 - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "ABO_AB_barcode02",
+                            "exon": "exon7"
+                        },
+                        "ABO_AB_barcode02.AlignmentStatistics.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    "ABOReadPolymorphisms.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "2": [
+                    "versions.yml:md5,6940e197ae69b22691d0d7e1ceea7cb6"
+                ],
+                "tsv": [
+                    [
+                        {
+                            "id": "ABO_AB_barcode02",
+                            "exon": "exon7"
+                        },
+                        "ABO_AB_barcode02.AlignmentStatistics.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "txt": [
+                    "ABOReadPolymorphisms.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "versions": [
+                    "versions.yml:md5,6940e197ae69b22691d0d7e1ceea7cb6"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.7"
+        },
+        "timestamp": "2025-09-11T07:27:28.88247562"
+    },
+    "ABO_AB_barcode02_exon7": {
+        "content": [
+            [
+                "Ref_Position_1based\tRef_Base\tMatch_Percent\tMismatch_Percent\tInsertion_Percent\tDeletion_Percent\tA_Percent\tG_Percent\tC_Percent\tT_Percent\tDepth",
+                "1\tA\t0\t0\t0\t0\t0\t0\t0\t0\t0",
+                "2\tT\t100\t0\t0\t0\t0\t0\t0\t100\t9"
+            ],
+            "ABOReadPolymorphisms.txt",
+            [
+                "versions.yml:md5,e374bfd99b9c7b505977da4b317a9618"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.7"
+        },
+        "timestamp": "2025-09-11T07:40:34.272270468"
+    },
+    "ABO_AB_barcode02_exon6": {
+        "content": [
+            [
+                "Ref_Position_1based\tRef_Base\tMatch_Percent\tMismatch_Percent\tInsertion_Percent\tDeletion_Percent\tA_Percent\tG_Percent\tC_Percent\tT_Percent\tDepth",
+                "1\tT\t0\t0\t0\t0\t0\t0\t0\t0\t0",
+                "2\tA\t100\t0\t0\t0\t100\t0\t0\t0\t111"
+            ],
+            "ABOReadPolymorphisms.txt",
+            [
+                "versions.yml:md5,e374bfd99b9c7b505977da4b317a9618"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.7"
+        },
+        "timestamp": "2025-09-11T07:40:23.259566184"
+    },
+    "ABO_AA_barcode01_exon7": {
+        "content": [
+            [
+                "Ref_Position_1based\tRef_Base\tMatch_Percent\tMismatch_Percent\tInsertion_Percent\tDeletion_Percent\tA_Percent\tG_Percent\tC_Percent\tT_Percent\tDepth",
+                "1\tA\t0\t0\t0\t0\t0\t0\t0\t0\t0",
+                "2\tT\t0\t0\t0\t0\t0\t0\t0\t0\t0"
+            ],
+            "ABOReadPolymorphisms.txt",
+            [
+                "versions.yml:md5,e374bfd99b9c7b505977da4b317a9618"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.7"
+        },
+        "timestamp": "2025-09-11T07:40:12.035568016"
+    },
+    "ABO_AA_barcode01_exon6": {
+        "content": [
+            [
+                "Ref_Position_1based\tRef_Base\tMatch_Percent\tMismatch_Percent\tInsertion_Percent\tDeletion_Percent\tA_Percent\tG_Percent\tC_Percent\tT_Percent\tDepth",
+                "1\tT\t0\t0\t0\t0\t0\t0\t0\t0\t0",
+                "2\tA\t100\t0\t0\t0\t100\t0\t0\t0\t29"
+            ],
+            "ABOReadPolymorphisms.txt",
+            [
+                "versions.yml:md5,e374bfd99b9c7b505977da4b317a9618"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.7"
+        },
+        "timestamp": "2025-09-11T07:40:01.214498975"
     }
 }

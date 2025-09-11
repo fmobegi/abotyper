@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "mpileup_nucl_freq"
+name: "mpileupstats"
 description: Process mpileup data to extract nucleotide frequencies and polymorphisms for ABO blood group analysis
 keywords:
   - nucleotide frequency

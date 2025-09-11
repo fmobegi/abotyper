@@ -1,4 +1,4 @@
-process GETABOSNPS {
+process ABO_GETABOSNPS {
     tag "$meta.id"
     label 'process_single'
 

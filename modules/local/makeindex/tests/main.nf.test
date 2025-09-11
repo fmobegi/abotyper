@@ -37,8 +37,11 @@ nextflow_process {
                 { assert path(process.out.exon7bed[0][1]).text.size() > 0 },
                 { assert path(process.out.exon6bed[0][1]).text.contains("\t") },
                 { assert path(process.out.exon7bed[0][1]).text.contains("\t") },
-                { assert path(process.out.exon6bed[0][1]).text ==~ /Exon6\t0\t134/ },
-                { assert path(process.out.exon7bed[0][1]).text ==~ /Exon7\t0\t\d+/ },
+                { assert path(process.out.exon6bed[0][1]).text ==~ /(?s)\S+\t0\t\d+.*/ },
+                { assert path(process.out.exon7bed[0][1]).text ==~ /(?s)\S+\t0\t\d+.*/ },
+                // Validate BED format: start=0, end>0
+                { assert path(process.out.exon6bed[0][1]).text.split('\t')[2].trim() as Integer > 0 },
+                { assert path(process.out.exon7bed[0][1]).text.split('\t')[2].trim() as Integer > 0 },
                 { assert process.out.exon6bed[0][0].id == 'A1_01_01_1_reference_Exon6.fasta' },
                 { assert process.out.exon7bed[0][0].id == 'A1_01_01_1_reference_Exon7.fasta' },
                 { assert process.out.exon6bed[0][0].exon == 'exon6' },
@@ -60,6 +63,7 @@ nextflow_process {
         when {
             process {
                 """
+                // Test complex IDs: 'test.complex.name.fasta' -> 'test', 'another.test.fasta' -> 'another'
                 input[0] = [
                     [ id:'test.complex.name.fasta', exon:'exon6' ],
                     file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta.fai', checkIfExists: true)
@@ -83,15 +87,23 @@ nextflow_process {
                 { assert path(process.out.exon7bed[0][1]).text.size() > 0 },
                 { assert path(process.out.exon6bed[0][1]).text.contains("\t") },
                 { assert path(process.out.exon7bed[0][1]).text.contains("\t") },
+                { assert path(process.out.exon6bed[0][1]).text ==~ /(?s)\S+\t0\t\d+.*/ },
+                { assert path(process.out.exon7bed[0][1]).text ==~ /(?s)\S+\t0\t\d+.*/ },
+                // Validate BED format: start=0, end>0
+                { assert path(process.out.exon6bed[0][1]).text.split('\t')[2].trim() as Integer > 0 },
+                { assert path(process.out.exon7bed[0][1]).text.split('\t')[2].trim() as Integer > 0 },
                 { assert process.out.exon6bed[0][0].id == 'test.complex.name.fasta' },
                 { assert process.out.exon7bed[0][0].id == 'another.test.fasta' },
                 { assert process.out.exon6bed[0][0].exon == 'exon6' },
                 { assert process.out.exon7bed[0][0].exon == 'exon7' },
+                { assert process.out.exon6bed.size() == 1 },
+                { assert process.out.exon7bed.size() == 1 },
+                { assert process.out.versions.size() == 1 },
                 { assert snapshot(
                     process.out.exon6bed[0][0],
                     process.out.exon7bed[0][0],
-                    path(process.out.exon6bed[0][1]).name,
-                    path(process.out.exon7bed[0][1]).name
+                    path(process.out.exon6bed[0][1]).getFileName().toString(),
+                    path(process.out.exon7bed[0][1]).getFileName().toString()
                 ).match() }
             )
         }

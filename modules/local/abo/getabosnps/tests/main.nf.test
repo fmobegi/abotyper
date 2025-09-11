@@ -1,12 +1,12 @@
 nextflow_process {
 
-    name "Test Process GETABOSNPS"
+    name "Test Process ABO_GETABOSNPS"
     script "../main.nf"
-    process "GETABOSNPS"
+    process "ABO_GETABOSNPS"
 
     tag "modules"
     tag "modules_nfcore"
-    tag "getabosnps"
+    tag "abo/getabosnps"
     tag "abotyper"
 
     test("abotyper - ABO_AA_barcode01 - exon6") {

@@ -1,5 +1,5 @@
 include { SAMTOOLS_MPILEUP   } from '../../../modules/nf-core/samtools/mpileup/main'
-include { MPILEUP_NUCL_FREQ  } from '../../../modules/local/mpileupstats/main'
+include { MPILEUPSTATS  } from '../../../modules/local/mpileupstats/main'
 
 workflow VARIANTS_QUANTIFICATION {
 
@@ -54,16 +54,16 @@ workflow VARIANTS_QUANTIFICATION {
         }
 
     /*
-    MODULE: MPILEUP_NUCL_FREQ
+    MODULE: MPILEUPSTATS
     */
-    MPILEUP_NUCL_FREQ (
+    MPILEUPSTATS (
         ch_nucl_freq_input.map { mpileup_meta, mpileup, fasta_meta, fasta -> [mpileup_meta, mpileup] },
         ch_nucl_freq_input.map { mpileup_meta, mpileup, fasta_meta, fasta -> [fasta_meta, fasta] }
     )
 
-    ch_versions = ch_versions.mix(MPILEUP_NUCL_FREQ.out.versions.first())
+    ch_versions = ch_versions.mix(MPILEUPSTATS.out.versions.first())
 
     emit:
-    metrics       = MPILEUP_NUCL_FREQ.out.tsv              // channel: [ val(meta), path(tsv) ]
+    metrics       = MPILEUPSTATS.out.tsv              // channel: [ val(meta), path(tsv) ]
     versions      = ch_versions                            // channel: [ versions.yml ]
 }

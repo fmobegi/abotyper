@@ -6,7 +6,7 @@ However, for ABO analysis, it is necessary to include all relevant REF positions
 The samtools/mpileup module output is processed using python3 to achieve this.
 */
 
-process MPILEUP_NUCL_FREQ {
+process MPILEUPSTATS {
     tag "$meta.id"
     label 'process_single'
 

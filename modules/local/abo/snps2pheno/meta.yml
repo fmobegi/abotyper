@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: ABOSNPS2PHENO
+name: ABO_SNPS2PHENO
 description: Aggregate ABO SNP results from multiple samples and generate comprehensive phenotype reports
 keywords:
   - abo
