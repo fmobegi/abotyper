@@ -5,8 +5,8 @@
   </picture>
 </h1>
 
-<!-- [![GitHub Actions CI Status](https://github.com/nf-core/abotyper/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/ci.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/abotyper/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/linting.yml) -->
+[![GitHub Actions CI Status](https://github.com/nf-core/abotyper/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/ci.yml)
+[![GitHub Actions Linting Status](https://github.com/nf-core/abotyper/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/linting.yml)
 
 [![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/abotyper/results)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
@@ -248,8 +248,6 @@ To get up to speed with ABO genotyping, there is detailed reading material [here
 Verified SNVs relevant to ABO blood group genotyping have also been documented extensively [here](https://bloodgroupdatabase.org/groups/details/?group_name=ABO)
 
 ## Citations
-
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
 
 If you use nf-core/abotyper for your analysis, please cite it using the following publication:
 

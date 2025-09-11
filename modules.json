@@ -17,7 +17,7 @@
                     },
                     "multiqc": {
                         "branch": "master",
-                        "git_sha": "a4488d3d09244f29fb4606ba4eef85d59dcc6ad8",
+                        "git_sha": "e10b76ca0c66213581bec2833e30d31f239dec0b",
                         "installed_by": ["modules"]
                     },
                     "samtools/coverage": {
@@ -56,7 +56,7 @@
                     },
                     "utils_nfschema_plugin": {
                         "branch": "master",
-                        "git_sha": "dcd088f483cede0c3df4034d405126f05a764cc7",
+                        "git_sha": "4b406a74dc0449c0401ed87d5bfff4252fd277fd",
                         "installed_by": ["subworkflows"]
                     }
                 }
