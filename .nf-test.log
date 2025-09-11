@@ -1,8 +1,8 @@
-Sept-11 09:10:33.224 [main] INFO  com.askimed.nf.test.App - nf-test 0.9.2
-Sept-11 09:10:33.257 [main] INFO  com.askimed.nf.test.App - Arguments: [test, modules/local/makeindex/tests/main.nf.test]
-Sept-11 09:10:34.899 [main] INFO  com.askimed.nf.test.App - Nextflow Version: 25.04.7
-Sept-11 09:10:34.901 [main] INFO  com.askimed.nf.test.commands.RunTestsCommand - Load config from file /data/ABO-analysis-31-Oct-2023/nf-core-abotyper/nf-test.config...
-Sept-11 09:12:50.696 [main] ERROR com.askimed.nf.test.commands.RunTestsCommand - Parsing config file failed
+Sept-11 12:44:27.716 [main] INFO  com.askimed.nf.test.App - nf-test 0.9.2
+Sept-11 12:44:27.774 [main] INFO  com.askimed.nf.test.App - Arguments: [test, tests/default.nf.test]
+Sept-11 12:44:29.070 [main] INFO  com.askimed.nf.test.App - Nextflow Version: 25.04.7
+Sept-11 12:44:29.074 [main] INFO  com.askimed.nf.test.commands.RunTestsCommand - Load config from file /data/ABO-analysis-31-Oct-2023/nf-core-abotyper/nf-test.config...
+Sept-11 12:46:43.472 [main] ERROR com.askimed.nf.test.commands.RunTestsCommand - Parsing config file failed
 java.net.ConnectException: Connection timed out
 	at java.base/sun.nio.ch.Net.connect0(Native Method)
 	at java.base/sun.nio.ch.Net.connect(Net.java:589)
@@ -38,7 +38,7 @@ java.net.ConnectException: Connection timed out
 	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallCurrent(CallSiteArray.java:51)
 	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:171)
 	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
-	at nf-test$_run_closure1$_closure2.doCall(nf-test.config:22)
+	at nf-test$_run_closure1$_closure2.doCall(nf-test.config:9)
 	at nf-test$_run_closure1$_closure2.doCall(nf-test.config)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
@@ -58,7 +58,7 @@ java.net.ConnectException: Connection timed out
 	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallCurrent(CallSiteArray.java:51)
 	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:171)
 	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
-	at nf-test$_run_closure1.doCall(nf-test.config:21)
+	at nf-test$_run_closure1.doCall(nf-test.config:8)
 	at nf-test$_run_closure1.doCall(nf-test.config)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)

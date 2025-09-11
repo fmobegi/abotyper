@@ -53,7 +53,13 @@ workflow PIPELINE_INITIALISATION {
     UTILS_NFSCHEMA_PLUGIN (
         workflow,
         validate_params,
-        null
+        "${projectDir}/nextflow_schema.json",
+        false, // help
+        false, // help_full
+        false, // show_hidden
+        "",    // before_text
+        "",    // after_text
+        ""     // command
     )
 
     //
