@@ -5,8 +5,8 @@
   </picture>
 </h1>
 
-<!-- [![GitHub Actions CI Status](https://github.com/nf-core/abotyper/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/ci.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/abotyper/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/linting.yml) -->
+[![GitHub Actions CI Status](https://github.com/nf-core/abotyper/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/ci.yml)
+[![GitHub Actions Linting Status](https://github.com/nf-core/abotyper/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/linting.yml)
 
 [![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/abotyper/results)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
@@ -56,28 +56,27 @@ The pipeline performs the following analysis steps:
 
 Exon 7 CDS reference sequence was truncated at 817 bp as this captures the targeted SNVs within the exon and UTR's
 
-# Core dependencies
+## Summary of tools and version used in the pipeline
 
 The pipeline makes use of the following core dependencies:
 
-```yaml
-- bwa
-- fastqc
-- minimap2
-- multiqc (v1.28 prefered for now)
-- samtools
-- biopython
-- python>=3.8
-- pip
-- pip:
-    - pandas>=2.2.0
-    - Bio>=1.6.0
-    - ncurses
-    - openpyxl>=3.1.0
-    - XlsxWriter>=3.2.0
-```
+| Dependency             | Current version |
+| ---------------------- | --------------- |
+| **Core Tools**         |                 |
+| fastqc                 | 0.12.1          |
+| minimap2               | 2.29-r1283      |
+| samtools               | 1.21            |
+| multiqc                | 1.30            |
+| **Python Environment** |                 |
+| python                 | 3.13.5          |
+| pandas                 | 2.3.1           |
+| numpy                  | 2.3.2           |
+| xlsxwriter             | 3.2.5           |
+| json5                  | 0.12.0          |
+| openpyxl               | 3.1.2           |
+| re                     | 2.2.1           |
 
-# Required input files structure
+## Required input files structure
 
 Ensure that all input fastq files have a naming convention that matches this regular expression (`regex`)
 
@@ -108,7 +107,7 @@ IMM-45-44874_barcode25.fastq
 Sample1-2024-12345_barcode22.fastq
 ```
 
-## Platform compatibility
+## Sequencing platform compatibility
 
 This pipeline was originally developed to process amplicon sequencing data from Oxford Nanopore Technologies platforms where multiple samples are expected to be barcoded. The pipeline has been extensively validated using Oxford Nanopore MinION data targeting ABO exons 6 and 7, which are the primary regions containing clinically relevant polymorphisms for ABO blood group determination.
 
@@ -120,7 +119,7 @@ While we recommend using the above naming convention for optimal compatibility, 
 
 The pipeline will attempt to extract the sample name and barcode from the filenames using standard genomic sequence naming conventions, but will fall back to a default barcode00 if filenames lack the expected barcode format. For non-Nanopore platforms, ensure your FASTQ files contain reads spanning the ABO exon 6 and exon 7 regions for accurate genotyping.
 
-# Running `nf-core/abotyper`
+## Running `nf-core/abotyper`
 
 This pipeline has been extensively tested using conda, docker, and singularity profiles. Other containerisation methods are being improved,tested and documented.
 
@@ -144,12 +143,12 @@ nextflow nf-core/abotyper \
   --outdir <OUTDIR>
 ```
 
-# Renaming samples
+## Renaming samples
 
 The code by permits renaming of samples using a tab-delimited file with `sequencingID` and `sampleName` (see `nextflow.config` file under `$params.renaming_file`).
 This option is controlled by the parameter `$params.skip_renaming` and can be overridden via the commandline using option `--skip_renaming true` to skip the process.
 
-# Output
+## Output
 
 For each sample and each of exon6 and exon7, the pipeline will generate `BAM` files, `BAM metrics`, and `PILEUP` results.
 
@@ -215,7 +214,7 @@ A summary of the ABO typing results is provided in `final_export.csv`
 
 Feel free to raise an issue or reach out if you need any support getting this tool running, or with suggestions for improvement.
 
-# Credits
+## Credits
 
 nf-core/abotyper was originally written by Fredrick M. Mobegi: [@fmobegi](https://github.com/fmobegi) at the Department of Clinical Immunology, [PathWest Laboratory Medicine WA](https://pathwest.health.wa.gov.au/).
 
@@ -227,20 +226,20 @@ We thank the following people for their extensive assistance in the development 
 
 Maintenance and future developements will be led by Fredrick Mobegi.
 
-# Acknowledgements
+## Acknowledgements
 
 <p float="center">
   <img src = "docs/images/pathwest_logo.png", width="400", height="90"/>
   <img src = "docs/images/uwa_logo.png", width="400", height="90">
 </p>
 
-# Contributions and Support
+## Contributions and Support
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
 For further information or help, don't hesitate to get in touch on the [Slack `#abotyper` channel](https://nfcore.slack.com/channels/abotyper) (you can join with [this invite](https://nf-co.re/join/slack)).
 
-# Further reading
+## Further reading
 
 Results generated from this pipeline should be interpreted together with the corresponding publication and literature on ABO genotyping.
 
@@ -248,17 +247,25 @@ To get up to speed with ABO genotyping, there is detailed reading material [here
 
 Verified SNVs relevant to ABO blood group genotyping have also been documented extensively [here](https://bloodgroupdatabase.org/groups/details/?group_name=ABO)
 
-# Citations
-
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
+## Citations
 
 If you use nf-core/abotyper for your analysis, please cite it using the following publication:
-
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
 > **Characterisation of the ABO Blood Group Phenotypes Using Third-Generation Sequencing.**
 >
 > Fredrick M. Mobegi, Samuel Bruce, Naser El-Lagta, Felipe Ayora, Benedict M. Matern, Mathijs Groeneweg, Lloyd J. D'Orsogna & Dianne De Santis.
+>
+> _Int. J. Mol. Sci._ 2025 Jun 06. doi: [10.3390/ijms26125443](https://doi.org/10.3390/ijms26125443).
+
+An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
+
+You can cite the `nf-core` publication as follows:
+
+> **The nf-core framework for community-curated bioinformatics pipelines.**
+>
+> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
+>
+> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
 >
 > _Int. J. Mol. Sci._ 2025 Jun 06. doi: [10.3390/ijms26125443](https://doi.org/10.3390/ijms26125443).
 
