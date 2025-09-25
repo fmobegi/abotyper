@@ -86,12 +86,12 @@ class ABOPhenotypePredictor:
     # Class constants for positions
     EXON6_POSITIONS = {
         'primary': [22],  # c.261 - Primary ABO*O1 marker
-        'a_subtype': [27, 29, 58]  # c.266, c.268, c.297 - A subtype markers
+        'a_subtype': []  # No A subtype markers needed for exon6
     }
 
     EXON7_POSITIONS = {
         'primary': [422, 428, 429, 431],  # Primary diagnostic positions
-        'a_subtype': [93, 165, 272, 307, 371, 446, 680, 687]  # A subtype positions
+        'a_subtype': [93, 685]  # Selected A subtype positions: c.467, c.1061
     }
 
     EXON6_MIN_LENGTH = 135  # Base pairs
@@ -394,23 +394,14 @@ class ABOPhenotypePredictor:
         interpretations = {
             # Exon 6 interpretations
             22: ("G nucleotide: A or B blood type.", "Deletion    : O blood type(O1)."),
-            27: ("C nucleotide: A1 or A3 subtype.", "T nucleotide: A2 subtype."),
-            29: ("T nucleotide: A1 or A3 subtype.", "C nucleotide: A2 subtype."),
-            58: ("A nucleotide: A1 or A3 subtype.", "G nucleotide: A2 subtype."),
 
             # Exon 7 interpretations
             422: ("A nucleotide: B blood type.", "C nucleotide: A or O blood type."),
             428: ("A nucleotide: O blood type (O2).", "G nucleotide: A or B or O blood type."),
             429: ("G nucleotide: A or O blood type.", "C nucleotide: B blood type."),
             431: ("G nucleotide: O blood type (O3).", "A nucleotide: O blood type (O4).", "T nucleotide: A or B or O blood type."),
-            93: ("C nucleotide: A1 subtype.", "T nucleotide: A2 or A3 subtype."),
-            165: ("G nucleotide: A1 or A2 subtype.", "A nucleotide: A3 subtype."),
-            272: ("T nucleotide: A1 subtype.", "A nucleotide: A2 subtype."),
-            307: ("G nucleotide: A1 or A2 subtype.", "A nucleotide: A3 subtype."),
-            371: ("C nucleotide: A1 or A2 subtype.", "T nucleotide: A3 subtype."),
-            446: ("G nucleotide: A1 or A2 subtype.", "A nucleotide: A3 subtype."),
-            680: ("C nucleotide: A1 or A3 subtype.", "T nucleotide: A2 subtype."),
-            687: ("C nucleotide: A1 subtype.", "Deletion: A2 or A3 subtype (weaker expression)."),
+            93: ("C nucleotide: A1 subtype.", "T nucleotide: A1.02 or A2 subtype."),
+            685: ("C nucleotide: A1 subtype.", "Deletion: A2.", "C + Deletion: A2."),
         }
 
         if pos in interpretations:
