@@ -105,7 +105,7 @@
             },
             "mentions": [
                 {
-                    "@id": "#dfe0ca28-474b-4385-9f33-ac34f176b41a"
+                    "@id": "#8c48b819-e635-44e7-b1ef-0aba99426569"
                 }
             ],
             "name": "nf-core/abotyper"
@@ -133,7 +133,7 @@
                 "ComputationalWorkflow"
             ],
             "dateCreated": "",
-            "dateModified": "2025-09-11T09:28:29Z",
+            "dateModified": "2025-11-12T13:33:24Z",
             "dct:conformsTo": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE/",
             "keywords": [
                 "nf-core",
@@ -169,14 +169,14 @@
             "url": {
                 "@id": "https://www.nextflow.io/"
             },
-            "version": "!>=24.10.5"
+            "version": "!>=25.04.0"
         },
         {
-            "@id": "#dfe0ca28-474b-4385-9f33-ac34f176b41a",
+            "@id": "#8c48b819-e635-44e7-b1ef-0aba99426569",
             "@type": "TestSuite",
             "instance": [
                 {
-                    "@id": "#4a42319a-f795-488d-9975-9d3e4457ad75"
+                    "@id": "#341c4084-3c32-4efc-8d09-dc62dff5f2d7"
                 }
             ],
             "mainEntity": {
@@ -185,7 +185,7 @@
             "name": "Test suite for nf-core/abotyper"
         },
         {
-            "@id": "#4a42319a-f795-488d-9975-9d3e4457ad75",
+            "@id": "#341c4084-3c32-4efc-8d09-dc62dff5f2d7",
             "@type": "TestInstance",
             "name": "GitHub Actions workflow for testing nf-core/abotyper",
             "resource": "repos/nf-core/abotyper/actions/workflows/nf-test.yml",
