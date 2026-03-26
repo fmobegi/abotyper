@@ -2,4 +2,4 @@ name: mpileup_nucl_freq
 channels:
   - conda-forge
 dependencies:
-  - python=3.9.0
+  - python=3.9.5

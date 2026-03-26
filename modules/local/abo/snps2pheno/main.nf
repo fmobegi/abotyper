@@ -31,7 +31,6 @@ process ABOSNPS2PHENO {
         pandas: \$(python -c "import pandas; print(pandas.__version__)")
         numpy: \$(python -c "import numpy; print(numpy.__version__)")
         xlsxwriter: \$(python -c "import xlsxwriter; print(xlsxwriter.__version__)")
-        openpyxl: \$(python -c "import openpyxl; print(openpyxl.__version__)")
     END_VERSIONS
     """
 
@@ -48,7 +47,6 @@ process ABOSNPS2PHENO {
         pandas: \$(python -c "import pandas; print(pandas.__version__)")
         numpy: \$(python -c "import numpy; print(numpy.__version__)")
         xlsxwriter: \$(python -c "import xlsxwriter; print(xlsxwriter.__version__)")
-        openpyxl: \$(python -c "import openpyxl; print(openpyxl.__version__)")
     END_VERSIONS
     """
 }

@@ -40,7 +40,6 @@ process MPILEUP_NUCL_FREQ {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python3 --version | sed 's/Python //g')
-        gzip: \$(python3 -c "import gzip; print(gzip.__version__)")
         re: \$(python3 -c "import re; print(re.__version__)")
     END_VERSIONS
     """
@@ -53,7 +52,6 @@ process MPILEUP_NUCL_FREQ {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python3 --version | sed 's/Python //g')
-        gzip: \$(python3 -c "import gzip; print(gzip.__version__)")
         re: \$(python3 -c "import re; print(re.__version__)")
     END_VERSIONS
     """
