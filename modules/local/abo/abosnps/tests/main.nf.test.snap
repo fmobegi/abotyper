@@ -1,0 +1,38 @@
+{
+    "Should extract ABO SNPs from exon6 alignment statistics": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "ABO_AA_barcode01",
+                        "exon": "exon6",
+                        "sample_type": "patient"
+                    },
+                    "ABO_AA_barcode01.ABOPhenotype.txt:md5,16e030e06f28f24f59f136f9360b01ea"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "ABO_AA_barcode01",
+                        "exon": "exon6",
+                        "sample_type": "patient"
+                    },
+                    "ABO_AA_barcode01.log.txt:md5,9d6f5b3b2fc3a643a5cc982952f08cce"
+                ]
+            ],
+            {
+                "GETABOSNPS": {
+                    "python": "3.13.5",
+                    "pandas": "2.3.1",
+                    "json5": "0.12.0"
+                }
+            }
+        ],
+        "timestamp": "2026-03-26T17:41:01.96859319",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "24.10.5"
+        }
+    }
+}
