@@ -22,13 +22,13 @@ qc-reports/fastqc/*_fastqc.{html,zip}
 pipeline_info/*.{html,json,txt,yml}
 
 # Additional abotyper-specific volatile files
+per_sample_processing/**/exon*/*.AlignmentStatistics.tsv
+per_sample_processing/**/exon*/*.log.txt
+per_sample_processing/**/exon*/ABOReadPolymorphisms.txt
 per_sample_processing/**/exon*/alignment/*.bam.bai
+per_sample_processing/**/exon*/alignment/*.coverage.txt
 per_sample_processing/**/exon*/alignment/*.flagstat
 per_sample_processing/**/exon*/alignment/*.stats
-per_sample_processing/**/exon*/alignment/*.coverage.txt
 
 ABO_result.xlsx
 ABO_results.log
-getabosnps/*.txt
-mpileup/*.AlignmentStatistics.tsv
-mpileup/ABOReadPolymorphisms.txt
