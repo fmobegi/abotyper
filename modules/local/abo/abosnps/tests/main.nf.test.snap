@@ -1,5 +1,5 @@
 {
-    "Should extract ABO SNPs from exon6 alignment statistics": {
+    "ABO_AA_barcode01 - exon6": {
         "content": [
             [
                 [
@@ -18,7 +18,7 @@
                         "exon": "exon6",
                         "sample_type": "patient"
                     },
-                    "ABO_AA_barcode01.log.txt:md5,9d6f5b3b2fc3a643a5cc982952f08cce"
+                    "ABO_AA_barcode01.log.txt:md5,0316bef4f986dab4654cf86bdd3d0506"
                 ]
             ],
             {
@@ -29,10 +29,10 @@
                 }
             }
         ],
-        "timestamp": "2026-03-26T17:41:01.96859319",
+        "timestamp": "2026-03-27T13:10:56.087077286",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "24.10.5"
+            "nextflow": "25.10.4"
         }
     }
 }
