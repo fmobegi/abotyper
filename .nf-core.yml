@@ -1,4 +1,9 @@
-lint: {}
+lint:
+  nextflow_config:
+    - config_defaults:
+        - params.fasta
+        - params.fai
+        - params.multiqc_logo
 nf_core_version: 3.3.2
 
 repository_type: pipeline
