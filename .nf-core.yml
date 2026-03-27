@@ -1,4 +1,7 @@
 lint:
+  files_unchanged:
+    - .github/workflows/linting_comment.yml
+    - .github/workflows/linting.yml
   nextflow_config:
     - config_defaults:
         - params.fasta
