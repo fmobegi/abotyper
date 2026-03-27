@@ -2,17 +2,21 @@
 .DS_Store
 
 # MultiQC volatile outputs
-multiqc/multiqc_data/fastqc_top_overrepresented_sequences_table.txt
-multiqc/multiqc_data/BETA-multiqc.parquet
-multiqc/multiqc_data/multiqc.log
-multiqc/multiqc_data/multiqc_data.json
-multiqc/multiqc_data/multiqc_sources.txt
-multiqc/multiqc_data/multiqc_software_versions.txt
-multiqc/multiqc_plots/{svg,pdf,png}/*.{svg,pdf,png}
-multiqc/multiqc_report.html
+qc-reports/multiqc/multiqc_data/BETA-multiqc.parquet
+qc-reports/multiqc/multiqc_data/fastqc_top_overrepresented_sequences_table.txt
+qc-reports/multiqc/multiqc_data/llms-full.txt
+qc-reports/multiqc/multiqc_data/multiqc.log
+qc-reports/multiqc/multiqc_data/multiqc_data.json
+qc-reports/multiqc/multiqc_data/multiqc_general_stats.txt
+qc-reports/multiqc/multiqc_data/multiqc_samtools_coverage.txt
+qc-reports/multiqc/multiqc_data/multiqc_software_versions.txt
+qc-reports/multiqc/multiqc_data/multiqc_sources.txt
+qc-reports/multiqc/multiqc_data/samtools-coverage*
+qc-reports/multiqc/multiqc_plots/{svg,pdf,png}/*.{svg,pdf,png}
+qc-reports/multiqc/multiqc_report.html
 
 # FastQC outputs (volatile)
-fastqc/*_fastqc.{html,zip}
+qc-reports/fastqc/*_fastqc.{html,zip}
 
 # Pipeline info (time-stamped and environment-specific)
 pipeline_info/*.{html,json,txt,yml}
@@ -23,18 +27,8 @@ per_sample_processing/**/exon*/alignment/*.flagstat
 per_sample_processing/**/exon*/alignment/*.stats
 per_sample_processing/**/exon*/alignment/*.coverage.txt
 
-# Log files
-*.log
-**/*.log
-
-# Temporary and work files
-work/
-.nextflow*
-*.tmp
-*.temp
-
-# BAM index files (generated automatically)
-*.bai
-
-# Any timestamp-containing files
-*_[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9]*
+ABO_result.xlsx
+ABO_results.log
+getabosnps/*.txt
+mpileup/*.AlignmentStatistics.tsv
+mpileup/ABOReadPolymorphisms.txt
