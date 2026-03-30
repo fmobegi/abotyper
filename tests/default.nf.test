@@ -8,8 +8,8 @@ nextflow_pipeline {
 
         when {
             params {
-                pipelines_testdata_base_path = 'https://raw.githubusercontent.com/nf-core/test-datasets/abotyper/abotyper/'
-                input  = params.pipelines_testdata_base_path + 'samplesheet_test_abotyper.csv'
+                pipelines_testdata_base_path = 'https://raw.githubusercontent.com/nf-core/test-datasets/'
+                input  = params.pipelines_testdata_base_path + 'abotyper/abotyper/samplesheet_test_abotyper.csv'
                 outdir = "$outputDir"  // Use $outputDir instead of hardcoded path
             }
         }
