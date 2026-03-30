@@ -1,0 +1,38 @@
+{
+    "ABO_AA_barcode01 - exon6": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "ABO_AA_barcode01",
+                        "exon": "exon6",
+                        "sample_type": "patient"
+                    },
+                    "ABO_AA_barcode01.ABOPhenotype.txt:md5,16e030e06f28f24f59f136f9360b01ea"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "ABO_AA_barcode01",
+                        "exon": "exon6",
+                        "sample_type": "patient"
+                    },
+                    "ABO_AA_barcode01.log.txt:md5,0316bef4f986dab4654cf86bdd3d0506"
+                ]
+            ],
+            {
+                "GETABOSNPS": {
+                    "python": "3.13.5",
+                    "pandas": "2.3.1",
+                    "json5": "0.12.0"
+                }
+            }
+        ],
+        "timestamp": "2026-03-27T13:10:56.087077286",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}
