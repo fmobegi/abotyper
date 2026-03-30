@@ -16,11 +16,11 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AA_barcode01', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/mpileup/ABO_AA_barcode01.mpileup.gz', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/mpileup/ABO_AA_barcode01.mpileup.gz', checkIfExists: true)
                 ]
                 input[1] = [
                     [ id:'A1_01_01_1_reference_Exon6.fasta', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta', checkIfExists: true)
                 ]
                 """
             }
@@ -54,11 +54,11 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AA_barcode01', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon7/mpileup/ABO_AA_barcode01.mpileup.gz', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon7/mpileup/ABO_AA_barcode01.mpileup.gz', checkIfExists: true)
                 ]
                 input[1] = [
                     [ id:'A1_01_01_1_reference_Exon7.fasta', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta', checkIfExists: true)
                 ]
                 """
             }
@@ -92,11 +92,11 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AB_barcode02', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon6/mpileup/ABO_AB_barcode02.mpileup.gz', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon6/mpileup/ABO_AB_barcode02.mpileup.gz', checkIfExists: true)
                 ]
                 input[1] = [
                     [ id:'A1_01_01_1_reference_Exon6.fasta', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta', checkIfExists: true)
                 ]
                 """
             }
@@ -130,11 +130,11 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AB_barcode02', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/mpileup/ABO_AB_barcode02.mpileup.gz', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/mpileup/ABO_AB_barcode02.mpileup.gz', checkIfExists: true)
                 ]
                 input[1] = [
                     [ id:'A1_01_01_1_reference_Exon7.fasta', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta', checkIfExists: true)
                 ]
                 """
             }
@@ -170,11 +170,11 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AA_barcode01', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/mpileup/ABO_AA_barcode01.mpileup.gz', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/mpileup/ABO_AA_barcode01.mpileup.gz', checkIfExists: true)
                 ]
                 input[1] = [
                     [ id:'A1_01_01_1_reference_Exon6.fasta', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta', checkIfExists: true)
                 ]
                 """
             }
@@ -197,11 +197,11 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AB_barcode02', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/mpileup/ABO_AB_barcode02.mpileup.gz', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/mpileup/ABO_AB_barcode02.mpileup.gz', checkIfExists: true)
                 ]
                 input[1] = [
                     [ id:'A1_01_01_1_reference_Exon7.fasta', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta', checkIfExists: true)
                 ]
                 """
             }

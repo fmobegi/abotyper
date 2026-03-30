@@ -15,7 +15,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { ABOTYPER  } from './workflows/abotyper'
+include { ABOTYPER                } from './workflows/abotyper'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_abotyper_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_abotyper_pipeline'
 include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_abotyper_pipeline'
@@ -32,12 +32,6 @@ params.exon7fai   = getGenomeAttribute('exon7fai')
 params.exon7fasta = getGenomeAttribute('exon7fasta')
 params.logo       = getGenomeAttribute('logo')
 
-exon6fai          = params.exon6fai   ? Channel.fromPath(params.exon6fai).map { it -> [[id: it.baseName, exon: 'exon6'], it] }   : Channel.empty()
-exon6fasta        = params.exon6fasta ? Channel.fromPath(params.exon6fasta).map { it -> [[id: it.baseName, exon: 'exon6'], it] } : Channel.empty()
-exon7fai          = params.exon7fai   ? Channel.fromPath(params.exon7fai).map { it -> [[id: it.baseName, exon: 'exon7'], it] }   : Channel.empty()
-exon7fasta        = params.exon7fasta ? Channel.fromPath(params.exon7fasta).map { it -> [[id: it.baseName, exon: 'exon7'], it] } : Channel.empty()
-logo              = params.logo       ? Channel.fromPath(params.logo).collect()                                                  : Channel.empty()
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOWS FOR PIPELINE
@@ -45,19 +39,23 @@ logo              = params.logo       ? Channel.fromPath(params.logo).collect() 
 */
 
 workflow NFCORE_ABOTYPER {
-
     take:
     samplesheet // channel: samplesheet read in from --input
 
     main:
+    exon6fai = params.exon6fai ? channel.fromPath(params.exon6fai).map { it -> [[id: it.baseName, exon: 'exon6'], it] } : channel.empty()
+    exon6fasta = params.exon6fasta ? channel.fromPath(params.exon6fasta).map { it -> [[id: it.baseName, exon: 'exon6'], it] } : channel.empty()
+    exon7fai = params.exon7fai ? channel.fromPath(params.exon7fai).map { it -> [[id: it.baseName, exon: 'exon7'], it] } : channel.empty()
+    exon7fasta = params.exon7fasta ? channel.fromPath(params.exon7fasta).map { it -> [[id: it.baseName, exon: 'exon7'], it] } : channel.empty()
+    logo = params.logo ? channel.fromPath(params.logo).collect() : channel.empty()
 
-    ABOTYPER (
+    ABOTYPER(
         samplesheet,
         exon6fai,
         exon6fasta,
         exon7fai,
         exon7fasta,
-        logo
+        logo,
     )
 
     emit:
@@ -71,42 +69,34 @@ workflow NFCORE_ABOTYPER {
 */
 
 workflow {
-
-    main:
     //
     // SUBWORKFLOW: Run initialisation tasks
     //
-    PIPELINE_INITIALISATION (
+    PIPELINE_INITIALISATION(
         params.version,
         params.validate_params,
         params.monochrome_logs,
         args,
         params.outdir,
-        params.input
+        params.input,
     )
 
     //
     // WORKFLOW: Run main workflow
     //
-    NFCORE_ABOTYPER (
+    NFCORE_ABOTYPER(
         PIPELINE_INITIALISATION.out.samplesheet
     )
     //
     // SUBWORKFLOW: Run completion tasks
     //
-    PIPELINE_COMPLETION (
+    PIPELINE_COMPLETION(
         params.email,
         params.email_on_fail,
         params.plaintext_email,
         params.outdir,
         params.monochrome_logs,
         params.hook_url,
-        NFCORE_ABOTYPER.out.multiqc_report
+        NFCORE_ABOTYPER.out.multiqc_report,
     )
 }
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    THE END
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/

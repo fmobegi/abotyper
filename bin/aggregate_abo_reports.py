@@ -75,10 +75,15 @@ class ABOReportParser:
 
     def initialize_columns(self):
         """
-        Define the column headers for selected exon positions only.
+        Define the column headers for all exon positions.
         """
         # Primary ABO typing variant in exon 6
-        exon6 = ["Exon6_pos22"] * 10  # c.261delG
+        exon6 = ["Exon6_pos22"] * 10  # c.261
+
+        # ABO*A2 subtype positions in exon 6
+        exon6_27 = ["Exon6_pos27"] * 10  # c.266
+        exon6_29 = ["Exon6_pos29"] * 10  # c.268
+        exon6_58 = ["Exon6_pos58"] * 10  # c.297
 
         # Primary variants in exon 7
         exon7_422 = ["Exon7_pos422"] * 10  # c.796C>A
@@ -86,19 +91,34 @@ class ABOReportParser:
         exon7_429 = ["Exon7_pos429"] * 10  # c.803G>C / c.803G>T
         exon7_431 = ["Exon7_pos431"] * 10  # c.804dupG
 
-        # Selected A subtype positions in exon 7
+        # A subtype positions in exon 7
         exon7_93 = ["Exon7_pos93"] * 10  # c.467C>T
-        exon7_685 = ["Exon7_pos685"] * 10  # c.1061delC
+        exon7_165 = ["Exon7_pos165"] * 10  # c.539G>C / c.539G>A
+        exon7_272 = ["Exon7_pos272"] * 10  # c.646
+        exon7_307 = ["Exon7_pos307"] * 10  # c.681
+        exon7_371 = ["Exon7_pos371"] * 10  # c.745C>T
+        exon7_446 = ["Exon7_pos446"] * 10  # c.820G>A
+        exon7_680 = ["Exon7_pos680"] * 10  # c.1054C>T
+        exon7_687 = ["Exon7_pos687"] * 10  # c.1061delC
 
         header_cols = (
             ["", ""]
             + exon6
+            + exon6_27
+            + exon6_29
+            + exon6_58
             + exon7_422
             + exon7_428
             + exon7_429
             + exon7_431
             + exon7_93
-            + exon7_685
+            + exon7_165
+            + exon7_272
+            + exon7_307
+            + exon7_371
+            + exon7_446
+            + exon7_680
+            + exon7_687
             + ["", "", "", ""]
         )
 
@@ -116,7 +136,7 @@ class ABOReportParser:
         ]
         header_rows = (
             ["Barcode", "Sequencing_ID"]
-            + column_metrics * 7  # 7 positions: 1 exon6 + 6 exon7 (4 primary + 2 subtype)
+            + column_metrics * 16
             + ["Phenotype", "Genotype", "ExtendedGenotype", "Reliability"]
         )
 
@@ -232,15 +252,23 @@ class ABOReportParser:
             )
 
             # Make sure all needed positions are in the DataFrame
-            # Primary positions + selected subtype positions
-            # pos. exon7= exonic(CDS) 422(796),428(802),429(803),431(805),93(467),685(1061)
+            # Primary positions + all subtype positions
+            # pos. exon7= exonic(CDS) 422(796),428(802),429(803),431(805),93(467),165(539),687(1061)
+            # Additional exonic(CDS) 272(646), 307(681), 371(745), 446(820), 680(1054)
+            # [93, 165, 272, 307, 371, 446, 680, 687]
             all_positions = [
                 422,
                 428,
                 429,
                 431,  # Primary
                 93,
-                685,  # Selected A subtypes
+                165,
+                272,
+                307,
+                371,
+                446,
+                680,
+                687,  # A1/A2/A3 subtypes
             ]
 
             for pos in all_positions:
@@ -303,7 +331,13 @@ class ABOReportParser:
                 429,
                 431,
                 93,
-                685,
+                165,
+                272,
+                307,
+                371,
+                446,
+                680,
+                687,
             ]:
                 empty_df = pd.concat(
                     [
@@ -403,7 +437,7 @@ class ABOReportParser:
                 }
             )
 
-            all_positions = [22]
+            all_positions = [22, 27, 29, 58]
 
             for pos in all_positions:
                 if pos not in df["Position"].values:
@@ -459,7 +493,7 @@ class ABOReportParser:
                 ]
             )
 
-            for pos in [22]:
+            for pos in [22, 27, 29, 58]:
                 empty_df = pd.concat(
                     [
                         empty_df,
@@ -502,6 +536,30 @@ class ABOReportParser:
                 return "O1 and (A or B or O)"
             elif 20 < dele < 80 and 20 < g < 80:
                 return "O1 and (A or B or O)"
+
+        elif pos == 27:  # c.266
+            if c >= 80:
+                return "A1 or A3"
+            elif t >= 80:
+                return "A2"
+            elif 20 < c < 80 and 20 < t < 80:
+                return "A or B or O"
+
+        elif pos == 29:  # c.268
+            if t >= 80:
+                return "A1 or A3"
+            elif c >= 80:
+                return "A2"
+            elif 20 < t < 80 and 20 < c < 80:
+                return "A or B or O"
+
+        elif pos == 58:  # c.297
+            if a >= 80:
+                return "A1 or A3"
+            elif g >= 80:
+                return "A2"
+            elif 20 < a < 80 and 20 < g < 80:
+                return "A or B or O"
 
         return ""
 
@@ -553,22 +611,62 @@ class ABOReportParser:
                 return "O3 and (O or A or B)"
 
         # A subtype positions
-        elif pos == 93:  # genomic pos 467
+        elif pos == 93:  # genomic pos 467 /A3
             if c >= 80:
                 return "A1"
             elif t >= 80:
-                return "A1.02 or A2"
+                return "A2 or A3"
             elif 20 < c < 80 and 20 < t < 80:
-                return "A1.02 or A2"
-        elif pos == 685:  # genomic pos 1061
-            if c >= 80 and dele < 20:
+                return "A or B or O"
+        elif pos == 165:  # genomic pos 539
+            if c >= 80:
+                return "A1 or A2"
+            elif t >= 80:
+                return "A3"
+            elif 20 < c < 80 and 20 < t < 80:
+                return "A or B or O"
+        elif pos == 272:  # genomic pos 646
+            if t >= 80:
                 return "A1"
-            elif dele >= 80 and c < 20:
+            elif a >= 80:
                 return "A2"
-            elif c >= 20 and dele >= 20:
-                return "A2"  # Both deletion + C present = A2
+            elif 20 < t < 80 and 20 < a < 80:
+                return "A1 or A2"
+        elif pos == 307:  # genomic pos 681
+            if g >= 80:
+                return "A1 or A2"
+            elif a >= 80:
+                return "A3"
+            elif 20 < g < 80 and 20 < a < 80:
+                return "A or B or O"
+        elif pos == 371:  # genomic pos 745
+            if c >= 80:
+                return "A1 or A2"
+            elif t >= 80:
+                return "A3"
+            elif 20 < c < 80 and 20 < t < 80:
+                return "A or B or O"
+        elif pos == 446:  # genomic pos 820
+            if a >= 80:
+                return "A1 or A2"
+            elif c >= 80:
+                return "A3"
+            elif 20 < a < 80 and 20 < c < 80:
+                return "A or B or O"
+        elif pos == 680:  # genomic pos 1054
+            if g >= 80:
+                return "A1 or A3"
+            elif a >= 80:
+                return "A2"
+            elif 20 < g < 80 and 20 < a < 80:
+                return "A or B or O"
+        elif pos == 687:  # genomic pos 1061 /A3
+            if c >= 80:
+                return "A1"
+            elif dele >= 80:  # Deletion indicates A2 or A3 subtypes
+                return "A2 or A3"
             elif 20 < c < 80 and 20 < dele < 80:
-                return "A2"
+                return "A or B or O"
 
         return ""
 
@@ -600,9 +698,20 @@ class ABOReportParser:
             type_exon7_429 = safe_get_type(df, "Exon7_pos429")
             type_exon7_431 = safe_get_type(df, "Exon7_pos431")
 
-            # Selected Exon 7 A subtype positions
+            # Exon 6 A subtype positions
+            type_exon6_27 = safe_get_type(df, "Exon6_pos27")
+            type_exon6_29 = safe_get_type(df, "Exon6_pos29")
+            type_exon6_58 = safe_get_type(df, "Exon6_pos58")
+
+            # Exon 7 A subtype positions
             type_exon7_93 = safe_get_type(df, "Exon7_pos93")
-            type_exon7_685 = safe_get_type(df, "Exon7_pos685")
+            type_exon7_165 = safe_get_type(df, "Exon7_pos165")
+            type_exon7_272 = safe_get_type(df, "Exon7_pos272")
+            type_exon7_307 = safe_get_type(df, "Exon7_pos307")
+            type_exon7_371 = safe_get_type(df, "Exon7_pos371")
+            type_exon7_446 = safe_get_type(df, "Exon7_pos446")
+            type_exon7_680 = safe_get_type(df, "Exon7_pos680")
+            type_exon7_687 = safe_get_type(df, "Exon7_pos687")
 
             # Read counts with validation
             nreads6 = safe_get_reads(df, "Exon6_pos22")
@@ -615,27 +724,6 @@ class ABOReportParser:
             Genotype = "Unknown"
             ExtendedGenotype = "Unknown"
 
-            # Helper function to determine A subtype
-            def determine_a_subtype():
-                """Determine A subtype (A1 or A2) based on positions 93 and 685 in combination."""
-                # Position 93: C = A1, T = A2
-                # Position 685: C alone = A1, Deletion (with/without C) = A2
-
-                # Check for A1: Position 93 = A1 AND Position 685 = A1
-                if type_exon7_93 == "A1" and type_exon7_685 == "A1":
-                    return "A1"
-
-                # Check for A2: Position 93 = A2 OR Position 685 = A2
-                if (type_exon7_93 in ["A2", "A1.02 or A2"]) or (type_exon7_685 == "A2"):
-                    return "A2"
-
-                # If only one position is A1 but the other is not clearly defined, default to A2
-                if type_exon7_93 == "A1" or type_exon7_685 == "A1":
-                    return "A2"
-
-                # Unable to determine subtype
-                return ""
-
             # PART 1: PRIMARY PHENOTYPING LOGIC
 
             ## OA COMBINATIONS ---------------------------------------------------------------------------
@@ -647,13 +735,9 @@ class ABOReportParser:
                 and (type_exon7_429 == "A or O")
                 and (type_exon7_431 == "O and (A or B)")
             ):
-                a_subtype = determine_a_subtype()
                 Phenotype = "A"
                 Genotype = "AO"
-                if a_subtype:
-                    ExtendedGenotype = f"{a_subtype}O1"
-                else:
-                    ExtendedGenotype = "AO1"
+                ExtendedGenotype = "AO1"
 
             ## combination 2 | AO2 --
             elif (
@@ -663,13 +747,9 @@ class ABOReportParser:
                 and (type_exon7_429 == "A or O")
                 and (type_exon7_431 == "O and (A or B)")
             ):
-                a_subtype = determine_a_subtype()
                 Phenotype = "A"
                 Genotype = "AO"
-                if a_subtype:
-                    ExtendedGenotype = f"{a_subtype}O2"
-                else:
-                    ExtendedGenotype = "AO2"
+                ExtendedGenotype = "AO2"
                 # Reliability = 'Enter-manually'
 
             ## combination 3 | AO3 --
@@ -680,13 +760,9 @@ class ABOReportParser:
                 and (type_exon7_429 == "A or O")
                 and (type_exon7_431 == "O3 and (O or A or B)")
             ):
-                a_subtype = determine_a_subtype()
                 Phenotype = "A"
                 Genotype = "AO"
-                if a_subtype:
-                    ExtendedGenotype = f"{a_subtype}O3"
-                else:
-                    ExtendedGenotype = "AO3"
+                ExtendedGenotype = "AO3"
 
             ## OB COMBINATIONS ---------------------------------------------------------------------------
             ## combination 4 | BO1 --
@@ -811,15 +887,9 @@ class ABOReportParser:
                 and (type_exon7_429 == "A or O")
                 and (type_exon7_431 == "O and (A or B)")
             ):
-                a_subtype = determine_a_subtype()
-                if a_subtype:
-                    Phenotype = a_subtype
-                    Genotype = "AA"
-                    ExtendedGenotype = f"{a_subtype}{a_subtype}"
-                else:
-                    Phenotype = "A"
-                    Genotype = "AA"
-                    ExtendedGenotype = "AA"
+                Phenotype = "A"
+                Genotype = "AA"
+                ExtendedGenotype = "AA"
 
             ## combination 14 | BB ---------------------------------------------------------------------------
             elif (
@@ -841,15 +911,11 @@ class ABOReportParser:
                 and (type_exon7_429 == "(A or O) and B")
                 and (type_exon7_431 == "O and (A or B)")
             ):
-                a_subtype = determine_a_subtype()
                 Phenotype = "AB"
                 Genotype = "AB"
-                if a_subtype:
-                    ExtendedGenotype = f"{a_subtype}B"
-                else:
-                    ExtendedGenotype = "AB"
+                ExtendedGenotype = "AB"
 
-            ## TODO extend to capture ABO*A subtypes (A1 and A2)
+            ## TODO extend to capture ABO*A subtypes (A1, A2, and A3)
 
             ## UNKNOWN None of the above --------------------------------------------------------------------
             else:
@@ -966,7 +1032,7 @@ class ABOReportParser:
 
             exon6_data = self.parse_exon6(exon6_phenotype_files[0])
             if not exon6_data.empty:
-                for pos in [22]:  # Only position 22
+                for pos in [22, 27, 29, 58]:
                     pos_df = exon6_data[exon6_data["Position"] == pos]
                     if not pos_df.empty:
                         for col in [
@@ -988,16 +1054,22 @@ class ABOReportParser:
 
             exon7_data = self.parse_exon7(exon7_phenotype_files[0])
             if not exon7_data.empty:
-                selected_positions = [
+                all_positions = [
                     422,
                     428,
                     429,
-                    431,  # Primary positions
+                    431,
                     93,
-                    685,  # Selected subtype positions
+                    165,
+                    272,
+                    307,
+                    371,
+                    446,
+                    680,
+                    687,
                 ]
 
-                for pos in selected_positions:
+                for pos in all_positions:
                     pos_df = exon7_data[exon7_data["Position"] == pos]
                     if not pos_df.empty:
                         for col in [
@@ -1229,12 +1301,21 @@ class ABOReportParser:
 
             header_columns = [
                 "Exon6_pos22",
+                "Exon6_pos27",
+                "Exon6_pos29",
+                "Exon6_pos58",
                 "Exon7_pos422",
                 "Exon7_pos428",
                 "Exon7_pos429",
                 "Exon7_pos431",
                 "Exon7_pos93",
-                "Exon7_pos685",
+                "Exon7_pos165",
+                "Exon7_pos272",
+                "Exon7_pos307",
+                "Exon7_pos371",
+                "Exon7_pos446",
+                "Exon7_pos680",
+                "Exon7_pos687",
             ]
 
             column_start = 2
@@ -1251,7 +1332,7 @@ class ABOReportParser:
                 column_start = end_col + 1
 
             result_start = xl_col_to_name(column_start)
-            result_end = xl_col_to_name(column_start + 3)  # 4 result columns: Phenotype, Genotype, ExtendedGenotype, Reliability
+            result_end = xl_col_to_name(column_start + 3)
 
             # Merge header ranges
             worksheet.merge_range("A1:B1", "Sample", header_format)
@@ -1357,47 +1438,6 @@ class ABOReportParser:
                 print(f"\nPhenotype Distribution:")
                 for phenotype, count in phenotype_counts.items():
                     print(f"  {phenotype}: {count}")
-
-                # Analyze extended genotype distribution with A subtype details
-                try:
-                    extended_genotype_counts = final_df["ExtendedGenotype"].value_counts()
-                    print(f"\nExtended Genotype Distribution (with A subtypes):")
-
-                    # Group and display by category
-                    a_subtypes = {}
-                    ab_subtypes = {}
-                    other_genotypes = {}
-
-                    for genotype, count in extended_genotype_counts.items():
-                        if "A1" in str(genotype) or "A2" in str(genotype):
-                            if "B" in str(genotype):
-                                ab_subtypes[genotype] = count
-                            else:
-                                a_subtypes[genotype] = count
-                        else:
-                            other_genotypes[genotype] = count
-
-                    # Display A subtypes
-                    if a_subtypes:
-                        print(f"  A Subtypes:")
-                        for genotype, count in sorted(a_subtypes.items()):
-                            print(f"    {genotype}: {count}")
-
-                    # Display AB subtypes
-                    if ab_subtypes:
-                        print(f"  AB Subtypes:")
-                        for genotype, count in sorted(ab_subtypes.items()):
-                            print(f"    {genotype}: {count}")
-
-                    # Display other genotypes
-                    if other_genotypes:
-                        print(f"  Other Genotypes:")
-                        for genotype, count in sorted(other_genotypes.items()):
-                            print(f"    {genotype}: {count}")
-
-                except Exception as e:
-                    print(f"Could not analyze extended genotype distribution: {e}")
-
             except Exception as e:
                 print(f"Could not analyze phenotype distribution: {e}")
 

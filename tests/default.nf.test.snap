@@ -476,8 +476,8 @@
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_plots/svg/samtools-coverage_Reads-log.svg"
             ],
             [
-                "ABO_result.txt:md5,e74c55e64ca3f74e7b8ef68224373636",
-                "final_export.csv:md5,2ee8de5b0c17823c2713426e530c935d",
+                "ABO_result.txt:md5,ae1a74472d79333cc63b5e435fbb0360",
+                "final_export.csv:md5,0b791846057529fcb5e1ed1cd1173012",
                 "ABO_AA_barcode01.ABOPhenotype.txt:md5,7e5da7909695f665b856ea8f452d497e",
                 "ABO_AA_barcode01.bam:md5,b424e421a8c6b1f7049931b3828d23c8",
                 "ABO_AA_barcode01.mpileup.gz:md5,febe87623875d550cf41d55f1dd475e5",
@@ -575,7 +575,7 @@
                 "ABO_O2O2_barcode10.bam:md5,49ab8757d09e5b6d71cf28e512f1e861"
             ]
         ],
-        "timestamp": "2026-03-30T11:47:05.552303247",
+        "timestamp": "2026-03-30T12:08:56.538076906",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"

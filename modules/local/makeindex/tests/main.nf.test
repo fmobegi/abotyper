@@ -16,11 +16,11 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'A1_01_01_1_reference_Exon6.fasta', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta.fai', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta.fai', checkIfExists: true)
                 ]
                 input[1] = [
                     [ id:'A1_01_01_1_reference_Exon7.fasta', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta.fai', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta.fai', checkIfExists: true)
                 ]
                 """
             }
@@ -66,11 +66,11 @@ nextflow_process {
                 // Test complex IDs: 'test.complex.name.fasta' -> 'test', 'another.test.fasta' -> 'another'
                 input[0] = [
                     [ id:'test.complex.name.fasta', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta.fai', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta.fai', checkIfExists: true)
                 ]
                 input[1] = [
                     [ id:'another.test.fasta', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta.fai', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta.fai', checkIfExists: true)
                 ]
                 """
             }
@@ -118,11 +118,11 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'A1_01_01_1_reference_Exon6.fasta', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta.fai', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon6.fasta.fai', checkIfExists: true)
                 ]
                 input[1] = [
                     [ id:'A1_01_01_1_reference_Exon7.fasta', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + '/abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta.fai', checkIfExists: true)
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/refs/A1_01_01_1_reference_Exon7.fasta.fai', checkIfExists: true)
                 ]
                 """
             }

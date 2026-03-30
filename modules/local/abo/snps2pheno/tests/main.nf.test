@@ -16,8 +16,8 @@ nextflow_process {
                 """
                 // The script expects the per_sample_processing directory as both inputs
                 // since it scans for sample subdirectories within it
-                input[0] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing', checkIfExists: true)
-                input[1] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing', checkIfExists: true)
+                input[0] = file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing', checkIfExists: true)
+                input[1] = file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing', checkIfExists: true)
                 """
             }
         }
@@ -48,8 +48,8 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing', checkIfExists: true)
-                input[1] = file(params.pipelines_testdata_base_path + '/abotyper/abotyper/per_sample_processing', checkIfExists: true)
+                input[0] = file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing', checkIfExists: true)
+                input[1] = file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing', checkIfExists: true)
                 """
             }
         }
