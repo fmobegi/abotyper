@@ -347,6 +347,7 @@
                 "qc-reports/multiqc",
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report.html",
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data",
+                "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/BETA-multiqc.parquet",
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/fastqc-status-check-heatmap.txt",
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/fastqc_adapter_content_plot.txt",
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/fastqc_overrepresented_sequences_plot.txt",
@@ -361,7 +362,6 @@
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/fastqc_top_overrepresented_sequences_table.txt",
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/llms-full.txt",
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/multiqc.log",
-                "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/multiqc.parquet",
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/multiqc_citations.txt",
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/multiqc_data.json",
                 "qc-reports/multiqc/Molecular-ABO-typing_multiqc_report_data/multiqc_fastqc.txt",
@@ -575,7 +575,7 @@
                 "ABO_O2O2_barcode10.bam:md5,49ab8757d09e5b6d71cf28e512f1e861"
             ]
         ],
-        "timestamp": "2026-03-30T12:08:56.538076906",
+        "timestamp": "2026-03-30T12:42:01.804105303",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"

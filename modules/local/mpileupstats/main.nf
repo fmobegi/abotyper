@@ -53,10 +53,7 @@ process MPILEUPSTATS {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python3 --version | sed 's/Python //g')
-<<<<<<< HEAD
-=======
         re: \$(python3 -c "import re; print(re.__version__)")
->>>>>>> dev
     END_VERSIONS
     """
 }

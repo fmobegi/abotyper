@@ -7,8 +7,8 @@ lint:
         - params.fasta
         - params.fai
         - params.multiqc_logo
+  nf_test_content: false
 nf_core_version: 3.3.2
-
 repository_type: pipeline
 template:
   author: "@fmobegi"
@@ -19,5 +19,4 @@ template:
   name: abotyper
   org: nf-core
   outdir: .
-
   version: 1.0.0dev

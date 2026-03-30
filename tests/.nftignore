@@ -3,10 +3,10 @@
 
 # MultiQC volatile outputs
 qc-reports/multiqc/*_multiqc_report.html
+qc-reports/multiqc/*_multiqc_report_data/BETA-multiqc.parquet
 qc-reports/multiqc/*_multiqc_report_data/fastqc_top_overrepresented_sequences_table.txt
 qc-reports/multiqc/*_multiqc_report_data/llms-full.txt
 qc-reports/multiqc/*_multiqc_report_data/multiqc.log
-qc-reports/multiqc/*_multiqc_report_data/multiqc.parquet
 qc-reports/multiqc/*_multiqc_report_data/multiqc_data.json
 qc-reports/multiqc/*_multiqc_report_data/multiqc_general_stats.txt
 qc-reports/multiqc/*_multiqc_report_data/multiqc_runtime_files_searched_plot.txt

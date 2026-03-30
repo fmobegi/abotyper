@@ -53,12 +53,6 @@ workflow PIPELINE_INITIALISATION {
         workflow,
         validate_params,
         "${projectDir}/nextflow_schema.json",
-        false,
-        false,
-        false,
-        "",
-        "",
-        "",
     )
 
     //
