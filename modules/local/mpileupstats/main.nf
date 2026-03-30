@@ -7,27 +7,22 @@ The samtools/mpileup module output is processed using python3 to achieve this.
 */
 
 process MPILEUP_NUCL_FREQ {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.9--1' :
-        'quay.io/biocontainers/python:3.9--1' }"
-
-    // changes to python script not processed properly on re-run
-    // Disable caching for the process to repeat every time for easy debug
-
-    // cache false
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/python:3.9--1'
+        : 'quay.io/biocontainers/python:3.9--1'}"
 
     input:
     tuple val(meta), path(pileup)
     tuple val(meta1), path(fasta)
 
     output:
-    tuple val(meta), path("*.AlignmentStatistics.tsv")   , emit: tsv
-    path("ABOReadPolymorphisms.txt")                     , emit: txt
-    path "versions.yml"                                  , emit: versions
+    tuple val(meta), path("*.AlignmentStatistics.tsv"), emit: tsv
+    path ("ABOReadPolymorphisms.txt"), emit: txt
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -37,7 +32,7 @@ process MPILEUP_NUCL_FREQ {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    python3 $projectDir/bin/stats_from_pileup.py \\
+    stats_from_pileup.py \\
         -i ${pileup} \\
         -o ${prefix}.AlignmentStatistics.tsv \\
         -s ABOReadPolymorphisms.txt
@@ -45,7 +40,6 @@ process MPILEUP_NUCL_FREQ {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python3 --version | sed 's/Python //g')
-        gzip: \$(python3 -c "import gzip; print(gzip.__version__)")
         re: \$(python3 -c "import re; print(re.__version__)")
     END_VERSIONS
     """
@@ -58,7 +52,6 @@ process MPILEUP_NUCL_FREQ {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python3 --version | sed 's/Python //g')
-        gzip: \$(python3 -c "import gzip; print(gzip.__version__)")
         re: \$(python3 -c "import re; print(re.__version__)")
     END_VERSIONS
     """

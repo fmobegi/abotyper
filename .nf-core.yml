@@ -1,4 +1,12 @@
-lint: {}
+lint:
+  files_unchanged:
+    - .github/workflows/linting_comment.yml
+    - .github/workflows/linting.yml
+  nextflow_config:
+    - config_defaults:
+        - params.fasta
+        - params.fai
+        - params.multiqc_logo
 nf_core_version: 3.3.2
 
 repository_type: pipeline
@@ -13,4 +21,3 @@ template:
   outdir: .
 
   version: 1.0.0dev
-

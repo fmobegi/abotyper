@@ -26,15 +26,15 @@ nextflow_process {
         }
 
         then {
+            assert process.success
             assertAll(
-                { assert process.success },
                 { assert process.out.phenotype.size() == 1 },
-                { assert process.out.phenotype.get(0).get(0).id == 'NGSPOS_barcode01' },
-                { assert process.out.phenotype.get(0).get(0).exon == 'exon6' },
-                { assert path(process.out.phenotype.get(0).get(1)).name == 'NGSPOS_barcode01.ABOPhenotype.txt' },
-                { assert path(process.out.log.get(0)).name == 'NGSPOS_barcode01.log.txt' },
+                { assert process.out.phenotype[0][0].id == 'NGSPOS_barcode01' },
+                { assert process.out.phenotype[0][0].exon == 'exon6' },
+                { assert path(process.out.phenotype[0][1]).name == 'NGSPOS_barcode01.ABOPhenotype.txt' },
+                { assert path(process.out.log[0]).name == 'NGSPOS_barcode01.log.txt' },
                 { assert process.out.versions },
-                { assert path(process.out.versions.get(0)).text.contains("python:") }
+                { assert path(process.out.versions[0]).text.contains("python:") }
             )
         }
     }
@@ -60,14 +60,14 @@ nextflow_process {
         }
 
         then {
+            assert process.success
             assertAll(
-                { assert process.success },
-                { assert process.out.phenotype.get(0).get(0).id == 'IMM-45-44874_barcode25' },
-                { assert process.out.phenotype.get(0).get(0).expected_phenotype == 'AB' },
-                { assert path(process.out.phenotype.get(0).get(1)).name.startsWith('IMM-45-44874_barcode25') },
-                { assert path(process.out.phenotype.get(0).get(1)).name.endsWith('.ABOPhenotype.txt') },
-                { assert path(process.out.log.get(0)).name.startsWith('IMM-45-44874_barcode25') },
-                { assert path(process.out.log.get(0)).name.endsWith('.log.txt') }
+                { assert process.out.phenotype[0][0].id == 'IMM-45-44874_barcode25' },
+                { assert process.out.phenotype[0][0].expected_phenotype == 'AB' },
+                { assert path(process.out.phenotype[0][1]).name.startsWith('IMM-45-44874_barcode25') },
+                { assert path(process.out.phenotype[0][1]).name.endsWith('.ABOPhenotype.txt') },
+                { assert path(process.out.log[0]).name.startsWith('IMM-45-44874_barcode25') },
+                { assert path(process.out.log[0]).name.endsWith('.log.txt') }
             )
         }
     }
@@ -88,14 +88,14 @@ nextflow_process {
         }
 
         then {
+            assert process.success
             assertAll(
-                { assert process.success },
-                { assert process.out.phenotype.get(0).get(0).exon == 'exon7' },
-                { assert process.out.phenotype.get(0).get(0).sample_type == 'control' },
-                { assert path(process.out.phenotype.get(0).get(1)).name == 'NGSNEG_barcode12.ABOPhenotype.txt' },
-                { assert path(process.out.log.get(0)).name == 'NGSNEG_barcode12.log.txt' },
-                { assert path(process.out.phenotype.get(0).get(1)).exists() },
-                { assert path(process.out.log.get(0)).exists() }
+                { assert process.out.phenotype[0][0].exon == 'exon7' },
+                { assert process.out.phenotype[0][0].sample_type == 'control' },
+                { assert path(process.out.phenotype[0][1]).name == 'NGSNEG_barcode12.ABOPhenotype.txt' },
+                { assert path(process.out.log[0]).name == 'NGSNEG_barcode12.log.txt' },
+                { assert path(process.out.phenotype[0][1]).exists() },
+                { assert path(process.out.log[0]).exists() }
             )
         }
     }
@@ -125,20 +125,20 @@ nextflow_process {
         }
 
         then {
+            assert process.success
             assertAll(
-                { assert process.success },
                 // Verify all metadata is preserved
-                { assert process.out.phenotype.get(0).get(0).id == 'Sample1-2024-12345_barcode22' },
-                { assert process.out.phenotype.get(0).get(0).exon == 'exon6' },
-                { assert process.out.phenotype.get(0).get(0).sample_type == 'patient' },
-                { assert process.out.phenotype.get(0).get(0).expected_phenotype == 'A' },
-                { assert process.out.phenotype.get(0).get(0).sequencing_platform == 'nanopore' },
-                { assert process.out.phenotype.get(0).get(0).coverage_depth == 150 },
-                { assert process.out.phenotype.get(0).get(0).quality_score == 35 },
-                { assert process.out.phenotype.get(0).get(0).snp_count == 12 },
+                { assert process.out.phenotype[0][0].id == 'Sample1-2024-12345_barcode22' },
+                { assert process.out.phenotype[0][0].exon == 'exon6' },
+                { assert process.out.phenotype[0][0].sample_type == 'patient' },
+                { assert process.out.phenotype[0][0].expected_phenotype == 'A' },
+                { assert process.out.phenotype[0][0].sequencing_platform == 'nanopore' },
+                { assert process.out.phenotype[0][0].coverage_depth == 150 },
+                { assert process.out.phenotype[0][0].quality_score == 35 },
+                { assert process.out.phenotype[0][0].snp_count == 12 },
                 // Verify output files are created with correct naming
-                { assert path(process.out.phenotype.get(0).get(1)).name.contains('Sample1-2024-12345_barcode22') },
-                { assert path(process.out.log.get(0)).name.contains('Sample1-2024-12345_barcode22') }
+                { assert path(process.out.phenotype[0][1]).name.contains('Sample1-2024-12345_barcode22') },
+                { assert path(process.out.log[0]).name.contains('Sample1-2024-12345_barcode22') }
             )
         }
     }
@@ -165,18 +165,18 @@ nextflow_process {
         }
 
         then {
+            assert process.success
             assertAll(
-                { assert process.success },
                 { assert process.out.phenotype.size() == 1 },
                 { assert process.out.log.size() == 1 },
                 { assert process.out.versions.size() == 1 },
                 // Even with ambiguous data, files should be created in stub mode
-                { assert path(process.out.phenotype.get(0).get(1)).exists() },
-                { assert path(process.out.log.get(0)).exists() },
+                { assert path(process.out.phenotype[0][1]).exists() },
+                { assert path(process.out.log[0]).exists() },
                 // Metadata should be preserved
-                { assert process.out.phenotype.get(0).get(0).coverage == 'low' },
-                { assert process.out.phenotype.get(0).get(0).quality == 'ambiguous' },
-                { assert process.out.phenotype.get(0).get(0).expected_phenotype == 'unknown' }
+                { assert process.out.phenotype[0][0].coverage == 'low' },
+                { assert process.out.phenotype[0][0].quality == 'ambiguous' },
+                { assert process.out.phenotype[0][0].expected_phenotype == 'unknown' }
             )
         }
     }
@@ -197,18 +197,18 @@ nextflow_process {
         }
 
         then {
+            assert process.success
             assertAll(
-                { assert process.success },
                 { assert process.out.versions },
                 // Validate that versions are captured correctly in stub mode
                 {
-                    def versionsContent = path(process.out.versions.get(0)).text
+                    def versionsContent = path(process.out.versions[0]).text
                     assert versionsContent.contains("python:")
                     assert versionsContent.contains("pandas:") || versionsContent.contains("xlsxwriter:")
                 },
                 // Validate process name is captured in versions
-                { assert path(process.out.versions.get(0)).text.contains("${task.process}") ||
-                         path(process.out.versions.get(0)).text.contains("ABOSNPS2PHENO") }
+                { assert path(process.out.versions[0]).text.contains("${task.process}") ||
+                         path(process.out.versions[0]).text.contains("ABOSNPS2PHENO") }
             )
         }
     }
@@ -235,17 +235,17 @@ nextflow_process {
         }
 
         then {
+            assert process.success
             assertAll(
-                { assert process.success },
-                { assert process.out.phenotype.get(0).get(0).id == 'MULTITYPE_barcode88' },
-                { assert process.out.phenotype.get(0).get(0).expected_phenotype == 'mixed' },
-                { assert process.out.phenotype.get(0).get(0).analysis_type == 'comprehensive' },
+                { assert process.out.phenotype[0][0].id == 'MULTITYPE_barcode88' },
+                { assert process.out.phenotype[0][0].expected_phenotype == 'mixed' },
+                { assert process.out.phenotype[0][0].analysis_type == 'comprehensive' },
                 // Validate that complex phenotype predictions are handled in stub mode
-                { assert path(process.out.phenotype.get(0).get(1)).exists() },
-                { assert path(process.out.log.get(0)).exists() },
+                { assert path(process.out.phenotype[0][1]).exists() },
+                { assert path(process.out.log[0]).exists() },
                 // Verify file naming follows expected patterns
-                { assert path(process.out.phenotype.get(0).get(1)).name.startsWith('MULTITYPE_barcode88') },
-                { assert path(process.out.log.get(0)).name.startsWith('MULTITYPE_barcode88') }
+                { assert path(process.out.phenotype[0][1]).name.startsWith('MULTITYPE_barcode88') },
+                { assert path(process.out.log[0]).name.startsWith('MULTITYPE_barcode88') }
             )
         }
     }
