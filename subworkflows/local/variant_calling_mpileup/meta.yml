@@ -10,7 +10,7 @@ keywords:
   - exons
 components:
   - samtools/mpileup
-  - mpileup/nucl/freq
+  - mpileupstats
 input:
   - ch_bam:
       type: channel

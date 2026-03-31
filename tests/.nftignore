@@ -2,18 +2,22 @@
 .DS_Store
 
 # MultiQC volatile outputs
-qc-reports/multiqc/multiqc_data/BETA-multiqc.parquet
-qc-reports/multiqc/multiqc_data/fastqc_top_overrepresented_sequences_table.txt
-qc-reports/multiqc/multiqc_data/llms-full.txt
-qc-reports/multiqc/multiqc_data/multiqc.log
-qc-reports/multiqc/multiqc_data/multiqc_data.json
-qc-reports/multiqc/multiqc_data/multiqc_general_stats.txt
-qc-reports/multiqc/multiqc_data/multiqc_samtools_coverage.txt
-qc-reports/multiqc/multiqc_data/multiqc_software_versions.txt
-qc-reports/multiqc/multiqc_data/multiqc_sources.txt
-qc-reports/multiqc/multiqc_data/samtools-coverage*
-qc-reports/multiqc/multiqc_plots/{svg,pdf,png}/*.{svg,pdf,png}
-qc-reports/multiqc/multiqc_report.html
+qc-reports/multiqc/*_multiqc_report.html
+qc-reports/multiqc/*_multiqc_report_data/BETA-multiqc.parquet
+qc-reports/multiqc/*_multiqc_report_data/fastqc_top_overrepresented_sequences_table.txt
+qc-reports/multiqc/*_multiqc_report_data/llms-full.txt
+qc-reports/multiqc/*_multiqc_report_data/multiqc.log
+qc-reports/multiqc/*_multiqc_report_data/multiqc_data.json
+qc-reports/multiqc/*_multiqc_report_data/multiqc_general_stats.txt
+qc-reports/multiqc/*_multiqc_report_data/multiqc_runtime_files_searched_plot.txt
+qc-reports/multiqc/*_multiqc_report_data/multiqc_runtime_modules_plot.txt
+qc-reports/multiqc/*_multiqc_report_data/multiqc_runtime_search_patterns_plot.txt
+qc-reports/multiqc/*_multiqc_report_data/multiqc_samtools_coverage.txt
+qc-reports/multiqc/*_multiqc_report_data/multiqc_software_versions.txt
+qc-reports/multiqc/*_multiqc_report_data/multiqc_sources.txt
+qc-reports/multiqc/*_multiqc_report_data/per_module_benchmark_table.txt
+qc-reports/multiqc/*_multiqc_report_data/samtools-coverage*
+qc-reports/multiqc/*_multiqc_report_plots/{svg,pdf,png}/*.{svg,pdf,png}
 
 # FastQC outputs (volatile)
 qc-reports/fastqc/*_fastqc.{html,zip}

@@ -8,8 +8,8 @@ keywords:
   - variant-frequency
   - coverage-analysis
 components:
-  - abosnps2pheno
-  - getabosnps
+  - abo/snps2pheno
+  - abo/getabosnps
 input:
   - ch_variants_freq:
       type: channel

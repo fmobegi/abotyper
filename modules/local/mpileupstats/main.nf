@@ -6,14 +6,14 @@ However, for ABO analysis, it is necessary to include all relevant REF positions
 The samtools/mpileup module output is processed using python3 to achieve this.
 */
 
-process MPILEUP_NUCL_FREQ {
+process MPILEUPSTATS {
     tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/python:3.9--1'
-        : 'quay.io/biocontainers/python:3.9--1'}"
+        ? 'oras://community.wave.seqera.io/library/python:3.13.5--f44fe0f0f87faa8f'
+        : 'community.wave.seqera.io/library/python:3.13.5--18032a8dc5d4b91e'}"
 
     input:
     tuple val(meta), path(pileup)
@@ -48,6 +48,7 @@ process MPILEUP_NUCL_FREQ {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}.AlignmentStatistics.tsv
+    touch ABOReadPolymorphisms.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
