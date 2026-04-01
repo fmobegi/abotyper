@@ -1,19 +1,19 @@
 process ABO_GETABOSNPS {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'oras://community.wave.seqera.io/library/json5_pandas_python:ce15c1d2f7290f72' :
-        'community.wave.seqera.io/library/json5_pandas_python:e3184b0698afebbd' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/8d/8d69e246c0a530fa88ba496bf8a62bd282e770fb4b68d2877ab777ce4943fed1/data'
+        : 'community.wave.seqera.io/library/json5_pandas_python:e3184b0698afebbd'}"
 
     input:
     tuple val(meta), path(variants_freq), path(coverage), val(exon_n)
 
     output:
     tuple val(meta), path("*.ABOPhenotype.txt"), emit: phenotype
-    tuple val(meta), path("*.log.txt")         , emit: log
-    path "versions.yml"                        , emit: versions
+    tuple val(meta), path("*.log.txt"), emit: log
+    path "versions.yml", emit: versions
 
     script:
     def args = task.ext.args ?: ''

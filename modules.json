@@ -17,12 +17,12 @@
                     },
                     "multiqc": {
                         "branch": "master",
-                        "git_sha": "af27af1be706e6a2bb8fe454175b0cdf77f47b49",
+                        "git_sha": "b9cec8b07fca8372fd97e46b9f82f1cca4a12dc5",
                         "installed_by": ["modules"]
                     },
                     "samtools/coverage": {
                         "branch": "master",
-                        "git_sha": "c3ca2a1fe38081e60886fc25735fc24593ee2770",
+                        "git_sha": "c8be52dba1166c678e74cda9c3a3c221635c8bb1",
                         "installed_by": ["modules"]
                     },
                     "samtools/flagstat": {
@@ -56,7 +56,7 @@
                     },
                     "utils_nfschema_plugin": {
                         "branch": "master",
-                        "git_sha": "4b406a74dc0449c0401ed87d5bfff4252fd277fd",
+                        "git_sha": "2fd2cd6d0e7b273747f32e465fdc6bcc3ae0814e",
                         "installed_by": ["subworkflows"]
                     }
                 }
