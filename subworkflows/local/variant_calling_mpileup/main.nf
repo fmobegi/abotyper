@@ -14,34 +14,44 @@ workflow VARIANTS_QUANTIFICATION {
     ch_versions = channel.empty()
 
     // Prepare mpileup input by matching bam with bed files based on exon metadata
+    // ch_mpileup_input = ch_bam
+    //     .combine(ch_bed)
+    //     .filter { bam_meta, bam, bed_meta, bed ->
+    //         bam_meta.exon == bed_meta.exon && bam_meta.ref_id == bed_meta.id.replace('.fasta', '')
+    //     }
+    //     .map { bam_meta, bam, bed_meta, bed ->
+    //         [bam_meta, bam, bed]
+    //     }
     ch_mpileup_input = ch_bam
-        .combine(ch_bed)
-        .filter { bam_meta, bam, bed_meta, bed ->
-            bam_meta.exon == bed_meta.exon && bam_meta.ref_id == bed_meta.id.replace('.fasta', '')
-        }
-        .map { bam_meta, bam, bed_meta, bed ->
-            [bam_meta, bam, bed]
-        }
+        .join(ch_bai)
+        .join(ch_bed)
+
 
     // Match fasta files with samples based on exon and reference ID
+    // ch_fasta_matched = ch_mpileup_input
+    //     .combine(ch_fasta)
+    //     .filter { bam_meta, bam, bed, fasta_meta, fasta ->
+    //         bam_meta.exon == fasta_meta.exon && bam_meta.ref_id == fasta_meta.id
+    //     }
+    //     .map { bam_meta, bam, bed, fasta_meta, fasta ->
+    //         [bam_meta, bam, bed, fasta_meta, fasta]
+    //     }
     ch_fasta_matched = ch_mpileup_input
-        .combine(ch_fasta)
-        .filter { bam_meta, bam, bed, fasta_meta, fasta ->
-            bam_meta.exon == fasta_meta.exon && bam_meta.ref_id == fasta_meta.id
-        }
-        .map { bam_meta, bam, bed, fasta_meta, fasta ->
-            [bam_meta, bam, bed, fasta_meta, fasta]
-        }
+        .join(ch_fasta)
+        .join(ch_fai)
+
 
     /*
     MODULE: SAMTOOLS_MPILEUP
     */
     SAMTOOLS_MPILEUP(
-        ch_fasta_matched.map { bam_meta, bam, bed, fasta_meta, fasta -> [bam_meta, bam, bed] },
-        ch_fasta_matched.map { bam_meta, bam, bed, fasta_meta, fasta -> [fasta_meta, fasta] },
+        ch_fasta_matched.map { meta, bam, bai, bed, fasta_meta, fasta, fai ->
+            [meta, bam, bai, bed]
+        },
+        ch_fasta_matched.map { meta, bam, bai, bed, fasta_meta, fasta, fai ->
+            [fasta_meta, fasta, fai]
+        }
     )
-
-    ch_versions = ch_versions.mix(SAMTOOLS_MPILEUP.out.versions.first())
 
     // Match mpileup output with fasta for nucleotide frequency analysis
     ch_nucl_freq_input = SAMTOOLS_MPILEUP.out.mpileup

@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.0.0dev - [2025-04-24]
+## v1.0.0dev - [2026-04-01]
 
 Initial release of nf-core/abotyper, created with the [nf-core](https://nf-co.re/) template.
 
