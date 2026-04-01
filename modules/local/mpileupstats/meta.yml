@@ -1,4 +1,3 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "mpileupstats"
 description: Process mpileup data to extract nucleotide frequencies and polymorphisms for ABO blood group analysis
 keywords:
@@ -24,51 +23,90 @@ tools:
       licence: [""]
 
 input:
-  - meta:
-      type: map
-      description: |
-        Groovy Map containing sample information
-        e.g. `[ id:'sample1', exon:'exon6', sample_type:'patient' ]`
-  - pileup:
-      type: file
-      description: Input mpileup file (compressed or uncompressed)
-      pattern: "*.{pileup,pileup.gz}"
-      ontologies:
-        - edam:format_3003
-  - meta1:
-      type: map
-      description: |
-        Groovy Map containing reference information
-        e.g. `[ id:'reference' ]`
-  - fasta:
-      type: file
-      description: Reference FASTA file (used for context, may not be directly processed)
-      pattern: "*.{fa,fasta,fa.gz,fasta.gz}"
-      ontologies:
-        - edam:format_1929
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'sample1', exon:'exon6', sample_type:'patient' ]
+    - pileup:
+        type: file
+        description: Input mpileup file (compressed or uncompressed)
+        pattern: "*.{pileup,pileup.gz}"
+        ontologies:
+          - edam:format_3003
+  - - meta1:
+        type: map
+        description: |
+          Groovy Map containing reference information
+          e.g. [ id:'reference' ]
+    - fasta:
+        type: file
+        description: Reference FASTA file (used for context, may not be directly processed)
+        pattern: "*.{fa,fasta,fa.gz,fasta.gz}"
+        ontologies:
+          - edam:format_1929
 
 output:
-  - meta:
-      type: map
-      description: |
-        Groovy Map containing sample information
-        e.g. `[ id:'sample1', exon:'exon6', sample_type:'patient' ]`
-  - tsv:
-      type: file
-      description: Tab-separated file containing alignment statistics and nucleotide frequencies per position
-      pattern: "*.AlignmentStatistics.tsv"
-      ontologies:
-        - edam:format_3475
-  - txt:
-      type: file
-      description: Text file containing ABO-specific polymorphisms extracted from the pileup data
-      pattern: "ABOReadPolymorphisms.txt"
-      ontologies:
-        - edam:format_2330
-  - versions:
-      type: file
-      description: File containing software versions
-      pattern: "versions.yml"
+  tsv:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'sample1', exon:'exon6', sample_type:'patient' ]
+      - "*.AlignmentStatistics.tsv":
+          type: file
+          description: Tab-separated file containing alignment statistics and nucleotide frequencies per position
+          pattern: "*.AlignmentStatistics.tsv"
+          ontologies:
+            - edam:format_3475
+  txt:
+    - - "ABOReadPolymorphisms.txt":
+          type: file
+          description: Text file containing ABO-specific polymorphisms extracted from the pileup data
+          pattern: "ABOReadPolymorphisms.txt"
+          ontologies:
+            - edam:format_2330
+  versions_python:
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - python:
+          type: string
+          description: Name of the tool
+      - python3 --version | sed "s/Python //":
+          type: eval
+          description: The expression to obtain the version of Python
+  versions_re:
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - re:
+          type: string
+          description: Name of the Python module
+      - python3 -c "import re; print(re.__version__)":
+          type: eval
+          description: The expression to obtain the version of the re module
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - python:
+          type: string
+          description: Name of the tool
+      - python3 --version | sed "s/Python //":
+          type: eval
+          description: The expression to obtain the version of Python
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - re:
+          type: string
+          description: Name of the Python module
+      - python3 -c "import re; print(re.__version__)":
+          type: eval
+          description: The expression to obtain the version of the re module
 
 authors:
   - "@fmobegi"

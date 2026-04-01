@@ -1,4 +1,3 @@
----
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: ABO_SNPS2PHENO
 description: Aggregate ABO SNP results from multiple samples and generate comprehensive phenotype reports
@@ -45,38 +44,117 @@ tools:
       licence: ["MIT"]
 
 input:
-  - samples_dir:
-      type: directory
-      description: Directory containing processed sample results with ABO phenotype predictions
-      pattern: "*/"
-      required: true
-  - per_sample_processing:
-      type: directory
-      description: Root directory containing per-sample processing results organized by sample ID and exon
-      pattern: "per_sample_processing/"
-      required: true
+  - - samples_dir:
+        type: directory
+        description: Directory containing processed sample results with ABO phenotype predictions
+        pattern: "*/"
+        required: true
+  - - per_sample_processing:
+        type: directory
+        description: Root directory containing per-sample processing results organized by sample ID and exon
+        pattern: "per_sample_processing/"
+        required: true
 
 output:
-  - txt:
-      type: file
-      description: Text file containing aggregated ABO phenotype results in human-readable format
-      pattern: "ABO_result.txt"
-  - xls:
-      type: file
-      description: Excel file containing comprehensive ABO phenotype results with formatting
-      pattern: "ABO_result.xlsx"
-  - log:
-      type: file
-      description: Log file containing processing information, warnings, and errors from aggregation
-      pattern: "ABO_results.log"
-  - csv:
-      type: file
-      description: CSV file containing final exported ABO results suitable for downstream analysis
-      pattern: "final_export.csv"
-  - versions:
-      type: file
-      description: File containing software versions
-      pattern: "versions.yml"
+  txt:
+    - - "ABO_result.txt":
+          type: file
+          description: Text file containing aggregated ABO phenotype results in human-readable format
+          pattern: "ABO_result.txt"
+  xls:
+    - - "ABO_result.xlsx":
+          type: file
+          description: Excel file containing comprehensive ABO phenotype results with formatting
+          pattern: "ABO_result.xlsx"
+  log:
+    - - "ABO_results.log":
+          type: file
+          description: Log file containing processing information, warnings, and errors from aggregation
+          pattern: "ABO_results.log"
+  csv:
+    - - "final_export.csv":
+          type: file
+          description: CSV file containing final exported ABO results suitable for downstream analysis
+          pattern: "final_export.csv"
+  versions_python:
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - python:
+          type: string
+          description: Name of the tool
+      - python --version | sed "s/Python //":
+          type: eval
+          description: The expression to obtain the version of Python
+  versions_pandas:
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - pandas:
+          type: string
+          description: Name of the library
+      - python -c "import pandas; print(pandas.__version__)":
+          type: eval
+          description: The expression to obtain the version of pandas
+  versions_numpy:
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - numpy:
+          type: string
+          description: Name of the library
+      - python -c "import numpy; print(numpy.__version__)":
+          type: eval
+          description: The expression to obtain the version of numpy
+  versions_xlsxwriter:
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - xlsxwriter:
+          type: string
+          description: Name of the library
+      - python -c "import xlsxwriter; print(xlsxwriter.__version__)":
+          type: eval
+          description: The expression to obtain the version of xlsxwriter
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - python:
+          type: string
+          description: Name of the tool
+      - python --version | sed "s/Python //":
+          type: eval
+          description: The expression to obtain the version of Python
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - pandas:
+          type: string
+          description: Name of the library
+      - python -c "import pandas; print(pandas.__version__)":
+          type: eval
+          description: The expression to obtain the version of pandas
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - numpy:
+          type: string
+          description: Name of the library
+      - python -c "import numpy; print(numpy.__version__)":
+          type: eval
+          description: The expression to obtain the version of numpy
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - xlsxwriter:
+          type: string
+          description: Name of the library
+      - python -c "import xlsxwriter; print(xlsxwriter.__version__)":
+          type: eval
+          description: The expression to obtain the version of xlsxwriter
 
 authors:
   - "@fmobegi"

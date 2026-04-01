@@ -18,7 +18,7 @@ workflow MINIMAP2_ALIGN_READS {
 
     main:
 
-    // ch_versions = channel.empty()
+    ch_versions = channel.empty()
 
     // Simple combine and filter approach to match samples with correct exon references
     ch_minimap_ready = ch_combined_input
@@ -77,15 +77,16 @@ workflow MINIMAP2_ALIGN_READS {
     */
     ch_stats_input = ch_bam_bai
         .combine(ch_combined_fasta)
-        .filter { bam_meta, bam, bai, fasta_meta, fasta ->
-            bam_meta.exon == fasta_meta.exon
+        .combine(ch_combined_fai)  // ADD THIS
+        .filter { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai ->
+            bam_meta.exon == fasta_meta.exon && bam_meta.exon == fai_meta.exon
         }
 
     SAMTOOLS_STATS(
-        ch_stats_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai ->
+        ch_stats_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai ->
             [bam_meta, bam, bai]
         },
-        ch_stats_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai ->
+        ch_stats_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai ->
             [fasta_meta, fasta, fai]
         }
     )
@@ -98,5 +99,5 @@ workflow MINIMAP2_ALIGN_READS {
     stats    = SAMTOOLS_STATS.out.stats // channel: [ val(meta), path(stats) ]
     fasta    = ch_combined_fasta // channel: [ val(meta1), path(fasta) ]
     fai      = ch_combined_fai // channel: [ val(meta1), path(fai) ]
-    // versions = ch_versions // channel: [ versions.yml ] | All modules here are using topics 
+    versions = ch_versions // channel: [ versions.yml ] | All modules here are using topics 
 }

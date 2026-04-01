@@ -1,9 +1,11 @@
 /*
- * Subworkflow: PREDICTABOPHENOTYPE
- * Description: Predicts ABO phenotype by combining variant frequency data
- * with BAM coverage, extracting SNPs, and mapping them to phenotypes.
- * Uses metadata-driven joining and structured per-sample output.
- */
+  SUBWORKFLOW: PREDICTABOPHENOTYPE
+*/
+
+//  Description: Predicts ABO phenotype by combining variant frequency data
+//   with BAM coverage, extracting SNPs, and mapping them to phenotypes.
+//   Uses metadata-driven joining and structured per-sample output.
+ 
 
 include { ABO_GETABOSNPS } from '../../../modules/local/abo/getabosnps/main'
 include { ABO_SNPS2PHENO } from '../../../modules/local/abo/snps2pheno/main'
@@ -14,8 +16,6 @@ workflow PREDICTABOPHENOTYPE {
     ch_bam_coverage // channel: [ val(meta), [ cov ] ] - with exon metadata
 
     main:
-
-    ch_versions = channel.empty()
 
     // JOIN: Variant frequency with BAM coverage
     ch_combined_input = ch_variants_freq
@@ -30,7 +30,6 @@ workflow PREDICTABOPHENOTYPE {
     ABO_GETABOSNPS(
         ch_combined_input
     )
-    ch_versions = ch_versions.mix(ABO_GETABOSNPS.out.versions)
 
     // PREP:Organize SNP reports by sample and exon
     ch_snp_reports = ABO_GETABOSNPS.out.phenotype
@@ -60,8 +59,7 @@ workflow PREDICTABOPHENOTYPE {
         ch_snp_reports,
         ch_per_sample_processing,
     )
-    ch_versions = ch_versions.mix(ABO_SNPS2PHENO.out.versions)
 
     emit:
-    versions = ch_versions // channel: [ versions.yml ]
+    abo_results = ABO_SNPS2PHENO.out.txt
 }

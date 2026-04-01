@@ -1,4 +1,3 @@
----
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: MAKEINDEX
 description: Convert FASTA index files (FAI) to BED format for genomic interval processing
@@ -19,52 +18,72 @@ tools:
       licence: ["GPL-3.0-or-later"]
 
 input:
-  - meta:
-      type: map
-      description: |
-        Groovy Map containing sample information for exon6
-        e.g. `[ id:'sample1', exon:'exon6' ]`
-      required: true
-  - exon6fai:
-      type: file
-      description: FASTA index file for exon6 reference sequence
-      pattern: "*.fai"
-      required: true
-  - meta1:
-      type: map
-      description: |
-        Groovy Map containing sample information for exon7
-        e.g. `[ id:'sample1', exon:'exon7' ]`
-      required: true
-  - exon7fai:
-      type: file
-      description: FASTA index file for exon7 reference sequence
-      pattern: "*.fai"
-      required: true
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information for exon6
+          e.g. [ id:'sample1', exon:'exon6' ]
+        required: true
+    - exon6fai:
+        type: file
+        description: FASTA index file for exon6 reference sequence
+        pattern: "*.fai"
+        required: true
+  - - meta1:
+        type: map
+        description: |
+          Groovy Map containing sample information for exon7
+          e.g. [ id:'sample1', exon:'exon7' ]
+        required: true
+    - exon7fai:
+        type: file
+        description: FASTA index file for exon7 reference sequence
+        pattern: "*.fai"
+        required: true
 
 output:
-  - meta:
-      type: map
-      description: |
-        Groovy Map containing sample information for exon6
-        e.g. `[ id:'sample1', exon:'exon6' ]`
-  - exon6bed:
-      type: file
-      description: BED format file containing genomic intervals for exon6
-      pattern: "*_exon6.bed"
-  - meta1:
-      type: map
-      description: |
-        Groovy Map containing sample information for exon7
-        e.g. `[ id:'sample1', exon:'exon7' ]`
-  - exon7bed:
-      type: file
-      description: BED format file containing genomic intervals for exon7
-      pattern: "*_exon7.bed"
-  - versions:
-      type: file
-      description: File containing software versions
-      pattern: "versions.yml"
+  exon6bed:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information for exon6
+            e.g. [ id:'sample1', exon:'exon6' ]
+      - "*_exon6.bed":
+          type: file
+          description: BED format file containing genomic intervals for exon6
+          pattern: "*_exon6.bed"
+  exon7bed:
+    - - meta1:
+          type: map
+          description: |
+            Groovy Map containing sample information for exon7
+            e.g. [ id:'sample1', exon:'exon7' ]
+      - "*_exon7.bed":
+          type: file
+          description: BED format file containing genomic intervals for exon7
+          pattern: "*_exon7.bed"
+  versions_awk:
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - awk:
+          type: string
+          description: Name of the tool
+      - awk --version | head -n1 | sed "s/.*Awk //; s/,.*//":
+          type: eval
+          description: The expression to obtain the version of awk
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: Name of the process
+      - awk:
+          type: string
+          description: Name of the tool
+      - awk --version | head -n1 | sed "s/.*Awk //; s/,.*//":
+          type: eval
+          description: The expression to obtain the version of awk
 
 authors:
   - "@fmobegi"

@@ -13,7 +13,9 @@ process ABO_GETABOSNPS {
     output:
     tuple val(meta), path("*.ABOPhenotype.txt"), emit: phenotype
     tuple val(meta), path("*.log.txt"), emit: log
-    path "versions.yml", emit: versions
+    tuple val("${task.process}"), val('python'), eval('python3 --version | sed "s/Python //"'), emit: versions_python, topic: versions
+    tuple val("${task.process}"), val('pandas'), eval('python3 -c "import pandas; print(pandas.__version__)"'), emit: versions_pandas, topic: versions
+    tuple val("${task.process}"), val('json5'), eval('python3 -c "import json5; print(json5.__version__)"'), emit: versions_json5, topic: versions
 
     script:
     def args = task.ext.args ?: ''
@@ -26,13 +28,6 @@ process ABO_GETABOSNPS {
         -c ${coverage} \\
         -e ${exon_n} \\
         2>&1 | tee ${prefix}.log.txt
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        python: \$(python3 --version | sed 's/Python //g')
-        pandas: \$(python3 -c "import pandas; print(pandas.__version__)")
-        json5: \$(python3 -c "import json5; print(json5.__version__)")
-    END_VERSIONS
     """
 
     stub:
@@ -40,12 +35,5 @@ process ABO_GETABOSNPS {
     """
     touch ${prefix}.ABOPhenotype.txt
     touch ${prefix}.log.txt
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        python: \$(python3 --version | sed 's/Python //g')
-        pandas: \$(python3 -c "import pandas; print(pandas.__version__)")
-        json5: \$(python3 -c "import json5; print(json5.__version__)")
-    END_VERSIONS
     """
 }

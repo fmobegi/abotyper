@@ -61,7 +61,6 @@ workflow ABOTYPER {
         exon6fai,
         exon7fai,
     )
-    ch_versions = ch_versions.mix(MAKEINDEX.out.versions)
 
     /*
     MODULE: FASTQC
@@ -78,7 +77,6 @@ workflow ABOTYPER {
         ch_combined_fasta,
         ch_combined_fai,
     )
-    // ch_versions = ch_versions.mix(MINIMAP2_ALIGN_READS.out.versions) // All current modules use topics
 
     /*
     SUBWORKFLOW: VARIANTS_QUANTIFICATION
@@ -90,7 +88,6 @@ workflow ABOTYPER {
         MINIMAP2_ALIGN_READS.out.fai,
         MAKEINDEX.out.exon6bed.mix(MAKEINDEX.out.exon7bed),
     )
-    ch_versions = ch_versions.mix(VARIANTS_QUANTIFICATION.out.versions)
 
     /*
     SUBWORKFLOW: PREDICTABOPHENOTYPE
@@ -107,7 +104,6 @@ workflow ABOTYPER {
         ch_prediction_input.metrics,
         ch_prediction_input.coverage,
     )
-    ch_versions = ch_versions.mix(PREDICTABOPHENOTYPE.out.versions)
 
     //
     // Collate and save software versions
@@ -133,7 +129,7 @@ workflow ABOTYPER {
         .mix(topic_versions_string)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name: 'twistpgxpanel_software_mqc_versions.yml',
+            name: 'abotyper_software_mqc_versions.yml',
             sort: true,
             newLine: true
         ).set { ch_collated_versions }
@@ -168,7 +164,7 @@ workflow ABOTYPER {
     MULTIQC(
         ch_multiqc_files.collect().map { files ->
             [
-                [id: 'twistpgxpanel'],
+                [id: 'abotyper'],
                 files,
                 ch_multiqc_config,
                 ch_multiqc_logo,

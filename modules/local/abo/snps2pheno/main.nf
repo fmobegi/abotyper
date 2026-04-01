@@ -18,20 +18,15 @@ process ABO_SNPS2PHENO {
     path "ABO_result.xlsx", emit: xls
     path "ABO_results.log", emit: log
     path "final_export.csv", emit: csv
-    path "versions.yml", emit: versions
+    tuple val("${task.process}"), val('python'), eval('python --version | sed "s/Python //"'), emit: versions_python, topic: versions
+    tuple val("${task.process}"), val('pandas'), eval('python -c "import pandas; print(pandas.__version__)"'), emit: versions_pandas, topic: versions
+    tuple val("${task.process}"), val('numpy'), eval('python -c "import numpy; print(numpy.__version__)"'), emit: versions_numpy, topic: versions
+    tuple val("${task.process}"), val('xlsxwriter'), eval('python -c "import xlsxwriter; print(xlsxwriter.__version__)"'), emit: versions_xlsxwriter, topic: versions
 
     script:
     """
     aggregate_abo_reports.py \\
         per_sample_processing 2>&1 | tee ABO_results.log
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        python: \$(python --version | sed 's/Python //g')
-        pandas: \$(python -c "import pandas; print(pandas.__version__)")
-        numpy: \$(python -c "import numpy; print(numpy.__version__)")
-        xlsxwriter: \$(python -c "import xlsxwriter; print(xlsxwriter.__version__)")
-    END_VERSIONS
     """
 
     stub:
@@ -40,13 +35,5 @@ process ABO_SNPS2PHENO {
     touch ABO_results.log
     touch ABO_result.xlsx
     touch ABO_result.txt
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        python: \$(python --version | sed 's/Python //g')
-        pandas: \$(python -c "import pandas; print(pandas.__version__)")
-        numpy: \$(python -c "import numpy; print(numpy.__version__)")
-        xlsxwriter: \$(python -c "import xlsxwriter; print(xlsxwriter.__version__)")
-    END_VERSIONS
     """
 }
