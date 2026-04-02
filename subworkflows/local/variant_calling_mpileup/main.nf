@@ -2,10 +2,10 @@
   SUBWORKFLOW: VARIANTS_QUANTIFICATION
 */
 
-//   Description: 
+//   Description:
 //     Performs variant quantification by generating mpileup files from aligned BAM files
 //     and computing nucleotide frequency statistics at specific genomic positions.
-//   
+//
 //   Workflow Steps:
 //     1. Match BAM/BAI files with BED interval files based on exon and reference ID
 //     2. Run SAMTOOLS_MPILEUP to generate pileup data for variant positions
@@ -42,7 +42,7 @@ workflow VARIANTS_QUANTIFICATION {
         .combine(ch_fai)
         .filter { fasta_meta, fasta, fai_meta, fai ->
             // Match by exon and normalize the IDs by removing .fasta extension
-            fasta_meta.exon == fai_meta.exon && 
+            fasta_meta.exon == fai_meta.exon &&
             fasta_meta.id == fai_meta.id.replace('.fasta', '')
         }
         .map { fasta_meta, fasta, fai_meta, fai ->
@@ -63,11 +63,11 @@ workflow VARIANTS_QUANTIFICATION {
     MODULE: SAMTOOLS_MPILEUP
     */
     SAMTOOLS_MPILEUP(
-        ch_fasta_matched.map { bam_meta, bam, bai, bed, fasta_meta, fasta, fai -> 
-            [bam_meta, bam, bai, bed] 
+        ch_fasta_matched.map { bam_meta, bam, bai, bed, fasta_meta, fasta, fai ->
+            [bam_meta, bam, bai, bed]
         },
-        ch_fasta_matched.map { bam_meta, bam, bai, bed, fasta_meta, fasta, fai -> 
-            [fasta_meta, fasta, fai] 
+        ch_fasta_matched.map { bam_meta, bam, bai, bed, fasta_meta, fasta, fai ->
+            [fasta_meta, fasta, fai]
         }
     )
 
@@ -82,11 +82,11 @@ workflow VARIANTS_QUANTIFICATION {
     MODULE: MPILEUPSTATS
     */
     MPILEUPSTATS(
-        ch_nucl_freq_input.map { mpileup_meta, mpileup, fasta_meta, fasta -> 
-            [mpileup_meta, mpileup] 
+        ch_nucl_freq_input.map { mpileup_meta, mpileup, fasta_meta, fasta ->
+            [mpileup_meta, mpileup]
         },
-        ch_nucl_freq_input.map { mpileup_meta, mpileup, fasta_meta, fasta -> 
-            [fasta_meta, fasta] 
+        ch_nucl_freq_input.map { mpileup_meta, mpileup, fasta_meta, fasta ->
+            [fasta_meta, fasta]
         }
     )
 

@@ -5,7 +5,7 @@
 //  Description: Predicts ABO phenotype by combining variant frequency data
 //   with BAM coverage, extracting SNPs, and mapping them to phenotypes.
 //   Uses metadata-driven joining and structured per-sample output.
- 
+
 
 include { ABO_GETABOSNPS } from '../../../modules/local/abo/getabosnps/main'
 include { ABO_SNPS2PHENO } from '../../../modules/local/abo/snps2pheno/main'

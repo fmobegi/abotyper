@@ -99,5 +99,5 @@ workflow MINIMAP2_ALIGN_READS {
     stats    = SAMTOOLS_STATS.out.stats // channel: [ val(meta), path(stats) ]
     fasta    = ch_combined_fasta // channel: [ val(meta1), path(fasta) ]
     fai      = ch_combined_fai // channel: [ val(meta1), path(fai) ]
-    versions = ch_versions // channel: [ versions.yml ] | All modules here are using topics 
+    versions = ch_versions // channel: [ versions.yml ] | All modules here are using topics
 }
