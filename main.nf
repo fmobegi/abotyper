@@ -43,11 +43,11 @@ workflow NFCORE_ABOTYPER {
     samplesheet // channel: samplesheet read in from --input
 
     main:
-    exon6fai = params.exon6fai ? channel.fromPath(params.exon6fai).map { it -> [[id: it.baseName, exon: 'exon6'], it] } : channel.empty()
-    exon6fasta = params.exon6fasta ? channel.fromPath(params.exon6fasta).map { it -> [[id: it.baseName, exon: 'exon6'], it] } : channel.empty()
-    exon7fai = params.exon7fai ? channel.fromPath(params.exon7fai).map { it -> [[id: it.baseName, exon: 'exon7'], it] } : channel.empty()
-    exon7fasta = params.exon7fasta ? channel.fromPath(params.exon7fasta).map { it -> [[id: it.baseName, exon: 'exon7'], it] } : channel.empty()
-    logo = params.logo ? channel.fromPath(params.logo).collect() : channel.empty()
+    exon6fai = params.exon6fai ? Channel.fromPath(params.exon6fai).map { it -> [[id: it.baseName, exon: 'exon6'], it] } : Channel.empty()
+    exon6fasta = params.exon6fasta ? Channel.fromPath(params.exon6fasta).map { it -> [[id: it.baseName, exon: 'exon6'], it] } : Channel.empty()
+    exon7fai = params.exon7fai ? Channel.fromPath(params.exon7fai).map { it -> [[id: it.baseName, exon: 'exon7'], it] } : Channel.empty()
+    exon7fasta = params.exon7fasta ? Channel.fromPath(params.exon7fasta).map { it -> [[id: it.baseName, exon: 'exon7'], it] } : Channel.empty()
+    logo = params.logo ? Channel.fromPath(params.logo).collect() : Channel.empty()
 
     ABOTYPER(
         samplesheet,
