@@ -125,7 +125,7 @@ This pipeline has been extensively tested using conda, docker, and singularity p
 To run this pipeline, use:
 
 ```bash
-# Quick test 
+# Quick test
 nextflow run nf-core-abotyper/main.nf --outdir test_working -profile test,conda -resume
 
 # Complete run
