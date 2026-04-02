@@ -3,9 +3,31 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.0.0dev - [2025-04-24]
+Initial release of nf-core/abotyper, created with the [nf-core](https://nf-co.re/) template.
+
+## v1.1.0 - [02-04-2026]
 
 Initial release of nf-core/abotyper, created with the [nf-core](https://nf-co.re/) template.
+
+### Added
+
+- Final ABO\*A1/A2 differentiation logic
+- Testing conda docker and singularity profiles for requisite support after template sync
+
+### Changed
+
+- Bump version to 1.1.0 for first release
+- Versions topics for local modules
+- Updated inputs for samtools modules to match v.1.23.x
+
+### Fixed
+
+- Fixed MultiQC configuration errors to match topics
+- Improved file staging for MultiQC compatibility for versions topics
+- Updated `aggregate_abo_reports.py` to remove redundant variations
+- Adrressed all pending review recommendation
+
+## v1.0.0dev - [2025-09-01]
 
 ### Added
 

@@ -42,7 +42,6 @@ workflow MINIMAP2_ALIGN_READS {
         false,
         false,
     )
-    ch_versions = ch_versions.mix(MINIMAP2_ALIGN.out.versions)
 
     // Join BAM and BAI files for processes that need both
     ch_bam_bai = MINIMAP2_ALIGN.out.bam.join(MINIMAP2_ALIGN.out.index, by: 0)
@@ -58,11 +57,13 @@ workflow MINIMAP2_ALIGN_READS {
         }
 
     SAMTOOLS_COVERAGE(
-        ch_coverage_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai -> [bam_meta, bam, bai] },
-        ch_coverage_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai -> [fasta_meta, fasta] },
-        ch_coverage_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai -> [fai_meta, fai] },
+        ch_coverage_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai ->
+            [bam_meta, bam, bai]
+        },
+        ch_coverage_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai ->
+            [fasta_meta, fasta, fai]
+        }
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_COVERAGE.out.versions)
 
     /*
     MODULE: SAMTOOLS_FLAGSTAT
@@ -70,22 +71,25 @@ workflow MINIMAP2_ALIGN_READS {
     SAMTOOLS_FLAGSTAT(
         ch_bam_bai
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT.out.versions)
 
     /*
     MODULE: SAMTOOLS_STATS
     */
     ch_stats_input = ch_bam_bai
         .combine(ch_combined_fasta)
-        .filter { bam_meta, bam, bai, fasta_meta, fasta ->
-            bam_meta.exon == fasta_meta.exon
+        .combine(ch_combined_fai)  // ADD THIS
+        .filter { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai ->
+            bam_meta.exon == fasta_meta.exon && bam_meta.exon == fai_meta.exon
         }
 
     SAMTOOLS_STATS(
-        ch_stats_input.map { bam_meta, bam, bai, fasta_meta, fasta -> [bam_meta, bam, bai] },
-        ch_stats_input.map { bam_meta, bam, bai, fasta_meta, fasta -> [fasta_meta, fasta] },
+        ch_stats_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai ->
+            [bam_meta, bam, bai]
+        },
+        ch_stats_input.map { bam_meta, bam, bai, fasta_meta, fasta, fai_meta, fai ->
+            [fasta_meta, fasta, fai]
+        }
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
 
     emit:
     bam      = MINIMAP2_ALIGN.out.bam // channel: [ val(meta), path(bam) ]
@@ -95,5 +99,5 @@ workflow MINIMAP2_ALIGN_READS {
     stats    = SAMTOOLS_STATS.out.stats // channel: [ val(meta), path(stats) ]
     fasta    = ch_combined_fasta // channel: [ val(meta1), path(fasta) ]
     fai      = ch_combined_fai // channel: [ val(meta1), path(fai) ]
-    versions = ch_versions // channel: [ versions.yml ]
+    versions = ch_versions // channel: [ versions.yml ] | All modules here are using topics
 }

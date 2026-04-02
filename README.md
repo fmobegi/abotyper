@@ -7,26 +7,25 @@
 
 [![GitHub Actions CI Status](https://github.com/nf-core/abotyper/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/ci.yml)
 [![GitHub Actions Linting Status](https://github.com/nf-core/abotyper/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/abotyper/actions/workflows/linting.yml)
-
 [![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/abotyper/results)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_In_GitHub_Codespaces-black?labelColor=grey&logo=github)](https://github.com/codespaces/new/nf-core/abotyper)
 
-<!-- [![Cite with Zenodo](http://img.shields.io/badge/DOI-XXXXX/zenodo.XXXXX)](https://doi.org/XXXXXX) -->
-
-[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
-
-[![Nextflow](https://img.shields.io/badge/version-%E2%89%A524.10.5-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)
-[![nf-core template version](https://img.shields.io/badge/nf--core_template-3.3.2-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/3.3.2)
+[![Nextflow](https://img.shields.io/badge/version-%E2%89%A525.04.0-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)
+[![nf-core template version](https://img.shields.io/badge/nf--core_template-3.5.2-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/3.5.2)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
 [![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/nf-core/abotyper)
 
-[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23abotyper-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/abotyper)[![Follow on Bluesky](https://img.shields.io/badge/bluesky-%40nf__core-1185fe?labelColor=000000&logo=bluesky)](https://bsky.app/profile/nf-co.re)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
+[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23abotyper-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/abotyper)
+[![Follow on Bluesky](https://img.shields.io/badge/bluesky-%40nf__core-1185fe?labelColor=000000&logo=bluesky)](https://bsky.app/profile/nf-co.re)
+[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)
+[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
 
 # ABO blood typing using Oxford Nanopore MinION sequencing
 
-nf-core/abotyper is a bioinformatics pipeline that analyses data obtained from Third Generation Sequencing of the `Homo sapiens ABO, alpha 1-3-N-acetylgalactosaminyltransferase and alpha 1-3-galactosyltransferase` (ABO) gene to deduce the ABO blood type.<br/>
+**nf-core/abotyper** is a bioinformatics pipeline that analyses data obtained from Third Generation Sequencing of the `Homo sapiens ABO, alpha 1-3-N-acetylgalactosaminyltransferase and alpha 1-3-galactosyltransferase` (ABO) gene to deduce the ABO blood type.<br/>
 It takes a samplesheet and FASTQ files as input, performs quality control (QC), mapping to the reference sequences, variant characterisation, and finally deduce the Blood Group Statistics based on known ABO-related Single nucleotide variants (SVNs).
 
 ![nf-core/abotyper metro map](docs/images/nf-core-abotyper-metro-map.jpg)
@@ -60,7 +59,7 @@ Exon 7 CDS reference sequence was truncated at 817 bp as this captures the targe
 
 The pipeline makes use of the following core dependencies:
 
-| Dependency             | Current version |
+| Dependency             | Minimum version |
 | ---------------------- | --------------- |
 | **Core Tools**         |                 |
 | fastqc                 | 0.12.1          |
@@ -121,21 +120,15 @@ The pipeline will attempt to extract the sample name and barcode from the filena
 
 ## Running `nf-core/abotyper`
 
-This pipeline has been extensively tested using conda, docker, and singularity profiles. Other containerisation methods are being improved,tested and documented.
+This pipeline has been extensively tested using conda, docker, and singularity profiles. Other containerisation methods are being improved,tested and documented. It is adisable to run a minimal test run to check your environment before submitting big jobs.
 
 To run this pipeline, use:
 
 ```bash
-nextflow run nf-core/abotyper \
-  -resume \
-  -profile "<conda/docker/singularity>" \
-  --input samplesheet.csv \
-  --outdir "$PWD/OUTDIR"
-```
+# Quick test 
+nextflow run nf-core-abotyper/main.nf --outdir test_working -profile test,conda -resume
 
-Once improved, other workload managers and containerisation environments could be used in a similar manner:
-
-```bash
+# Complete run
 nextflow nf-core/abotyper \
   -resume \
   -profile <docker/singularity/.../institute> \

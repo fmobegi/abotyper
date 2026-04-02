@@ -22,7 +22,8 @@ process MPILEUPSTATS {
     output:
     tuple val(meta), path("*.AlignmentStatistics.tsv"), emit: tsv
     path ("ABOReadPolymorphisms.txt"), emit: txt
-    path "versions.yml", emit: versions
+    tuple val("${task.process}"), val('python'), eval('python3 --version | sed "s/Python //"'), emit: versions_python, topic: versions
+    tuple val("${task.process}"), val('re'), eval('python3 -c "import re; print(re.__version__)"'), emit: versions_re, topic: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -36,12 +37,6 @@ process MPILEUPSTATS {
         -i ${pileup} \\
         -o ${prefix}.AlignmentStatistics.tsv \\
         -s ABOReadPolymorphisms.txt
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        python: \$(python3 --version | sed 's/Python //g')
-        re: \$(python3 -c "import re; print(re.__version__)")
-    END_VERSIONS
     """
 
     stub:
@@ -49,11 +44,5 @@ process MPILEUPSTATS {
     """
     touch ${prefix}.AlignmentStatistics.tsv
     touch ABOReadPolymorphisms.txt
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        python: \$(python3 --version | sed 's/Python //g')
-        re: \$(python3 -c "import re; print(re.__version__)")
-    END_VERSIONS
     """
 }
