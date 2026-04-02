@@ -10,15 +10,13 @@ nextflow_pipeline {
             params {
                 pipelines_testdata_base_path = 'https://raw.githubusercontent.com/nf-core/test-datasets/'
                 input  = params.pipelines_testdata_base_path + 'abotyper/abotyper/samplesheet_test_abotyper.csv'
-                outdir = "$outputDir"  // Use $outputDir instead of hardcoded path
+                outdir = "$outputDir"
             }
         }
 
         then {
-            // Core file structure validation - exclude time-stamped and volatile files
+            // Core file structure validation
             def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
-
-            // Stable content files
             def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
 
             // ABO-specific critical outputs
@@ -31,12 +29,9 @@ nextflow_pipeline {
             def coverage_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.coverage.txt'])
             def flagstat_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.flagstat'])
 
-            // Summary outputs
-            def final_results = getAllFilesFromDir(params.outdir, include: ['ABO_result.*', 'final_export.csv'])
-
             assert workflow.success
             assertAll(
-                // Validate workflow execution and structure
+                // Snapshot 1: Core structure and BAM integrity
                 { assert snapshot(
                     workflow.trace.succeeded().size(),
                     removeNextflowVersion("$params.outdir/pipeline_info/nf_core_abotyper_software_mqc_versions.yml"),
@@ -45,56 +40,183 @@ nextflow_pipeline {
                     bam_files.collect { file -> file.getName() + ":md5," + bam(file.toString()).readsMD5 }
                 ).match() },
 
-                // // Validate ABO phenotype results (critical for blood typing)
-                // { assert snapshot(
-                //     abo_phenotype_files.collect { file ->
-                //         def sampleName = file.getParent().getParent().getName()
-                //         def exon = file.getParent().getName()
-                //         def content = path(file.toString()).readLines().findAll { !it.startsWith('#') && it.trim() }
-                //         [sampleName, exon, content]
-                //     }.sort { it[0] + it[1] }  // Sort by sample then exon
-                // ).match("abo_phenotypes") },
+                // Snapshot 2: ABO phenotype results (critical)
+                { assert snapshot(
+                    abo_phenotype_files.collect { file ->
+                        def sampleName = file.getParent().getParent().getName()
+                        def exon = file.getParent().getName()
+                        def content = path(file.toString()).readLines().findAll { !it.startsWith('#') && it.trim() }
+                        [sampleName, exon, content]
+                    }.sort { it[0] + it[1] }
+                ).match("abo_phenotypes") },
 
-                // // Validate alignment statistics structure
-                // { assert snapshot(
-                //     alignment_stats_files.collect { file ->
-                //         def sampleName = file.getParent().getParent().getName()
-                //         def exon = file.getParent().getName()
-                //         def columns = path(file.toString()).csv(sep:"\t").columnNames
-                //         [sampleName, exon, columns]
-                //     }.sort { it[0] + it[1] }
-                // ).match("alignment_statistics") },
+                // Snapshot 3: Alignment statistics
+                { assert snapshot(
+                    alignment_stats_files.collect { file ->
+                        def sampleName = file.getParent().getParent().getName()
+                        def exon = file.getParent().getName()
+                        def columns = path(file.toString()).csv(sep:"\t").columnNames
+                        [sampleName, exon, columns]
+                    }.sort { it[0] + it[1] }
+                ).match("alignment_statistics") },
 
-                // // Validate polymorphism detection counts
-                // { assert snapshot(
-                //     polymorphism_files.collect { file ->
-                //         def sampleName = file.getParent().getParent().getName()
-                //         def exon = file.getParent().getName()
-                //         def lineCount = path(file.toString()).readLines().size()
-                //         [sampleName, exon, lineCount]
-                //     }.sort { it[0] + it[1] }
-                // ).match("polymorphism_counts") },
+                // Snapshot 4: Polymorphism detection
+                { assert snapshot(
+                    polymorphism_files.collect { file ->
+                        def sampleName = file.getParent().getParent().getName()
+                        def exon = file.getParent().getName()
+                        def lineCount = path(file.toString()).readLines().size()
+                        [sampleName, exon, lineCount]
+                    }.sort { it[0] + it[1] }
+                ).match("polymorphism_counts") },
 
-                // // Validate alignment outputs exist and have expected structure
-                // { assert snapshot(
-                //     bam_files.collect { file ->
-                //         [file.getName(), file.exists()]
-                //     }.sort { it[0] },
-                //     coverage_files.collect { file ->
-                //         [file.getName(), path(file.toString()).readLines().size()]
-                //     }.sort { it[0] }
-                // ).match("alignment_outputs") },
+                // Snapshot 5: Coverage stats
+                { assert snapshot(
+                    coverage_files.collect { file ->
+                        def sampleName = file.getParent().getParent().getParent().getName()
+                        def exon = file.getParent().getParent().getName()
+                        [sampleName, exon, path(file.toString()).readLines().size()]
+                    }.sort { it[0] + it[1] }
+                ).match("coverage_stats") },
 
-                // // Validate expected file counts (adjust based on actual test data)
-                // { assert abo_phenotype_files.size() > 0 },
-                // { assert bam_files.size() > 0 },
-                // { assert alignment_stats_files.size() == abo_phenotype_files.size() },
+                // Snapshot 6: Flagstat results
+                { assert snapshot(
+                    flagstat_files.collect { file ->
+                        def sampleName = file.getParent().getParent().getParent().getName()
+                        def exon = file.getParent().getParent().getName()
+                        def content = path(file.toString()).readLines()
+                        [sampleName, exon, content]
+                    }.sort { it[0] + it[1] }
+                ).match("flagstat_results") },
 
-                // // Validate final export structure
-                // { assert path(params.outdir + '/final_export.csv').csv().columnNames.containsAll(['sample', 'phenotype']) },
+                // Snapshot 7: Final export structure
+                { assert snapshot(
+                    path(params.outdir + '/final_export.csv').csv().columnNames,
+                    path(params.outdir + '/final_export.csv').csv().size()
+                ).match("final_export") },
 
-                // // Validate ABO result files have content
-                // { assert path(params.outdir + '/ABO_result.txt').readLines().size() > 1 },
+                // Snapshot 8: ABO result files
+                { assert snapshot(
+                    getAllFilesFromDir(params.outdir, include: ['ABO_result.*']).collect { file ->
+                        [file.getName(), path(file.toString()).readLines()]
+                    }.sort { it[0] }
+                ).match("abo_results") },
+
+                // Basic validations
+                { assert abo_phenotype_files.size() > 0 },
+                { assert bam_files.size() > 0 },
+                { assert alignment_stats_files.size() > 0 }
+            )
+        }
+    }
+
+    test("-profile test_full,docker") {
+
+        when {
+            params {
+                pipelines_testdata_base_path = 'https://raw.githubusercontent.com/nf-core/test-datasets/'
+                input  = params.pipelines_testdata_base_path + 'abotyper/abotyper/samplesheet_test_abotyper.csv'
+                outdir = "$outputDir"
+                genome = null
+            }
+        }
+
+        then {
+            // Core file structure validation
+            def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+
+            // ABO-specific critical outputs
+            def abo_phenotype_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/*.ABOPhenotype.txt'])
+            def alignment_stats_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/*.AlignmentStatistics.tsv'])
+            def polymorphism_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/ABOReadPolymorphisms.txt'])
+
+            // Alignment outputs
+            def bam_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.bam'])
+            def coverage_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.coverage.txt'])
+            def flagstat_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.flagstat'])
+
+            assert workflow.success
+            assertAll(
+                // Snapshot 1: Core structure and BAM integrity
+                { assert snapshot(
+                    workflow.trace.succeeded().size(),
+                    workflow.trace.failed().size(),
+                    removeNextflowVersion("$params.outdir/pipeline_info/nf_core_abotyper_software_mqc_versions.yml"),
+                    stable_name,
+                    stable_path,
+                    bam_files.collect { file -> file.getName() + ":md5," + bam(file.toString()).readsMD5 }
+                ).match("full_workflow_structure") },
+
+                // Snapshot 2: ABO phenotype results (critical)
+                { assert snapshot(
+                    abo_phenotype_files.collect { file ->
+                        def sampleName = file.getParent().getParent().getName()
+                        def exon = file.getParent().getName()
+                        def content = path(file.toString()).readLines().findAll { !it.startsWith('#') && it.trim() }
+                        [sampleName, exon, content]
+                    }.sort { it[0] + it[1] }
+                ).match("full_abo_phenotypes") },
+
+                // Snapshot 3: Alignment statistics with row counts
+                { assert snapshot(
+                    alignment_stats_files.collect { file ->
+                        def sampleName = file.getParent().getParent().getName()
+                        def exon = file.getParent().getName()
+                        def columns = path(file.toString()).csv(sep:"\t").columnNames
+                        def rowCount = path(file.toString()).readLines().size() - 1
+                        [sampleName, exon, columns, rowCount]
+                    }.sort { it[0] + it[1] }
+                ).match("full_alignment_statistics") },
+
+                // Snapshot 4: Polymorphism data with preview
+                { assert snapshot(
+                    polymorphism_files.collect { file ->
+                        def sampleName = file.getParent().getParent().getName()
+                        def exon = file.getParent().getName()
+                        def content = path(file.toString()).readLines()
+                        [sampleName, exon, content.size(), content.take(5)]
+                    }.sort { it[0] + it[1] }
+                ).match("full_polymorphism_data") },
+
+                // Snapshot 5: Coverage statistics
+                { assert snapshot(
+                    coverage_files.collect { file ->
+                        def sampleName = file.getParent().getParent().getParent().getName()
+                        def exon = file.getParent().getParent().getName()
+                        def stats = path(file.toString()).readLines().findAll { it.trim() }
+                        [sampleName, exon, stats.size()]
+                    }.sort { it[0] + it[1] }
+                ).match("full_coverage_stats") },
+
+                // Snapshot 6: Flagstat results
+                { assert snapshot(
+                    flagstat_files.collect { file ->
+                        def sampleName = file.getParent().getParent().getParent().getName()
+                        def exon = file.getParent().getParent().getName()
+                        def content = path(file.toString()).readLines()
+                        [sampleName, exon, content]
+                    }.sort { it[0] + it[1] }
+                ).match("full_flagstat_results") },
+
+                // Snapshot 7: Final export
+                { assert snapshot(
+                    path(params.outdir + '/final_export.csv').csv().columnNames,
+                    path(params.outdir + '/final_export.csv').csv().size()
+                ).match("full_final_export") },
+
+                // Snapshot 8: ABO results
+                { assert snapshot(
+                    getAllFilesFromDir(params.outdir, include: ['ABO_result.*']).collect { file ->
+                        [file.getName(), path(file.toString()).readLines()]
+                    }.sort { it[0] }
+                ).match("full_abo_results") },
+
+                // Validations
+                { assert abo_phenotype_files.size() > 0 },
+                { assert bam_files.size() > 0 },
+                { assert alignment_stats_files.size() > 0 },
+                { assert workflow.trace.failed().size() == 0 }
             )
         }
     }
