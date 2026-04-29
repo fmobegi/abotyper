@@ -55,7 +55,7 @@ workflow NFCORE_ABOTYPER {
         exon6fasta,
         exon7fai,
         exon7fasta,
-        logo,
+        logo
     )
 
     emit:
@@ -79,6 +79,9 @@ workflow {
         args,
         params.outdir,
         params.input,
+        params.help,
+        params.help_full,
+        params.show_hidden
     )
 
     //
@@ -87,6 +90,7 @@ workflow {
     NFCORE_ABOTYPER(
         PIPELINE_INITIALISATION.out.samplesheet
     )
+
     //
     // SUBWORKFLOW: Run completion tasks
     //
@@ -96,7 +100,6 @@ workflow {
         params.plaintext_email,
         params.outdir,
         params.monochrome_logs,
-        params.hook_url,
-        NFCORE_ABOTYPER.out.multiqc_report,
+        NFCORE_ABOTYPER.out.multiqc_report
     )
 }

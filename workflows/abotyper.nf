@@ -38,6 +38,7 @@ workflow ABOTYPER {
     main:
 
     ch_versions = channel.empty()
+    ch_multiqc_files = channel.empty()
 
     // Prepare sample channels with exon metadata for mapping to each reference
     ch_exon6_samples = ch_samplesheet.map { meta, fastq ->
@@ -68,6 +69,7 @@ workflow ABOTYPER {
     FASTQC(
         ch_samplesheet
     )
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
 
     /*
     SUBWORKFLOW: MINIMAP2_ALIGN_READS
@@ -108,7 +110,7 @@ workflow ABOTYPER {
     //
     // Collate and save software versions
     //
-    def topic_versions = channel.topic("versions")
+    def topic_versions = Channel.topic("versions")
         .distinct()
         .branch { entry ->
             versions_file: entry instanceof Path
@@ -129,7 +131,7 @@ workflow ABOTYPER {
         .mix(topic_versions_string)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name: 'abotyper_software_mqc_versions.yml',
+            name:  'abotyper_software_'  + 'mqc_'  + 'versions.yml',
             sort: true,
             newLine: true
         ).set { ch_collated_versions }
@@ -137,37 +139,27 @@ workflow ABOTYPER {
     //
     // MODULE: MultiQC
     //
+    ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
+
     def ch_summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
     def ch_workflow_summary = channel.value(paramsSummaryMultiqc(ch_summary_params))
+    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
 
     def ch_multiqc_custom_methods_description = params.multiqc_methods_description
         ? file(params.multiqc_methods_description, checkIfExists: true)
         : file("${projectDir}/assets/methods_description_template.yml", checkIfExists: true)
     def ch_methods_description = channel.value(methodsDescriptionText(ch_multiqc_custom_methods_description))
-
-    ch_multiqc_files = channel.empty()
-        .mix(FASTQC.out.zip.map { meta, files -> files }.flatten())
-        .mix(MINIMAP2_ALIGN_READS.out.coverage.map { meta, cov -> cov })
-        .mix(VARIANTS_QUANTIFICATION.out.metrics.map { meta, metrics -> metrics })
-        .mix(ch_collated_versions)
-        .mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-        .mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: true))
-
-    def ch_multiqc_config = params.multiqc_config
-        ? file(params.multiqc_config, checkIfExists: true)
-        : file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true)
-
-    def ch_multiqc_logo = params.multiqc_logo
-        ? file(params.multiqc_logo, checkIfExists: true)
-        : []
+    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: true))
 
     MULTIQC(
-        ch_multiqc_files.collect().map { files ->
+        ch_multiqc_files.flatten().collect().map { files ->
             [
                 [id: 'abotyper'],
                 files,
-                ch_multiqc_config,
-                ch_multiqc_logo,
+                params.multiqc_config
+                    ? file(params.multiqc_config, checkIfExists: true)
+                    : file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true),
+                params.multiqc_logo ? file(params.multiqc_logo, checkIfExists: true) : [],
                 [],
                 [],
             ]
@@ -178,3 +170,9 @@ workflow ABOTYPER {
     multiqc_report = MULTIQC.out.report.toList()
     versions       = ch_versions
 }
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    THE END
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
