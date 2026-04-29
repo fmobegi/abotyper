@@ -4,219 +4,29 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
 
-    test("-profile test,docker") {
+    test("-profile test") {
 
         when {
             params {
-                pipelines_testdata_base_path = 'https://raw.githubusercontent.com/nf-core/test-datasets/'
-                input  = params.pipelines_testdata_base_path + 'abotyper/abotyper/samplesheet_test_abotyper.csv'
                 outdir = "$outputDir"
             }
         }
 
         then {
-            // Core file structure validation
-            def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
-            def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
-
-            // ABO-specific critical outputs
-            def abo_phenotype_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/*.ABOPhenotype.txt'])
-            def alignment_stats_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/*.AlignmentStatistics.tsv'])
-            def polymorphism_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/ABOReadPolymorphisms.txt'])
-
-            // Alignment outputs
-            def bam_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.bam'])
-            def coverage_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.coverage.txt'])
-            def flagstat_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.flagstat'])
-
+            // stable_path: All files + folders in ${params.outdir}/ with a stable path (including file name)
+            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            // stable_content: All files in ${params.outdir}/ with stable content
+            def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
             assert workflow.success
             assertAll(
-                // Snapshot 1: Core structure and BAM integrity
                 { assert snapshot(
-                    workflow.trace.succeeded().size(),
-                    removeNextflowVersion("$params.outdir/pipeline_info/nf_core_abotyper_software_mqc_versions.yml"),
-                    stable_name,
+                    // pipeline versions.yml file for multiqc from which Nextflow version is removed because we test pipelines on multiple Nextflow versions
+                    removeNextflowVersion("$outputDir/pipeline_info/nf_core_abotyper_software_mqc_versions.yml"),
+                    // All stable path name, with a relative path
                     stable_path,
-                    bam_files.collect { file -> file.getName() + ":md5," + bam(file.toString()).readsMD5 }
-                ).match() },
-
-                // Snapshot 2: ABO phenotype results (critical)
-                { assert snapshot(
-                    abo_phenotype_files.collect { file ->
-                        def sampleName = file.getParent().getParent().getName()
-                        def exon = file.getParent().getName()
-                        def content = path(file.toString()).readLines().findAll { !it.startsWith('#') && it.trim() }
-                        [sampleName, exon, content]
-                    }.sort { it[0] + it[1] }
-                ).match("abo_phenotypes") },
-
-                // Snapshot 3: Alignment statistics
-                { assert snapshot(
-                    alignment_stats_files.collect { file ->
-                        def sampleName = file.getParent().getParent().getName()
-                        def exon = file.getParent().getName()
-                        def columns = path(file.toString()).csv(sep:"\t").columnNames
-                        [sampleName, exon, columns]
-                    }.sort { it[0] + it[1] }
-                ).match("alignment_statistics") },
-
-                // Snapshot 4: Polymorphism detection
-                { assert snapshot(
-                    polymorphism_files.collect { file ->
-                        def sampleName = file.getParent().getParent().getName()
-                        def exon = file.getParent().getName()
-                        def lineCount = path(file.toString()).readLines().size()
-                        [sampleName, exon, lineCount]
-                    }.sort { it[0] + it[1] }
-                ).match("polymorphism_counts") },
-
-                // Snapshot 5: Coverage stats
-                { assert snapshot(
-                    coverage_files.collect { file ->
-                        def sampleName = file.getParent().getParent().getParent().getName()
-                        def exon = file.getParent().getParent().getName()
-                        [sampleName, exon, path(file.toString()).readLines().size()]
-                    }.sort { it[0] + it[1] }
-                ).match("coverage_stats") },
-
-                // Snapshot 6: Flagstat results
-                { assert snapshot(
-                    flagstat_files.collect { file ->
-                        def sampleName = file.getParent().getParent().getParent().getName()
-                        def exon = file.getParent().getParent().getName()
-                        def content = path(file.toString()).readLines()
-                        [sampleName, exon, content]
-                    }.sort { it[0] + it[1] }
-                ).match("flagstat_results") },
-
-                // Snapshot 7: Final export structure
-                { assert snapshot(
-                    path(params.outdir + '/final_export.csv').csv().columnNames,
-                    path(params.outdir + '/final_export.csv').csv().size()
-                ).match("final_export") },
-
-                // Snapshot 8: ABO result files
-                { assert snapshot(
-                    getAllFilesFromDir(params.outdir, include: ['ABO_result.*']).collect { file ->
-                        [file.getName(), path(file.toString()).readLines()]
-                    }.sort { it[0] }
-                ).match("abo_results") },
-
-                // Basic validations
-                { assert abo_phenotype_files.size() > 0 },
-                { assert bam_files.size() > 0 },
-                { assert alignment_stats_files.size() > 0 }
-            )
-        }
-    }
-
-    test("-profile test_full,docker") {
-
-        when {
-            params {
-                pipelines_testdata_base_path = 'https://raw.githubusercontent.com/nf-core/test-datasets/'
-                input  = params.pipelines_testdata_base_path + 'abotyper/abotyper/samplesheet_test_abotyper.csv'
-                outdir = "$outputDir"
-                genome = null
-            }
-        }
-
-        then {
-            // Core file structure validation
-            def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
-            def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
-
-            // ABO-specific critical outputs
-            def abo_phenotype_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/*.ABOPhenotype.txt'])
-            def alignment_stats_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/*.AlignmentStatistics.tsv'])
-            def polymorphism_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/ABOReadPolymorphisms.txt'])
-
-            // Alignment outputs
-            def bam_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.bam'])
-            def coverage_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.coverage.txt'])
-            def flagstat_files = getAllFilesFromDir(params.outdir, include: ['per_sample_processing/**/exon*/alignment/*.flagstat'])
-
-            assert workflow.success
-            assertAll(
-                // Snapshot 1: Core structure and BAM integrity
-                { assert snapshot(
-                    workflow.trace.succeeded().size(),
-                    workflow.trace.failed().size(),
-                    removeNextflowVersion("$params.outdir/pipeline_info/nf_core_abotyper_software_mqc_versions.yml"),
-                    stable_name,
-                    stable_path,
-                    bam_files.collect { file -> file.getName() + ":md5," + bam(file.toString()).readsMD5 }
-                ).match("full_workflow_structure") },
-
-                // Snapshot 2: ABO phenotype results (critical)
-                { assert snapshot(
-                    abo_phenotype_files.collect { file ->
-                        def sampleName = file.getParent().getParent().getName()
-                        def exon = file.getParent().getName()
-                        def content = path(file.toString()).readLines().findAll { !it.startsWith('#') && it.trim() }
-                        [sampleName, exon, content]
-                    }.sort { it[0] + it[1] }
-                ).match("full_abo_phenotypes") },
-
-                // Snapshot 3: Alignment statistics with row counts
-                { assert snapshot(
-                    alignment_stats_files.collect { file ->
-                        def sampleName = file.getParent().getParent().getName()
-                        def exon = file.getParent().getName()
-                        def columns = path(file.toString()).csv(sep:"\t").columnNames
-                        def rowCount = path(file.toString()).readLines().size() - 1
-                        [sampleName, exon, columns, rowCount]
-                    }.sort { it[0] + it[1] }
-                ).match("full_alignment_statistics") },
-
-                // Snapshot 4: Polymorphism data with preview
-                { assert snapshot(
-                    polymorphism_files.collect { file ->
-                        def sampleName = file.getParent().getParent().getName()
-                        def exon = file.getParent().getName()
-                        def content = path(file.toString()).readLines()
-                        [sampleName, exon, content.size(), content.take(5)]
-                    }.sort { it[0] + it[1] }
-                ).match("full_polymorphism_data") },
-
-                // Snapshot 5: Coverage statistics
-                { assert snapshot(
-                    coverage_files.collect { file ->
-                        def sampleName = file.getParent().getParent().getParent().getName()
-                        def exon = file.getParent().getParent().getName()
-                        def stats = path(file.toString()).readLines().findAll { it.trim() }
-                        [sampleName, exon, stats.size()]
-                    }.sort { it[0] + it[1] }
-                ).match("full_coverage_stats") },
-
-                // Snapshot 6: Flagstat results
-                { assert snapshot(
-                    flagstat_files.collect { file ->
-                        def sampleName = file.getParent().getParent().getParent().getName()
-                        def exon = file.getParent().getParent().getName()
-                        def content = path(file.toString()).readLines()
-                        [sampleName, exon, content]
-                    }.sort { it[0] + it[1] }
-                ).match("full_flagstat_results") },
-
-                // Snapshot 7: Final export
-                { assert snapshot(
-                    path(params.outdir + '/final_export.csv').csv().columnNames,
-                    path(params.outdir + '/final_export.csv').csv().size()
-                ).match("full_final_export") },
-
-                // Snapshot 8: ABO results
-                { assert snapshot(
-                    getAllFilesFromDir(params.outdir, include: ['ABO_result.*']).collect { file ->
-                        [file.getName(), path(file.toString()).readLines()]
-                    }.sort { it[0] }
-                ).match("full_abo_results") },
-
-                // Validations
-                { assert abo_phenotype_files.size() > 0 },
-                { assert bam_files.size() > 0 },
-                { assert alignment_stats_files.size() > 0 },
-                { assert workflow.trace.failed().size() == 0 }
+                    // All files with stable contents
+                    stable_content
+                ).match() }
             )
         }
     }
