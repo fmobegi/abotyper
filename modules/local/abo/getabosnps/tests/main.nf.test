@@ -5,7 +5,7 @@ nextflow_process {
     process "ABO_GETABOSNPS"
 
     tag "modules"
-    tag "modules_nfcore"
+    tag "modules_local"
     tag "abo/getabosnps"
     tag "abotyper"
 
@@ -16,7 +16,7 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AA_barcode01', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/ABO_AA_barcode01.AlignmentStatistics.tsv', checkIfExists: true),
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/haploscan/ABO_AA_barcode01.AlignmentStatistics.tsv', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/alignment/ABO_AA_barcode01.coverage.txt', checkIfExists: true),
                     'exon6'
                 ]
@@ -49,7 +49,7 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AA_barcode01', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon7/ABO_AA_barcode01.AlignmentStatistics.tsv', checkIfExists: true),
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon7/haploscan/ABO_AA_barcode01.AlignmentStatistics.tsv', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon7/alignment/ABO_AA_barcode01.coverage.txt', checkIfExists: true),
                     'exon7'
                 ]
@@ -82,7 +82,7 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AB_barcode02', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon6/ABO_AB_barcode02.AlignmentStatistics.tsv', checkIfExists: true),
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon6/haploscan/ABO_AB_barcode02.AlignmentStatistics.tsv', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon6/alignment/ABO_AB_barcode02.coverage.txt', checkIfExists: true),
                     'exon6'
                 ]
@@ -115,7 +115,7 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AB_barcode02', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/ABO_AB_barcode02.AlignmentStatistics.tsv', checkIfExists: true),
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/haploscan/ABO_AB_barcode02.AlignmentStatistics.tsv', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/alignment/ABO_AB_barcode02.coverage.txt', checkIfExists: true),
                     'exon7'
                 ]
@@ -150,7 +150,7 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AA_barcode01', exon:'exon6' ],
-                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/ABO_AA_barcode01.AlignmentStatistics.tsv', checkIfExists: true),
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/haploscan/ABO_AA_barcode01.AlignmentStatistics.tsv', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AA_barcode01/exon6/alignment/ABO_AA_barcode01.coverage.txt', checkIfExists: true),
                     'exon6'
                 ]
@@ -175,7 +175,7 @@ nextflow_process {
                 """
                 input[0] = [
                     [ id:'ABO_AB_barcode02', exon:'exon7' ],
-                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/ABO_AB_barcode02.AlignmentStatistics.tsv', checkIfExists: true),
+                    file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/haploscan/ABO_AB_barcode02.AlignmentStatistics.tsv', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'abotyper/abotyper/per_sample_processing/ABO_AB_barcode02/exon7/alignment/ABO_AB_barcode02.coverage.txt', checkIfExists: true),
                     'exon7'
                 ]

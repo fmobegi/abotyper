@@ -5,7 +5,7 @@ nextflow_process {
     process "ABO_SNPS2PHENO"
 
     tag "modules"
-    tag "modules_nfcore"
+    tag "modules_local"
     tag "abo/snps2pheno"
     tag "abotyper"
 
