@@ -13,7 +13,8 @@ include { ABO_SNPS2PHENO } from '../../../modules/local/abo/snps2pheno/main'
 workflow PREDICTABOPHENOTYPE {
     take:
     ch_variants_freq // channel: [ val(meta), [ freq ] ] - with exon metadata
-    ch_bam_coverage // channel: [ val(meta), [ cov ] ] - with exon metadata
+    ch_bam_coverage  // channel: [ val(meta), [ cov ] ] - with exon metadata
+    ch_haplotypes    // channel: [ val(meta), path(*.Haplotypes.tsv) ] - from HAPLOSCAN
 
     main:
 
@@ -31,11 +32,16 @@ workflow PREDICTABOPHENOTYPE {
         ch_combined_input
     )
 
-    // PREP:Organize SNP reports by sample and exon
+    // PREP: Organize SNP reports AND Haplotypes.tsv by sample and exon
     ch_snp_reports = ABO_GETABOSNPS.out.phenotype
         .map { meta, file ->
-            [meta.id, [exon: meta.exon, file: file]]
+            [meta.id, [exon: meta.exon, file: file, type: 'phenotype']]
         }
+        .mix(
+            ch_haplotypes.map { meta, file ->
+                [meta.id, [exon: meta.exon, file: file, type: 'haplotype']]
+            }
+        )
         .groupTuple()
         .map { id, files ->
             def sample_dir = file("${params.outdir}/per_sample_processing/${id}")

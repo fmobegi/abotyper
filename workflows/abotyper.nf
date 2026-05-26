@@ -18,7 +18,8 @@ include { methodsDescriptionText  } from '../subworkflows/local/utils_nfcore_abo
 include { MAKEINDEX               } from '../modules/local/makeindex'
 include { MINIMAP2_ALIGN_READS    } from '../subworkflows/local/minimap_align_exons'
 include { PREDICTABOPHENOTYPE     } from '../subworkflows/local/predictabophenotype'
-include { VARIANTS_QUANTIFICATION } from '../subworkflows/local/variant_calling_mpileup'
+// include { VARIANTS_QUANTIFICATION } from '../subworkflows/local/variant_calling_mpileup'
+include { VARIANTS_QUANTIFICATION } from '../subworkflows/local/variant_calling_haploscan'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -105,6 +106,7 @@ workflow ABOTYPER {
     PREDICTABOPHENOTYPE(
         ch_prediction_input.metrics,
         ch_prediction_input.coverage,
+        VARIANTS_QUANTIFICATION.out.haplotypes,
     )
 
     //

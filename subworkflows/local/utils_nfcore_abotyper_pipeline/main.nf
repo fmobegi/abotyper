@@ -87,7 +87,8 @@ workflow PIPELINE_INITIALISATION {
         show_hidden,
         before_text,
         after_text,
-        command
+        command,
+        params.schema_ignore_params   // ← missing 10th input
     )
 
     //

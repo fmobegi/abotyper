@@ -70,14 +70,50 @@ def getWorkflowVersion() {
 //
 // Dump pipeline parameters to a JSON file
 //
+
+// def dumpParametersToJSON(outdir) {
+//     def timestamp = new java.util.Date().format('yyyy-MM-dd_HH-mm-ss')
+//     def filename  = "params_${timestamp}.json"
+//     def temp_pf       = workflow.launchDir.resolve(".${filename}")
+//     def jsonGenerator = new groovy.json.JsonGenerator.Options()
+//         .excludeNulls()
+//         .addConverter(Path) { Path path -> path.toUriString() }
+//         .addConverter(Duration) { Duration duration -> duration.toMillis() }
+//         .addConverter(MemoryUnit) { MemoryUnit memory -> memory.toBytes() }
+//         .addConverter(nextflow.script.types.VersionNumber) { nextflow.script.types.VersionNumber version -> version.toString() }
+//         .build()
+//     def jsonStr   = jsonGenerator.toJson(params)
+//     temp_pf.text  = groovy.json.JsonOutput.prettyPrint(jsonStr)
+//     if (outdir instanceof Path) {
+//         temp_pf.copyTo(outdir.resolve("pipeline_info/${filename}"))
+//     } else if (outdir instanceof String) {
+//         temp_pf.copyTo("${outdir}/pipeline_info/params_${timestamp}.json")
+//     } else {
+//         log.warn("Could not determine type of outdir, parameters JSON file will not be copied to output directory!")
+//     }
+//     temp_pf.delete()
+// }
+
 def dumpParametersToJSON(outdir) {
     def timestamp = new java.util.Date().format('yyyy-MM-dd_HH-mm-ss')
     def filename  = "params_${timestamp}.json"
-    def temp_pf   = new File(workflow.launchDir.toString(), ".${filename}")
-    def jsonStr   = groovy.json.JsonOutput.toJson(params)
-    temp_pf.text  = groovy.json.JsonOutput.prettyPrint(jsonStr)
+    def temp_pf   = workflow.launchDir.resolve(".${filename}")
 
-    nextflow.extension.FilesEx.copyTo(temp_pf.toPath(), "${outdir}/pipeline_info/params_${timestamp}.json")
+    // Convert params to JSON using modern Groovy API
+    def jsonStr = groovy.json.JsonOutput.prettyPrint(
+        groovy.json.JsonOutput.toJson(params)
+    )
+
+    temp_pf.text = jsonStr
+
+    if (outdir instanceof Path) {
+        temp_pf.copyTo(outdir.resolve("pipeline_info/${filename}"))
+    } else if (outdir instanceof String) {
+        temp_pf.copyTo("${outdir}/pipeline_info/${filename}")
+    } else {
+        log.warn("Could not determine type of outdir, parameters JSON file will not be copied to output directory!")
+    }
+
     temp_pf.delete()
 }
 
