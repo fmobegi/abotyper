@@ -106,6 +106,7 @@ workflow ABOTYPER {
     PREDICTABOPHENOTYPE(
         ch_prediction_input.metrics,
         ch_prediction_input.coverage,
+        VARIANTS_QUANTIFICATION.out.haplotypes,
     )
 
     //

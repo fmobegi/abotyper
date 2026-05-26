@@ -13,7 +13,7 @@
   Outputs:
     *.AlignmentStatistics.tsv  — identical column layout to stats_from_pileup.py;
                                   all downstream scripts are unchanged.
-    *.Haplotypes.tsv           — per-read haplotype table (new).
+    *.Haplotypes.tsv           — per-read haplotype table.
     ABOReadPolymorphisms.txt   — same polymorphic-position summary as before.
 */
 

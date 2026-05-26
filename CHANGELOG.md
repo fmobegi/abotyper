@@ -3,6 +3,21 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.2.0 - [26-05-2026]
+
+Update to 4.0.2 nf-core template.
+
+### Changed
+
+- aggregate_abo_reports.py: comprehensive A2 panel to prevent O1v alleles from triggering false A2 calls
+- aggregate_abo_reports.py: lower c.1061delC / c.1032GA read threshold from 100 to 30 reads
+- pysam_haploscan.py: new BAM/CIGAR-direct indel quantification module using pysam; resolves mpileup false-negative for rare variants. e.g IMM-26-23099 (32% del, was 0%)
+
+## Fixed
+
+- INDEL_DIAGNOSTIC pos687 corrected to pos685
+- Validated against 51-sample cohort: all calls concordant with serology.
+
 ## v1.1.0 - [29-04-2026]
 
 Update to 4.0.0 nf-core template.
