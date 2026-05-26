@@ -15,7 +15,7 @@ __credits__ = [
     "Fredrick Mobegi",
     "Benedict Matern",
     "Mathijs Groeneweg",
-    "Claude 3.7 Sonnet Thinking (for rewrite to add ABO*A1/2/3 subtypes)",
+    "Claude Sonnet 4.6 (for rewrite to add ABO*A1/2/3 subtypes)",
 ]
 __license__ = "GPL"
 __version__ = "1.1.0"
@@ -90,6 +90,27 @@ class ABOReportParser:
         exon7_93 = ["Exon7_pos93"] * 10  # c.467C>T
         exon7_685 = ["Exon7_pos685"] * 10  # c.1061delC
 
+        # A2 subtype discriminator positions — exon 6
+        exon6_27  = ["Exon6_pos27"]  * 10  # c.266C>T  (A2 haplotype)
+        exon6_29  = ["Exon6_pos29"]  * 10  # c.268T>C  (A2 haplotype)
+        exon6_58  = ["Exon6_pos58"]  * 10  # c.297A>G  (A2.01)
+        # A2 subtype discriminator positions — exon 7
+        exon7_33  = ["Exon7_pos33"]  * 10  # c.407
+        exon7_152 = ["Exon7_pos152"] * 10  # c.526
+        exon7_153 = ["Exon7_pos153"] * 10  # c.527
+        exon7_165 = ["Exon7_pos165"] * 10  # c.539
+        exon7_283 = ["Exon7_pos283"] * 10  # c.657
+        exon7_329 = ["Exon7_pos329"] * 10  # c.703
+        exon7_348 = ["Exon7_pos348"] * 10  # c.722
+        exon7_368 = ["Exon7_pos368"] * 10  # c.742
+        exon7_397 = ["Exon7_pos397"] * 10  # c.771
+        exon7_404 = ["Exon7_pos404"] * 10  # c.778
+        exon7_455 = ["Exon7_pos455"] * 10  # c.829
+        exon7_533 = ["Exon7_pos533"] * 10  # c.907G>A  (A2.06)
+        exon7_635 = ["Exon7_pos635"] * 10  # c.1009
+        exon7_658 = ["Exon7_pos658"] * 10  # c.1032G>A (A2.01)
+        exon7_680 = ["Exon7_pos680"] * 10  # c.1054
+
         header_cols = (
             ["", ""]
             + exon6
@@ -99,6 +120,24 @@ class ABOReportParser:
             + exon7_431
             + exon7_93
             + exon7_685
+            + exon6_27
+            + exon6_29
+            + exon6_58
+            + exon7_33
+            + exon7_152
+            + exon7_153
+            + exon7_165
+            + exon7_283
+            + exon7_329
+            + exon7_348
+            + exon7_368
+            + exon7_397
+            + exon7_404
+            + exon7_455
+            + exon7_533
+            + exon7_635
+            + exon7_658
+            + exon7_680
             + ["", "", "", ""]
         )
 
@@ -116,7 +155,7 @@ class ABOReportParser:
         ]
         header_rows = (
             ["Barcode", "Sequencing_ID"]
-            + column_metrics * 7  # 7 positions: 1 exon6 + 6 exon7 (4 primary + 2 subtype)
+            + column_metrics * 25  # 25 positions: 3 exon6 + 22 exon7 (4 primary + 18 A-subtype panel)
             + ["Phenotype", "Genotype", "ExtendedGenotype", "Reliability"]
         )
 
@@ -232,15 +271,17 @@ class ABOReportParser:
             )
 
             # Make sure all needed positions are in the DataFrame
-            # Primary positions + selected subtype positions
-            # pos. exon7= exonic(CDS) 422(796),428(802),429(803),431(805),93(467),685(1061)
+            # Primary: 422(c.796),428(c.802),429(c.803),431(c.805)
+            # A1/A2:   93(c.467),685(c.1061)
+            # A2 panel: 33(c.407),152(c.526),153(c.527),165(c.539),283(c.657),329(c.703),
+            #           348(c.722),368(c.742),397(c.771),404(c.778),455(c.829),
+            #           533(c.907/A2.06),635(c.1009),658(c.1032/A2.01),680(c.1054)
             all_positions = [
-                422,
-                428,
-                429,
-                431,  # Primary
-                93,
-                685,  # Selected A subtypes
+                422, 428, 429, 431,          # Primary
+                93, 685,                     # A1/A2 core discriminators
+                33, 152, 153, 165, 283,      # A2 comprehensive panel
+                329, 348, 368, 397, 404,
+                455, 533, 635, 658, 680,
             ]
 
             for pos in all_positions:
@@ -298,12 +339,11 @@ class ABOReportParser:
             )
 
             for pos in [
-                422,
-                428,
-                429,
-                431,
-                93,
-                685,
+                422, 428, 429, 431,
+                93, 685,
+                33, 152, 153, 165, 283,
+                329, 348, 368, 397, 404,
+                455, 533, 635, 658, 680,
             ]:
                 empty_df = pd.concat(
                     [
@@ -403,7 +443,7 @@ class ABOReportParser:
                 }
             )
 
-            all_positions = [22]
+            all_positions = [22, 27, 29, 58]  # pos22=c.261(O1); pos27=c.266, pos29=c.268, pos58=c.297 (A2 panel)
 
             for pos in all_positions:
                 if pos not in df["Position"].values:
@@ -503,6 +543,27 @@ class ABOReportParser:
             elif 20 < dele < 80 and 20 < g < 80:
                 return "O1 and (A or B or O)"
 
+        elif pos == 27:  # c.266C>T — A2 haplotype background marker (ref=C)
+            # Check variant FIRST so heterozygous A2O calls are not masked by high ref counts
+            if t >= 25:
+                return "variant"    # c.266C>T detected
+            elif c >= 70:
+                return ""           # reference only
+
+        elif pos == 29:  # c.268T>C — A2 haplotype background marker (ref=T)
+            if c >= 25:
+                return "variant"    # c.268T>C detected
+            elif t >= 70:
+                return ""           # reference only
+
+        elif pos == 58:  # c.297A>G — A2.01 subtype marker (ref=A)
+            # In A2O heterozygotes both A (from O allele) and G (from A2 allele) reads
+            # can each exceed 70 — always check for the variant allele first.
+            if g >= 25:
+                return "variant"    # c.297A>G detected (A2.01)
+            elif a >= 70:
+                return ""           # reference only
+
         return ""
 
     def get_type(self, pos, a, g, c, t, dele):
@@ -570,6 +631,39 @@ class ABOReportParser:
             elif 20 < c < 80 and 20 < dele < 80:
                 return "A2"
 
+        # A2 comprehensive panel — generic variant detection (ref bases confirmed from A1.01.001)
+        # A variant at any of these positions is A2-specific (not present in A1 or O alleles)
+        elif pos == 33:   # c.407, ref=C
+            if (t + a + g) >= 25: return "variant"
+        elif pos == 152:  # c.526, ref=C
+            if (t + a + g) >= 25: return "variant"
+        elif pos == 153:  # c.527, ref=G
+            if (c + a + t) >= 25: return "variant"
+        elif pos == 165:  # c.539, ref=G
+            if (c + a + t) >= 25: return "variant"
+        elif pos == 283:  # c.657, ref=C
+            if (t + a + g) >= 25: return "variant"
+        elif pos == 329:  # c.703, ref=G
+            if (c + a + t) >= 25: return "variant"
+        elif pos == 348:  # c.722, ref=G
+            if (c + a + t) >= 25: return "variant"
+        elif pos == 368:  # c.742, ref=C
+            if (t + a + g) >= 25: return "variant"
+        elif pos == 397:  # c.771, ref=C
+            if (t + a + g) >= 25: return "variant"
+        elif pos == 404:  # c.778, ref=G
+            if (c + a + t) >= 25: return "variant"
+        elif pos == 455:  # c.829, ref=G
+            if (c + a + t) >= 25: return "variant"
+        elif pos == 533:  # c.907, ref=G — A2.06 specific marker
+            if a >= 25: return "A2.06"  # c.907G>A
+        elif pos == 635:  # c.1009, ref=A
+            if (c + g + t) >= 25: return "variant"
+        elif pos == 658:  # c.1032, ref=G — A2.01 variant marker
+            if a >= 25: return "A2.01"  # c.1032G>A
+        elif pos == 680:  # c.1054, ref=C
+            if (t + a + g) >= 25: return "variant"
+
         return ""
 
     def assign_phenotype_genotype(self, df):
@@ -604,6 +698,27 @@ class ABOReportParser:
             type_exon7_93 = safe_get_type(df, "Exon7_pos93")
             type_exon7_685 = safe_get_type(df, "Exon7_pos685")
 
+            # A2 subtype discriminator positions — exon 6
+            type_exon6_27  = safe_get_type(df, "Exon6_pos27")   # c.266C>T
+            type_exon6_29  = safe_get_type(df, "Exon6_pos29")   # c.268T>C
+            type_exon6_58  = safe_get_type(df, "Exon6_pos58")   # c.297A>G
+            # A2 subtype discriminator positions — exon 7
+            type_exon7_33  = safe_get_type(df, "Exon7_pos33")   # c.407
+            type_exon7_152 = safe_get_type(df, "Exon7_pos152")  # c.526
+            type_exon7_153 = safe_get_type(df, "Exon7_pos153")  # c.527
+            type_exon7_165 = safe_get_type(df, "Exon7_pos165")  # c.539
+            type_exon7_283 = safe_get_type(df, "Exon7_pos283")  # c.657
+            type_exon7_329 = safe_get_type(df, "Exon7_pos329")  # c.703
+            type_exon7_348 = safe_get_type(df, "Exon7_pos348")  # c.722
+            type_exon7_368 = safe_get_type(df, "Exon7_pos368")  # c.742
+            type_exon7_397 = safe_get_type(df, "Exon7_pos397")  # c.771
+            type_exon7_404 = safe_get_type(df, "Exon7_pos404")  # c.778
+            type_exon7_455 = safe_get_type(df, "Exon7_pos455")  # c.829
+            type_exon7_533 = safe_get_type(df, "Exon7_pos533")  # c.907G>A (A2.06)
+            type_exon7_635 = safe_get_type(df, "Exon7_pos635")  # c.1009
+            type_exon7_658 = safe_get_type(df, "Exon7_pos658")  # c.1032G>A (A2.01)
+            type_exon7_680 = safe_get_type(df, "Exon7_pos680")  # c.1054
+
             # Read counts with validation
             nreads6 = safe_get_reads(df, "Exon6_pos22")
             nreads_exon7_p422 = safe_get_reads(df, "Exon7_pos422")
@@ -615,28 +730,152 @@ class ABOReportParser:
             Genotype = "Unknown"
             ExtendedGenotype = "Unknown"
 
-            # Helper function to determine A subtype
+            def scan_a2_markers():
+                """Scan ALL diagnostic positions and return (markers, warnings).
+
+                markers  - list of confirmed A2-specific variants detected
+                warnings - list of anomaly strings to be appended to Reliability
+
+                CRITICAL PRINCIPLE: absence of c.1061delC does NOT indicate A1.
+                Several A2 alleles (notably A2.06) lack this deletion entirely.
+                A2 must be confirmed by POSITIVE detection of at least one A2-specific variant.
+
+                O1v CO-OCCURRENCE RULE:
+                  c.297G (pos58) without c.1061del may originate from an A2-derived O
+                  allele (O1v) rather than a true A2 allele.  When this is the ONLY
+                  high-confidence marker, a warning is added to Reliability so the
+                  result can be reviewed manually.
+                """
+                markers = []
+                warnings = []
+
+                # --- Definitive high-confidence markers ---
+                # Gate c.1061del and c.1032A on the assay minimum of 30 reads to
+                # avoid low-coverage noise triggering false A2 calls.
+                _e7_reads = nreads_exon7_p422
+                has_del  = type_exon7_685 == "A2"  and _e7_reads >= 30
+                has_907  = type_exon7_533 == "A2.06"
+                has_1032 = type_exon7_658 == "A2.01" and _e7_reads >= 30
+                has_297  = type_exon6_58  == "variant"
+
+                if has_del:  markers.append("c.1061del")
+                if has_907:  markers.append("c.907A")
+                if has_1032: markers.append("c.1032A")
+                if has_297:  markers.append("c.297G")
+
+                # O1v anomaly: c.297G present but c.1061del absent and no other
+                # high-confidence A2 marker (907/1032) — may be A2-derived O allele.
+                # When this fires, remove c.297G AND the exon6 haplotype background
+                # markers (c.266T/c.268C) — O1v alleles carry the full A2 haplotype
+                # background so those are not independent evidence.
+                o1v_fired = has_297 and not has_del and not has_907 and not has_1032
+                if o1v_fired:
+                    for m in ("c.297G", "c.266T", "c.268C"):
+                        if m in markers:
+                            markers.remove(m)
+                    warnings.append(
+                        "Note: c.297G detected without c.1061del — possible A2-derived "
+                        "O allele (O1v); manual review recommended"
+                    )
+
+                # --- A2 haplotype background markers (exon 6) ---
+                # Only add if O1v has not fired (would be non-independent evidence).
+                if not o1v_fired:
+                    if type_exon6_27 == "variant":  markers.append("c.266T")
+                    if type_exon6_29 == "variant":  markers.append("c.268C")
+
+                # --- Comprehensive A2 panel — exon 7 generic positions ---
+                # These positions use a low 25% variant threshold which can fire
+                # spuriously at low coverage.  Only include them when exon7
+                # coverage is Robust (≥500 reads at pos422, a representative
+                # primary exon7 position).
+                # Skip entirely when O1v has fired: O1v alleles carry the full
+                # A2 haplotype background, so every generic panel position would
+                # fire and spuriously call A2 even after c.297G was removed.
+                if nreads_exon7_p422 >= 500 and not o1v_fired:
+                    for type_val, label in [
+                        (type_exon7_33,  "c.407var"),
+                        (type_exon7_152, "c.526var"),
+                        (type_exon7_153, "c.527var"),
+                        (type_exon7_165, "c.539var"),
+                        (type_exon7_283, "c.657var"),
+                        (type_exon7_329, "c.703var"),
+                        (type_exon7_348, "c.722var"),
+                        (type_exon7_368, "c.742var"),
+                        (type_exon7_397, "c.771var"),
+                        (type_exon7_404, "c.778var"),
+                        (type_exon7_455, "c.829var"),
+                        (type_exon7_635, "c.1009var"),
+                        (type_exon7_680, "c.1054var"),
+                    ]:
+                        if type_val == "variant":
+                            markers.append(label)
+
+                return markers, warnings
+
+            def determine_a2_subtype(markers):
+                """Resolve an A2-positive call to the most specific subtype.
+
+                Returns (clean_subtype, nt_notation_or_None).
+                  clean_subtype  – used directly in ExtendedGenotype (no nt change embedded)
+                  nt_notation    – e.g. "c.297A>G"; appended to Reliability/Comments if set
+
+                NOTE: when c.297G is the sole marker and c.1061del is absent, a
+                separate O1v warning is appended by scan_a2_markers.
+                """
+                has_del  = "c.1061del" in markers
+                has_907  = "c.907A"    in markers
+                has_1032 = "c.1032A"   in markers
+                has_297  = "c.297G"    in markers
+
+                if has_907:
+                    return "A2.06", None
+                if has_1032 and has_del:
+                    return "A2.01", "c.1032G>A"
+                if has_297 and has_del:
+                    return "A2.01", "c.297A>G"
+                if has_del:
+                    return "A2.01", None        # Classic A2.01
+                if has_1032:
+                    return "A2.01", "c.1032G>A" # deletion may not be in amplicon
+                if has_297:
+                    return "A2.01", "c.297A>G"
+                # Has A2 markers at generic positions but no subtype-specific marker resolved
+                return "A2", None
+
             def determine_a_subtype():
-                """Determine A subtype (A1 or A2) based on positions 93 and 685 in combination."""
-                # Position 93: C = A1, T = A2
-                # Position 685: C alone = A1, Deletion (with/without C) = A2
+                """Determine A subtype using a POSITIVE EVIDENCE model.
 
-                # Check for A1: Position 93 = A1 AND Position 685 = A1
-                if type_exon7_93 == "A1" and type_exon7_685 == "A1":
-                    return "A1"
+                Returns (subtype_string, warning_string_or_None).
 
-                # Check for A2: Position 93 = A2 OR Position 685 = A2
-                if (type_exon7_93 in ["A2", "A1.02 or A2"]) or (type_exon7_685 == "A2"):
-                    return "A2"
+                KEY PRINCIPLE: Absence of c.1061delC does NOT mean A1.
+                A2.06 and several other A2 alleles do NOT carry this deletion.
+                - A2 is called when ANY confirmed A2-specific variant is detected.
+                - A1 is called only when pos93 shows a C-dominant pattern AND
+                  no A2 markers are detected across the full 20-position panel.
+                - When pos93 is mixed (C/T) but no A2 markers are found, the T
+                  most likely derives from the O1 background; report as A1.
+                """
+                markers, warnings = scan_a2_markers()
 
-                # If only one position is A1 but the other is not clearly defined, default to A2
-                if type_exon7_93 == "A1" or type_exon7_685 == "A1":
-                    return "A2"
+                if markers:
+                    clean_subtype, nt_notation = determine_a2_subtype(markers)
+                    if nt_notation:
+                        warnings.insert(0, nt_notation)
+                    warning_text = "; ".join(warnings) if warnings else None
+                    return clean_subtype, warning_text
 
-                # Unable to determine subtype
-                return ""
+                warning_text = "; ".join(warnings) if warnings else None
+
+                # No A2 markers detected anywhere in the panel
+                # pos93: C = A1, mixed C/T = likely A1+O1 (T from O1 background)
+                if type_exon7_93 in ("A1.02 or A2", "A1"):
+                    return "A1", warning_text  # preserve O1v warning if present
+
+                return "", None  # Undetermined
 
             # PART 1: PRIMARY PHENOTYPING LOGIC
+            a_subtype_warning = None  # Will be set if determine_a_subtype() returns a warning
 
             ## OA COMBINATIONS ---------------------------------------------------------------------------
             ## combination 1 | AO1 --
@@ -647,13 +886,13 @@ class ABOReportParser:
                 and (type_exon7_429 == "A or O")
                 and (type_exon7_431 == "O and (A or B)")
             ):
-                a_subtype = determine_a_subtype()
+                a_subtype, a_subtype_warning = determine_a_subtype()
                 Phenotype = "A"
                 Genotype = "AO"
                 if a_subtype:
-                    ExtendedGenotype = f"{a_subtype}O1"
+                    ExtendedGenotype = f"{a_subtype}/O1"
                 else:
-                    ExtendedGenotype = "AO1"
+                    ExtendedGenotype = "A/O1"
 
             ## combination 2 | AO2 --
             elif (
@@ -663,13 +902,13 @@ class ABOReportParser:
                 and (type_exon7_429 == "A or O")
                 and (type_exon7_431 == "O and (A or B)")
             ):
-                a_subtype = determine_a_subtype()
+                a_subtype, a_subtype_warning = determine_a_subtype()
                 Phenotype = "A"
                 Genotype = "AO"
                 if a_subtype:
-                    ExtendedGenotype = f"{a_subtype}O2"
+                    ExtendedGenotype = f"{a_subtype}/O2"
                 else:
-                    ExtendedGenotype = "AO2"
+                    ExtendedGenotype = "A/O2"
                 # Reliability = 'Enter-manually'
 
             ## combination 3 | AO3 --
@@ -680,13 +919,13 @@ class ABOReportParser:
                 and (type_exon7_429 == "A or O")
                 and (type_exon7_431 == "O3 and (O or A or B)")
             ):
-                a_subtype = determine_a_subtype()
+                a_subtype, a_subtype_warning = determine_a_subtype()
                 Phenotype = "A"
                 Genotype = "AO"
                 if a_subtype:
-                    ExtendedGenotype = f"{a_subtype}O3"
+                    ExtendedGenotype = f"{a_subtype}/O3"
                 else:
-                    ExtendedGenotype = "AO3"
+                    ExtendedGenotype = "A/O3"
 
             ## OB COMBINATIONS ---------------------------------------------------------------------------
             ## combination 4 | BO1 --
@@ -699,7 +938,7 @@ class ABOReportParser:
             ):
                 Phenotype = "B"
                 Genotype = "BO"
-                ExtendedGenotype = "BO1"
+                ExtendedGenotype = "B/O1"
                 # Reliability = 'Enter-manually'
 
             ## combination 5 | O2B --
@@ -712,7 +951,7 @@ class ABOReportParser:
             ):
                 Phenotype = "B"
                 Genotype = "BO"
-                ExtendedGenotype = "O2B"
+                ExtendedGenotype = "O2/B"
                 # Reliability = 'Enter-manually'
 
             ## combination 6 | AO3 --
@@ -725,7 +964,7 @@ class ABOReportParser:
             ):
                 Phenotype = "B"
                 Genotype = "BO"
-                ExtendedGenotype = "BO3"
+                ExtendedGenotype = "B/O3"
 
             ## OO COMBINATIONS  ---------------------------------------------------------------------------
             ## combination 7 | O1O2 --
@@ -738,7 +977,7 @@ class ABOReportParser:
             ):
                 Phenotype = "O"
                 Genotype = "OO"
-                ExtendedGenotype = "O1O2"
+                ExtendedGenotype = "O1/O2"
 
             ## combination 8 | O1O3 --
             elif (
@@ -750,7 +989,7 @@ class ABOReportParser:
             ):
                 Phenotype = "O"
                 Genotype = "OO"
-                ExtendedGenotype = "O1O3"
+                ExtendedGenotype = "O1/O3"
                 # Reliability = 'Enter-manually'
 
             ## combination 9 | O2O3 --
@@ -763,7 +1002,7 @@ class ABOReportParser:
             ):
                 Phenotype = "O"
                 Genotype = "OO"
-                ExtendedGenotype = "O2O3"
+                ExtendedGenotype = "O2/O3"
 
             ## combination 10 | O1O1 --
             elif (
@@ -775,7 +1014,7 @@ class ABOReportParser:
             ):
                 Phenotype = "O"
                 Genotype = "OO"
-                ExtendedGenotype = "O1O1"
+                ExtendedGenotype = "O1/O1"
                 # Reliability = 'Enter-manually'
 
             ## combination 11 | O2O2 --
@@ -788,7 +1027,7 @@ class ABOReportParser:
             ):
                 Phenotype = "O"
                 Genotype = "OO"
-                ExtendedGenotype = "O2O2"
+                ExtendedGenotype = "O2/O2"
                 # Reliability = 'Enter-manually'
                 #
             ## combination 12 | O3O3 --
@@ -801,7 +1040,7 @@ class ABOReportParser:
             ):
                 Phenotype = "O"
                 Genotype = "OO"
-                ExtendedGenotype = "O3O3"
+                ExtendedGenotype = "O3/O3"
 
             ## combination 13 | AA ---------------------------------------------------------------------------
             elif (
@@ -811,15 +1050,15 @@ class ABOReportParser:
                 and (type_exon7_429 == "A or O")
                 and (type_exon7_431 == "O and (A or B)")
             ):
-                a_subtype = determine_a_subtype()
+                a_subtype, a_subtype_warning = determine_a_subtype()
                 if a_subtype:
                     Phenotype = a_subtype
                     Genotype = "AA"
-                    ExtendedGenotype = f"{a_subtype}{a_subtype}"
+                    ExtendedGenotype = f"{a_subtype}/{a_subtype}"
                 else:
                     Phenotype = "A"
                     Genotype = "AA"
-                    ExtendedGenotype = "AA"
+                    ExtendedGenotype = "A/A"
 
             ## combination 14 | BB ---------------------------------------------------------------------------
             elif (
@@ -831,7 +1070,7 @@ class ABOReportParser:
             ):
                 Phenotype = "B"
                 Genotype = "BB"
-                ExtendedGenotype = "BB"
+                ExtendedGenotype = "B/B"
 
             ## combination 15 | AB ---------------------------------------------------------------------------
             elif (
@@ -841,13 +1080,13 @@ class ABOReportParser:
                 and (type_exon7_429 == "(A or O) and B")
                 and (type_exon7_431 == "O and (A or B)")
             ):
-                a_subtype = determine_a_subtype()
+                a_subtype, a_subtype_warning = determine_a_subtype()
                 Phenotype = "AB"
                 Genotype = "AB"
                 if a_subtype:
-                    ExtendedGenotype = f"{a_subtype}B"
+                    ExtendedGenotype = f"{a_subtype}/B"
                 else:
-                    ExtendedGenotype = "AB"
+                    ExtendedGenotype = "A/B"
 
             ## TODO extend to capture ABO*A subtypes (A1 and A2)
 
@@ -892,6 +1131,9 @@ class ABOReportParser:
                     Reliability += " (Variable coverage)"
             else:
                 Reliability = "Unknown (no read data)"
+
+            if a_subtype_warning:
+                Reliability += f"; {a_subtype_warning}"
 
             df[("", "Phenotype")] = Phenotype
             df[("", "Genotype")] = Genotype
@@ -966,7 +1208,7 @@ class ABOReportParser:
 
             exon6_data = self.parse_exon6(exon6_phenotype_files[0])
             if not exon6_data.empty:
-                for pos in [22]:  # Only position 22
+                for pos in [22, 27, 29, 58]:  # pos22=c.261(O1); pos27,29,58 = A2 panel
                     pos_df = exon6_data[exon6_data["Position"] == pos]
                     if not pos_df.empty:
                         for col in [
@@ -989,12 +1231,11 @@ class ABOReportParser:
             exon7_data = self.parse_exon7(exon7_phenotype_files[0])
             if not exon7_data.empty:
                 selected_positions = [
-                    422,
-                    428,
-                    429,
-                    431,  # Primary positions
-                    93,
-                    685,  # Selected subtype positions
+                    422, 428, 429, 431,          # Primary positions
+                    93, 685,                     # A1/A2 core discriminators
+                    33, 152, 153, 165, 283,      # A2 comprehensive panel
+                    329, 348, 368, 397, 404,
+                    455, 533, 635, 658, 680,
                 ]
 
                 for pos in selected_positions:
@@ -1228,6 +1469,7 @@ class ABOReportParser:
                         worksheet.write(row + 2, col, cell_value, data_format)
 
             header_columns = [
+                # Primary positions
                 "Exon6_pos22",
                 "Exon7_pos422",
                 "Exon7_pos428",
@@ -1235,6 +1477,26 @@ class ABOReportParser:
                 "Exon7_pos431",
                 "Exon7_pos93",
                 "Exon7_pos685",
+                # A2 subtype panel — exon 6
+                "Exon6_pos27",
+                "Exon6_pos29",
+                "Exon6_pos58",
+                # A2 subtype panel — exon 7
+                "Exon7_pos33",
+                "Exon7_pos152",
+                "Exon7_pos153",
+                "Exon7_pos165",
+                "Exon7_pos283",
+                "Exon7_pos329",
+                "Exon7_pos348",
+                "Exon7_pos368",
+                "Exon7_pos397",
+                "Exon7_pos404",
+                "Exon7_pos455",
+                "Exon7_pos533",
+                "Exon7_pos635",
+                "Exon7_pos658",
+                "Exon7_pos680",
             ]
 
             column_start = 2

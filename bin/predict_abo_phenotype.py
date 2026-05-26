@@ -21,7 +21,7 @@ __credits__ = [
     "Fredrick Mobegi",
     "Benedict Matern",
     "Mathijs Groeneweg",
-    "Claude 3.7 Sonnet Thinking (rewrite to add A1/A2/A3 subtypes)",
+    "Claude Sonnet 4.6 (rewrite to add A1/A2/A3 subtypes)",
 ]
 __license__ = "GPL"
 __version__ = "1.1.0"
@@ -86,15 +86,21 @@ class ABOPhenotypePredictor:
     # Class constants for positions
     EXON6_POSITIONS = {
         'primary': [22],  # c.261 - Primary ABO*O1 marker
-        'a_subtype': []  # No A subtype markers needed for exon6
+        'a_subtype': [27, 29, 58]  # c.266, c.268, c.297 - A2 haplotype panel
     }
 
     EXON7_POSITIONS = {
         'primary': [422, 428, 429, 431],  # Primary diagnostic positions
-        'a_subtype': [93, 685]  # Selected A subtype positions: c.467, c.1061
+        # Full A2 subtype discriminator panel (all positions reachable within amplicons)
+        # c.467(pos93), c.1061(pos685), c.907(pos533/A2.06), c.1032(pos658/A2.01),
+        # c.407(pos33), c.526(pos152), c.527(pos153), c.539(pos165), c.657(pos283),
+        # c.703(pos329), c.722(pos348), c.742(pos368), c.771(pos397), c.778(pos404),
+        # c.829(pos455), c.1009(pos635), c.1054(pos680)
+        'a_subtype': [93, 685, 533, 658, 33, 152, 153, 165, 283, 329, 348, 368, 397, 404, 455, 635, 680]
     }
 
-    EXON6_MIN_LENGTH = 135  # Base pairs
+    EXON6_MIN_LENGTH = 135  # Base pairs — used for exon type detection fallback
+    EXON6_MIN_ROWS   = 130  # Minimum TSV rows accepted as valid exon6 data (lower bound of amplicon range)
 
     def __init__(self, loglevel: str = "INFO"):
         """Initialize the predictor with logging configuration."""
@@ -146,7 +152,7 @@ class ABOPhenotypePredictor:
             self.logger.debug(f"Data shape: {df.shape}")
             self.logger.debug(f"Columns found: {list(df.columns)}")
 
-            if df.empty or len(df) < self.EXON6_MIN_LENGTH - 1:
+            if df.empty or len(df) < self.EXON6_MIN_ROWS:
                 self.logger.warning(f"Input file contains insufficient data ({len(df)} rows)")
                 return {}, 0, True
 
@@ -402,6 +408,26 @@ class ABOPhenotypePredictor:
             431: ("G nucleotide: O blood type (O3).", "A nucleotide: O blood type (O4).", "T nucleotide: A or B or O blood type."),
             93: ("C nucleotide: A1 subtype.", "T nucleotide: A1.02 or A2 subtype."),
             685: ("C nucleotide: A1 subtype.", "Deletion: A2.", "C + Deletion: A2."),
+            # A2 subtype discriminators - exon 6
+            27: ("C nucleotide: reference (A1/O).", "T nucleotide: A2 haplotype marker (c.266C>T)."),
+            29: ("T nucleotide: reference (A1/O).", "C nucleotide: A2 haplotype marker (c.268T>C)."),
+            58: ("A nucleotide: reference (A1/O).", "G nucleotide: A2.01 subtype marker (c.297A>G)."),
+            # A2 subtype discriminators - exon 7
+            33:  ("C nucleotide: reference.", "Variant: A2 diagnostic position (c.407)."),
+            152: ("C nucleotide: reference.", "Variant: A2 diagnostic position (c.526)."),
+            153: ("G nucleotide: reference.", "Variant: A2 diagnostic position (c.527)."),
+            165: ("G nucleotide: reference.", "Variant: A2 diagnostic position (c.539)."),
+            283: ("C nucleotide: reference.", "Variant: A2 diagnostic position (c.657)."),
+            329: ("G nucleotide: reference.", "Variant: A2 diagnostic position (c.703)."),
+            348: ("G nucleotide: reference.", "Variant: A2 diagnostic position (c.722)."),
+            368: ("C nucleotide: reference.", "Variant: A2 diagnostic position (c.742)."),
+            397: ("C nucleotide: reference.", "Variant: A2 diagnostic position (c.771)."),
+            404: ("G nucleotide: reference.", "Variant: A2 diagnostic position (c.778)."),
+            455: ("G nucleotide: reference.", "Variant: A2 diagnostic position (c.829)."),
+            533: ("G nucleotide: reference.",  "A nucleotide: A2.06 subtype marker (c.907G>A)."),
+            635: ("A nucleotide: reference.", "Variant: A2 diagnostic position (c.1009)."),
+            658: ("G nucleotide: reference.",  "A nucleotide: A2.01 subtype marker (c.1032G>A)."),
+            680: ("C nucleotide: reference.", "Variant: A2 diagnostic position (c.1054)."),
         }
 
         if pos in interpretations:
