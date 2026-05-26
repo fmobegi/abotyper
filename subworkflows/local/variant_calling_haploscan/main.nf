@@ -57,4 +57,3 @@ workflow VARIANTS_QUANTIFICATION {
     metrics    = HAPLOSCAN.out.tsv        // channel: [ val(meta), path(*.AlignmentStatistics.tsv) ]
     haplotypes = HAPLOSCAN.out.haplotypes // channel: [ val(meta), path(*.Haplotypes.tsv) ]
 }
-
