@@ -2,5 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bioconda::pysam=0.22.1
-  - conda-forge::python=3.11
+  - bioconda::pysam=0.24.0
+  - conda-forge::python=3.13
