@@ -11,11 +11,12 @@ lint:
   nf_test_content: false
   files_exist:
     - .github/workflows/linting_comment.yml
-nf_core_version: 4.0.2
+nf_core_version: 4.1.0
 repository_type: pipeline
 template:
   author: "@fmobegi"
-  description: A pipeline for characterising the Human Blood Group and Red Cell Antigens using Oxford Nanopore third-generation sequencing data.
+  description: A pipeline for characterising the Human Blood Group and Red Cell Antigens
+    using Oxford Nanopore third-generation sequencing data.
   force: false
   is_nfcore: true
   name: abotyper

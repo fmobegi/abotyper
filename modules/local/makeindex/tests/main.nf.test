@@ -5,7 +5,7 @@ nextflow_process {
     process "MAKEINDEX"
 
     tag "modules"
-    tag "modules_nfcore"
+    tag "modules_local"
     tag "makeindex"
     tag "abotyper"
 

@@ -23,8 +23,8 @@ process HAPLOSCAN {
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/pysam:0.22.1--py39h6a678d5_1'
-        : 'quay.io/biocontainers/pysam:0.22.1--py39h6a678d5_1'}"
+        ? 'oras://community.wave.seqera.io/library/pip_pysam:8f917a7d053340c0'
+        : 'community.wave.seqera.io/library/pip_pysam:d1234b67d00cd6a5'}"
 
     input:
     tuple val(meta),  path(bam), path(bai)
